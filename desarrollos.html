@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <meta name="description" content="Your description">
+    <meta name="author" content="Your name">
+    <meta name="debug" content="true">
+
+    <meta property="og:site_name" content="" />
+    <meta property="og:site" content="" />
+    <meta property="og:title" content="" />
+    <meta property="og:description" content="" />
+    <meta property="og:image" content="" />
+    <meta property="og:url" content="" />
+    <meta name="twitter:card" content="summary_large_image">
+
+    <!-- Title -->
+    <title>Neibora</title>
+
+    <!-- Styles -->
+    <link rel="xover-manifest" href="../manifest.json?v=20230608_0943">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="./css/bootstrap.min.css" rel="stylesheet">
+    <link href="./css/fontawesome-all.min.css" rel="stylesheet">
+    <link href="./css/aos.min.css" rel="stylesheet">
+    <link href="./css/swiper.css" rel="stylesheet">
+    <link href="./css/style.css?v=20240327_2017" rel="stylesheet">
+    <script type="text/javascript" src="xover/xo.js?v=20240327_2017"></script>
+    <script type="text/javascript" src="custom.js?v=20240327_2017"></script>
+    <script type="text/javascript" src="socket.io.js?v=20250121_1904"></script>
+    <link rel="icon" href="./assets/img/favicon.png" type="image/x-icon" />
+    <!--<style>
+        xo-param {
+            display: none;
+        }
+    </style>-->
+
+    <script>
+        var map;
+        var infoWindow;
+
+        var desarrollos = {};
+        var shapes = [];
+        var regions = [];
+        var last_selection = null;
+
+        function loadData(set_name = 'desarrollos') {
+        return fetch(`${set_name}.json`).then(response => response.json())
+        }
+
+        function calculatePolygonCenter(coordinates) {
+        const bounds = new google.maps.LatLngBounds();
+
+        coordinates.forEach(coord => {
+        bounds.extend(coord);
+        });
+
+        return bounds.getCenter();
+        }
+
+        function getCoordinatesFromKML(kml) {
+        let coordinates = (kml.selectFirst(`//kml:Placemark/kml:Polygon//kml:coordinates/text()`) || {}).value;
+        return getCoordinatesFromString(coordinates || '');
+        }
+
+        function getCoordinatesFromString(string_coordinates) {
+        return string_coordinates.trim().split(/\s/g).map(coordinate => { [lng, lat, alt] = coordinate.split(","); return { lng: +lng, lat: +lat, alt: +alt } });
+        }
+
+        async function initMap() {
+        await xover.ready;
+        let desarrollo_kml = xo.sources[`${xo.site.seed}:polygon`];
+        let desarrollo = xo.site.seed.replace(/^#/, '');
+        if (!desarrollo) return;
+        let desarrollo_actual = desarrollo;
+        last_selection = (desarrollos[desarrollo] || {})["shape"] || last_selection;
+        let coordinates = await desarrollo_kml.ready && getCoordinatesFromKML(desarrollo_kml);
+
+        let center = calculatePolygonCenter(coordinates);
+        let center_point = {
+        "lat": center.lat(),
+        "lng": center.lng()
+        }
+        shapes.filter(shape => shape !== last_selection).forEach(shape => unselect(shape));
+        highlight(last_selection);
+        if (map instanceof google.maps.Map) {
+        map.setCenter(center);
+        return;
+        } else {
+        map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 10,
+        center: center_point,
+        streetViewControl: false,
+        tilt: 0,
+        mapTypeId: 'satellite'
+        });
+        }
+
+        let desarrollos_src = xo.sources["#desarrollos"];
+        for (let desarrollo of await desarrollos_src.ready && desarrollos_src.select(`//data[not(comment="disabled")]/@name`).map(name => name.value)) {
+        desarrollos[desarrollo] = desarrollos[desarrollo] || {};
+        let desarrollo_kml = xo.sources[`#${desarrollo}:polygon`];
+        let coordinates = await desarrollo_kml.ready && getCoordinatesFromKML(desarrollo_kml);
+        desarrollos[desarrollo]["id"] = desarrollo;
+        desarrollos[desarrollo]["coordinates"] = coordinates;
+        desarrollos[desarrollo]["shape"] = initLayer(desarrollos[desarrollo], shapes);
+        let center = calculatePolygonCenter(coordinates);
+        let center_point = {
+        "lat": center.lat(),
+        "lng": center.lng()
+        }
+
+        let src = `https://neibora.com/assets/desarrollos/${desarrollo}/polygon.kml`;
+
+        let kmlLayer = new google.maps.KmlLayer(src, {
+        suppressInfoWindows: true,
+        preserveViewport: false,
+        map: map
+        });
+
+        new google.maps.Marker({
+        position: center_point,
+        map,
+        title: desarrollo.toUpperCase(),
+        });
+
+        kmlLayer.addListener('click', function (event) {
+        let map = this.map;
+        let coordinates = desarrollos[desarrollo]["coordinates"] || event.latLng;
+        map.setCenter(calculatePolygonCenter(coordinates));
+        });
+
+        if (desarrollo_actual == desarrollo) {
+        last_selection = desarrollos[desarrollo]["shape"];
+        highlight(last_selection);
+        }
+        }
+
+        let infoWindow = new google.maps.InfoWindow;
+
+        //google.maps.event.addListener(map, "click", function () {
+        //    unselect(last_selection);
+        //});
+
+        //map.addListener("contextmenu", (mapsMouseEvent) => {
+        //    infoWindow.close(); // Close the current InfoWindow.
+        //    if (!last_selection) return;
+        //    let new_point = mapsMouseEvent.latLng.toJSON()
+
+        //    // if (elements[elements.length - 1].length === 4) {
+        //    //     elements.push(elements[elements.length - 1].slice(2, 4).reverse());
+        //    // }
+        //    // elements[elements.length - 1].push(new_point)
+        //    let last_coordinates = getCoordinates(last_selection);
+        //    let new_base_coordinates = last_coordinates.slice(-2).reverse();
+        //    new_base_coordinates.push(new_point);
+
+        //    unselect(last_selection);
+        //    last_selection = initLayer(new_base_coordinates, shapes);
+        //    last_selection.setEditable(true);
+        //    last_selection.setDraggable(true);
+        //    // infoWindow = new google.maps.InfoWindow({
+        //    //     position: mapsMouseEvent.latLng,
+        //    // });
+        //    // infoWindow.setContent(
+        //    //     JSON.stringify(mapsMouseEvent.latLng.toJSON(), null, 2)
+        //    // );
+        //    // infoWindow.open(map);
+        //});
+
+        }
+
+        function getCoordinates(polygon) {
+        const vertices = polygon instanceof google.maps.Polygon && polygon.getPath() || polygon;
+        coordinates = []
+        for (let i = 0; i < vertices.getLength(); i++) {
+        const xy = vertices.getAt(i);
+        coordinates.push({ lat: xy.lat(), lng: xy.lng() })
+        }
+        return coordinates;
+        }
+
+        function getKMLCoordinates(polygon) {
+        const vertices = polygon instanceof google.maps.Polygon && polygon.getPath() || polygon;
+        let coordinates = "";
+        for (let i = 0; i < vertices.getLength(); i++) {
+        const xy = vertices.getAt(i);
+        coordinates += xy.lng() + "," + xy.lat() + ",0 ";
+        }
+        return coordinates.trim(); // Trim to remove extra space at the end
+        }
+
+
+        function initLayer(el, layer) {
+        let coordinates
+        if (el.constructor === {}.constructor) {
+        coordinates = el.coordinates
+        } else {
+        coordinates = el
+        }
+        let shape = new google.maps.Polygon({
+        paths: coordinates,
+        strokeOpacity: 0.8,
+        strokeWeight: 3,
+        fillColor: getComputedStyle(document.documentElement).getPropertyValue('--polygon-bg-color-active') || '#36688F',
+        strokeColor: '#36688F',
+        fillOpacity: 0
+        });
+        Object.defineProperty(shape, 'id', { value: el.id || layer.length + 1 })
+        shape.setMap(map);
+
+        shape.addListener('click', function (event) {
+        let map = this.map;
+        let desarrollo = el.id;
+        let coordinates = desarrollos[desarrollo]["coordinates"] || [event.latLng];
+        map.setCenter(calculatePolygonCenter(coordinates));
+        if (this !== last_selection) {
+        unselect(last_selection);
+        highlight(this);
+        xo.site.seed = `#${desarrollo}`
+        }
+        last_selection = this;
+        if (!xo.site.searchParams.has("editable")) return;
+        last_selection.setEditable(true);
+        last_selection.setDraggable(true);
+        //infoWindow.setContent(event.featureData.infoWindowHtml.toUpperCase());
+        //infoWindow.open({
+        //    anchor: marker,
+        //    map,
+        //});
+        });
+
+        google.maps.event.addListener(shape, "mouseover", function () {
+        this.setOptions({ fillColor: "#CC6633", fillOpacity: 0.35 });
+        });
+
+        google.maps.event.addListener(shape, "mouseout", function (event) {
+        this.setMap(map)
+        if (this === last_selection) {
+        highlight(this);
+        } else {
+        this.setOptions({ fillOpacity: 0 });
+        }
+        });
+
+        if (!xo.site.searchParams.has("editable")) return;
+
+        /* */
+        shape.addListener('click', selectPolygon);
+
+        google.maps.event.addListener(shape, "contextmenu", function () {
+        if (last_selection !== this) return;
+        removeShape(this)
+        });
+
+        //google.maps.event.addListener(shape, "dblclick", function () {
+        //    this.setOptions({ editable: !this.editable, draggable: !this.editable });
+        //});
+
+        google.maps.event.addListener(shape, "dragend", function () {
+        coordinatesChanged(this)
+        });
+
+        let path = shape.getPath();
+        google.maps.event.addListener(path, 'set_at', function () {
+        let current_index = layer.findIndex(el => el === shape);
+        let current_coordinates = getCoordinates(this);
+        let preceding_shape = layer[current_index - 1];
+        if (preceding_shape) {
+        let preceding_coordinates = getCoordinates(preceding_shape);
+        if (preceding_coordinates[current_coordinates.length - 1]?.lat === current_coordinates[0]?.lat && preceding_coordinates[current_coordinates.length - 1]?.lng === current_coordinates[0]?.lng) {
+        preceding_coordinates[current_coordinates.length - 2] = current_coordinates[1];
+        preceding_shape.setPath(preceding_coordinates);
+        }
+        if (preceding_coordinates[current_coordinates.length - 2]?.lat === current_coordinates[1]?.lat && preceding_coordinates[current_coordinates.length - 2]?.lng === current_coordinates[1]?.lng) {
+        preceding_coordinates[current_coordinates.length - 1] = current_coordinates[0];
+        preceding_shape.setPath(preceding_coordinates);
+        }
+        }
+        let following_shape = layer[current_index + 1];
+        if (following_shape) {
+        let following_coordinates = getCoordinates(following_shape);
+        if (following_coordinates[0]?.lat === current_coordinates[current_coordinates.length - 1]?.lat && following_coordinates[0]?.lng === current_coordinates[current_coordinates.length - 1]?.lng) {
+        following_coordinates[1] = current_coordinates[current_coordinates.length - 2];
+        following_shape.setPath(following_coordinates);
+        }
+        if (following_coordinates[1]?.lat === current_coordinates[current_coordinates.length - 2]?.lat && following_coordinates[1].lng === current_coordinates[current_coordinates.length - 2].lng) {
+        following_coordinates[0] = current_coordinates[current_coordinates.length - 1];
+        following_shape.setPath(following_coordinates);
+        }
+        }
+        coordinatesChanged(this)
+        });
+
+        google.maps.event.addListener(path, 'insert_at', function () {
+        coordinatesChanged(this)
+        });
+        /* */
+        layer.push(shape)
+        if (shape === last_selection) {
+        highlight(shape)
+        }
+        return shape;
+        }
+
+        function coordinatesChanged(src) {
+        console.log("Coordinates changed")
+
+        }
+
+        function removeShape(shape) {
+        shape.setMap(null);
+        shapes = shapes.filter(el => el !== shape);
+        last_selection = null;
+        }
+
+        function getAllCoordinates() {
+        let coordinates = []
+        for (shape of shapes) {
+        coordinates.push(getCoordinates(shape))
+        }
+        return coordinates
+        }
+
+        function unselect(shape) {
+        shape && shape.setOptions({ fillOpacity: 0 });
+        }
+
+        function highlight(shape) {
+        shape && shape.setOptions({ fillColor: getComputedStyle(document.documentElement).getPropertyValue('--polygon-bg-color-active') || '#36688F', fillOpacity: 0.35 });
+        //shape.setOptions({ fillColor: "#FFFF00", strokeColor: "#FFFF00" });
+        }
+
+        function highlightLargeObjects() {
+        shapes.filter(el => google.maps.geometry.spherical.computeArea(el.getPath()) > 200).forEach(el => highlight(el))
+        }
+
+        function selectPolygon(event) {
+        if (this !== last_selection) {
+        unselect(last_selection);
+        last_selection = this;
+        this.setOptions({ fillColor: "#CC6633", strokeColor: "#CC6633" });
+        return;
+        }
+        last_selection = this;
+        }
+
+        function getCenter(poly) {
+        var arr = poly.getPath().getArray()
+        , distX = 0, distY = 0
+        , len = arr.length
+
+        arr.forEach(function (element, index) {
+        distX += element.lat()
+        distY += element.lng()
+        });
+
+        return new google.maps.LatLng(distX / len, distY / len);
+        }
+
+        function duplicate(source, offset = {}, scale = 1) {
+        let { x: offsetX = 0, y: offsetY = 0 } = offset;
+        if (source.length) {
+        for (let shape of source) {
+        duplicate(shape, offset)
+        }
+        return;
+        }
+        let poly = source;
+        let polyCenter = getCenter(poly, offset)
+        , innerShapePoints = getCoordinates(poly)
+        , outerShapePoints = []
+
+        outerShapePoints = innerShapePoints.map(point => {
+        let coord = point;
+        coord.lat = coord.lat + offsetY * 0.0000089
+        coord.lng = coord.lng + offsetX * 0.0000089
+        return google.maps.geometry.spherical.interpolate(polyCenter, coord, scale)
+        })
+
+        unselect(last_selection);
+        last_selection = initLayer(outerShapePoints, shapes);
+        last_selection.setEditable(true);
+        last_selection.setDraggable(true);
+        }
+
+        // Function to rotate a polygon
+        function rotatePolygon(polygon, angle) {
+        var center = getPolygonCenter(polygon);
+        var vertices = polygon.getPath().getArray();
+        var rotatedVertices = [];
+
+        vertices.forEach(function (vertex) {
+        var rotatedVertex = rotatePoint(vertex, center, angle);
+        rotatedVertices.push(rotatedVertex);
+        });
+
+        polygon.setPath(rotatedVertices);
+        }
+
+        // Function to resize a polygon
+        function resizePolygon(polygon, scale) {
+        var center = getPolygonCenter(polygon);
+        var vertices = polygon.getPath().getArray();
+        var resizedVertices = [];
+
+        vertices.forEach(function (vertex) {
+        var scaledVertex = scalePoint(vertex, center, scale);
+        resizedVertices.push(scaledVertex);
+        });
+
+        polygon.setPath(resizedVertices);
+        }
+
+        // Function to get center of a polygon
+        function getPolygonCenter(polygon) {
+        var bounds = new google.maps.LatLngBounds();
+        var vertices = polygon.getPath().getArray();
+        vertices.forEach(function (vertex) {
+        bounds.extend(vertex);
+        });
+        return bounds.getCenter();
+        }
+
+        // Function to rotate a point around another point by a given angle
+        function rotatePoint(point, center, angle) {
+        var angleRad = angle * Math.PI / 180.0;
+        var cosAngle = Math.cos(angleRad);
+        var sinAngle = Math.sin(angleRad);
+        var x = point.lng() - center.lng();
+        var y = point.lat() - center.lat();
+        var newX = x * cosAngle - y * sinAngle + center.lng();
+        var newY = x * sinAngle + y * cosAngle + center.lat();
+        return new google.maps.LatLng(newY, newX);
+        }
+
+        // Function to scale a point relative to another point
+        function scalePoint(point, center, scale) {
+        var newX = center.lng() + (point.lng() - center.lng()) * scale;
+        var newY = center.lat() + (point.lat() - center.lat()) * scale;
+        return new google.maps.LatLng(newY, newX);
+        }
+
+        function download(content, fileName, contentType) {
+        var a = document.createElement("a");
+        var file = new Blob([content], { type: contentType });
+        a.href = URL.createObjectURL(file);
+        a.download = fileName;
+        a.click();
+        }
+
+        const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+        if (entry.isIntersecting) {
+        initMap()
+        entry.target.classList.add('in-viewport');
+        } else {
+        entry.target.classList.remove('in-viewport');
+        }
+        });
+        }, {
+        root: null, // The element that is used as the viewport
+        rootMargin: '0px', // Margin around the root
+        threshold: 0.8, // Percentage of the element's visibility to trigger the callback
+        });
+    </script>
+    <script defer>
+        document.addEventListener("DOMContentLoaded", function (event) {
+        const elementsToObserve = document.querySelectorAll('#map');
+        elementsToObserve.forEach(element => {
+        observer.observe(element);
+        });
+        /*
+        class PopUpInfo extends HTMLElement {
+        constructor() {
+        // Always call super first in constructor
+        super();
+
+        // Create a shadow root
+        const shadow = this.attachShadow({ mode: 'open' });
+
+        // Create spans
+        const wrapper = document.createElement('span');
+        wrapper.setAttribute('class', 'wrapper');
+
+        const icon = document.createElement('span');
+        icon.setAttribute('class', 'icon');
+        icon.setAttribute('tabindex', 0);
+
+        const info = document.createElement('span');
+        info.setAttribute('class', 'info');
+
+        // Take attribute content and put it inside the info span
+        const text = this.getAttribute('data-text');
+        info.textContent = text;
+
+        // Insert icon
+        let imgUrl;
+        if (this.hasAttribute('img')) {
+        imgUrl = this.getAttribute('img');
+        } else {
+        imgUrl = 'img/default.png';
+        }
+
+        const img = document.createElement('img');
+        img.src = imgUrl;
+        icon.appendChild(img);
+
+        // Create some CSS to apply to the shadow dom
+        const style = document.createElement('style');
+        console.log(style.isConnected);
+
+        style.textContent = `
+        .wrapper {
+        position: relative;
+        }
+
+        .info {
+        font-size: 0.8rem;
+        width: 200px;
+        display: inline-block;
+        border: 1px solid black;
+        padding: 10px;
+        background: white;
+        border-radius: 10px;
+        opacity: 0;
+        transition: 0.6s all;
+        position: absolute;
+        bottom: 20px;
+        left: 10px;
+        z-index: 3;
+        }
+
+        img {
+        width: 1.2rem;
+        }
+
+        .icon:hover + .info, .icon:focus + .info {
+        opacity: 1;
+        }
+        `;
+
+        // Attach the created elements to the shadow dom
+        shadow.appendChild(style);
+        console.log(style.isConnected);
+        shadow.appendChild(wrapper);
+        wrapper.appendChild(icon);
+        wrapper.appendChild(info);
+        }
+        }
+
+        // Define the new element
+        customElements.define('popup-info', PopUpInfo);
+        */
+        })
+    </script>
+</head>
+<body class="styled-scroll" xmlns:xo="http://panax.io/xover">
+    <popup-info img="img/alt.png" data-text="Your card validation code (CVC) is an extra security feature — it is the last 3 or 4 numbers on the back of your card."></popup-info>
+
+    <!-- Navbar -->
+    <nav id="navbar" class="navbar navbar-expand-lg fixed-top navbar-dark" aria-label="Main navigation" xo-source="navbar.html">
+    </nav>
+    <main xo-stylesheet="desarrollos-info.xslt" xo-source="#{$state:desarrollo}:info">
+        <!-- Section Desarrollos -->
+        <header class="section-light section-hd d-flex align-items-center no-background" id="desarrollos" style="height: 130px; min-height: 130px;">
+            <div class="container">
+                <div class="desarrollos-content position-relative">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="desarrollos-info">
+                                    <h2 class="banner-title text-uppercase text-center headline"><xo-value select="$state:desarrollo" /></h2>
+                                    <p class="py-3 h5 text-uppercase text-center">...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+
+        <section class="section-dark section-hd d-flex align-items-center py-5" id="desarrollosinfo">
+            <div class="container">
+                <div class="text-center pb-4">
+                    <p class="text-uppercase"><xo-value select="$state:desarrollo" /></p>
+                    <h4 class="py-2">&#160;</h4>
+                </div>
+                <div class="row" style="height: 300px">
+                    <style>
+                        .wrapper_span {
+                            width: 300px;
+                            height: 60px;
+                            position: relative;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                        }
+
+                            /*.wrapper_span span.loading_span {
+                            color: #000000;
+                            font-size: 20px;
+                            font-weight: 600;
+                        }*/
+                            .wrapper_span span.loading_span {
+                                color: var(--main-bg-color,#00B0AD);
+                                font-size: 20px;
+                                font-weight: 600;
+                                position: absolute;
+                                top: 95px;
+                                left: 35%;
+                            }
+
+                        .circle_loading {
+                            width: 20px;
+                            height: 20px;
+                            position: absolute;
+                            border-radius: 50%;
+                            background-color: #00B0AD;
+                            left: 15%;
+                            transform-origin: 50%;
+                            animation: circle_loading .5s alternate infinite ease;
+                        }
+
+                        @keyframes circle_loading {
+                            0% {
+                                top: 60px;
+                                height: 5px;
+                                border-radius: 50px 50px 25px 25px;
+                                transform: scaleX(1.7);
+                            }
+
+                            40% {
+                                height: 20px;
+                                border-radius: 50%;
+                                transform: scaleX(1);
+                            }
+
+                            100% {
+                                top: 0%;
+                            }
+                        }
+
+                        .circle_loading:nth-child(2) {
+                            left: 45%;
+                            animation-delay: .2s;
+                        }
+
+                        .circle_loading:nth-child(3) {
+                            left: auto;
+                            right: 15%;
+                            animation-delay: .3s;
+                        }
+
+                        .shadow_loading {
+                            width: 20px;
+                            height: 4px;
+                            border-radius: 50%;
+                            background-color: rgba(0,0,0,.5);
+                            position: absolute;
+                            top: 62px;
+                            transform-origin: 50%;
+                            z-index: -1;
+                            left: 15%;
+                            filter: blur(1px);
+                            animation: shadow_loading .5s alternate infinite ease;
+                        }
+
+                        @keyframes shadow_loading {
+                            0% {
+                                transform: scaleX(1.5);
+                            }
+
+                            40% {
+                                transform: scaleX(1);
+                                opacity: .7;
+                            }
+
+                            100% {
+                                transform: scaleX(.2);
+                                opacity: .4;
+                            }
+                        }
+
+                        .shadow_loading:nth-child(4) {
+                            left: 45%;
+                            animation-delay: .2s
+                        }
+
+                        .shadow_loading:nth-child(5) {
+                            left: auto;
+                            right: 15%;
+                            animation-delay: .3s;
+                        }
+                    </style>
+                    <div class="wrapper_span" style="
+    width: 300px;
+">
+                        <div class="circle_loading"></div>
+                        <div class="circle_loading"></div>
+                        <div class="circle_loading"></div>
+                        <div class="shadow_loading"></div>
+                        <div class="shadow_loading"></div>
+                        <div class="shadow_loading"></div>
+                        <span class="loading_span">Cargando...</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    <div id="map" style="height:85vh; width:auto"></div>
+
+    <div id="capture"></div>
+
+    <!-- Footer -->
+    <footer xo-source="footer.html">
+    </footer>
+    <!-- end of back to top button -->
+    <!-- Scripts -->
+    <script src="./js/bootstrap.min.js"></script><!-- Bootstrap framework -->
+    <!-- <script src="./js/purecounter.min.js"></script>  -->
+    <!-- Purecounter counter for statistics numbers -->
+    <script src="./js/swiper.min.js"></script>
+    <!-- Swiper for image and text sliders -->
+    <script src="./js/aos.js"></script>
+    <!-- AOS on Animation Scroll -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCf4CxGRp-FNTXD2Db54g3mzr-M25E7AlY&callback=initMap&v=weekly" async></script>
+</body>
+</html>

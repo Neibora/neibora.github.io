@@ -1,0 +1,45 @@
+{
+  "server": {
+    "request": "https://server.panax.io/request.asp",
+    "login": "",
+    "download": "https://server.panax.io/download.asp"
+  },
+  "state": { "desarrollo": "cantabria" },
+  "session": {
+    "referer_id": "${location.host + location.pathname.split('/',2).join('/')}"
+  },
+  "sources": {
+    "^#(.+)$": "../assets/desarrollos/$1/lotes.xml",
+    "^#(.+)_(.+)$": "../assets/desarrollos/$1/$2.xml",
+    "^#(.+)_extraordinarias$": "../assets/desarrollos/$1/extraordinarias_internas.xml",
+    "^#(.+)_extraordinarias_externas$": "../assets/desarrollos/$1/extraordinarias_externas.xml",
+    "^#(peninsula)$": {
+      "server:download": {
+        "file": "assets/desarrollos/$1/lotes.xml",
+        "^authorization": "${xover.session.encodeCredential(xover.session.user_login, xover.session.id_token) || ''}",
+        "^x-referer-id": "${xover.session.referer_id || ''}"
+      }
+    },
+    "^#(.+):map$": "../assets/desarrollos/$1/loteador.map",
+    "^#(.+):settings$": "../assets/desarrollos/$1/loteador_settings.xml",
+    "^#(.+)_jardineria:settings$": "../assets/desarrollos/$1/jardineria_settings.xml",
+    "^#(.+)_extraordinarias:settings$": "../assets/desarrollos/$1/loteador_settings.xml",
+    "^#(.+)_extraordinarias_externas:settings$": "../assets/desarrollos/$1/loteador_settings.xml",
+    "#login": "login.xml"
+  },
+  "start": [ "#ws" ],
+  "settings": {
+    "^#(.+)$": {
+      "headers": {
+        "cache": "no-store",
+        "Cache-Control": "no-cache"
+      }
+    },
+    ".resx": {
+      "headers": {
+        "cache": "no-store",
+        "Cache-Control": "no-cache"
+      }
+    }
+  }
+}

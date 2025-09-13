@@ -1,0 +1,244 @@
+﻿@charset "utf-8";
+/* CSS Document */
+
+img.white {
+	filter: brightness(0) invert(1);
+}
+
+dialog #content .content-container {
+	display: none
+}
+
+dialog #content > div:nth-child(1) {
+	display: inline
+}
+
+xo-param {
+	display: none;
+}
+
+body {
+	background-color: #eeeeee;
+	font-family:Arial, Helvetica, sans-serif;
+	}
+
+form:not([desarrollo*="$"]) #Mapa {
+	background-size: 100%;
+	background-repeat: no-repeat;
+	width: 100%;
+}
+
+.filter {
+	background-color: white;
+	padding: 1rem;
+	min-width: 250px;
+}
+
+.map {width:100%;}
+
+#sPrototipo, #sManzana, #sLote {font-weight: bold;}
+	
+.foto {
+	float: none;
+	margin-left: auto;
+	margin-right:auto;
+	}
+
+.card-flipper {
+	bottom: 20px;
+	position: fixed;
+	left: 20px;
+	height: 400px;
+	width: 300px;
+	background-color: rgba(0, 0, 0, .5);
+	padding: 20px;
+	flex-direction: column;
+	visibility: hidden;
+}
+
+.card-flipper:has(#Filtros > *) {
+	visibility: visible;
+}
+
+/* Card flipper start */
+/*.card-flipper {
+	transition: height 0.3s ease, width 0.3s ease;
+}
+
+.card-flipper .card {
+	backface-visibility: hidden;*/ /* Hides the back face when flipped */
+	/*transform-style: preserve-3d;
+	transition: transform 0.6s ease, opacity 0.6s ease;
+	border-radius: 10px;
+	width: 100%;
+	background-color: transparent;
+}
+
+.card-flipper.toggled .front {
+	display: none; 
+}
+
+.card-flipper.toggled .back {
+	display: block; 
+}
+
+.card-flipper:not(.toggled) .front {
+	display: block;
+}
+
+.card-flipper:not(.toggled) .back {
+	display: none;
+}
+*/
+.card-flipper {
+    perspective: 1000px;  /*For 3D effect */
+	height: 80vh;
+	width: 300px;
+	padding-inline: 1.5rem;
+	top: 1rem;
+}
+
+.card-flipper .card {
+	position: absolute;
+	backface-visibility: hidden; /*Hides the back face when flipped */
+	transform-style: preserve-3d;
+	transition: transform 0.6s ease;
+	width: 270px;
+	border-radius: 0 0 70px 0;
+}
+
+.card-flipper .card > * {
+	border-radius: 0 0 70px 0;
+}
+
+.card-flipper .card.back {
+	transform: rotateY(180deg);
+}
+
+.card-flipper.toggled .card.front {
+	transform: rotateY(180deg);  
+}
+
+.card-flipper.toggled .card.back {
+	transform: rotateY(360deg);  
+}
+/* Card flipper end */
+
+.card-flipper .image {
+	padding: .5rem;
+	padding-bottom: 1.5rem;
+}
+
+.card-flipper .image svg {
+    overflow: visible;
+	max-height: 200px;
+}
+
+.card-flipper .image svg > * {
+	fill: var(--brand-dark-color);
+	stroke: var(--brand-light-color);
+}
+
+.card-flipper .back .row {
+	margin-bottom: 1rem;
+}
+
+.card-flipper .back .row > * {
+	flex-direction: row;
+    display: flex;
+	margin-top: 0;
+}
+
+.card-flipper .back label[id] {
+	font-size: 14pt;
+	font-weight: bolder;
+	margin-inline: .5rem;
+}
+
+
+div.card-flipper div:not(:has(h4>:checked)) .filter_option span {
+	background-color: white !important;
+	/* border: silver solid 1px; */
+}
+
+/*form:not([desarrollo*="$"]) #Mapa, form:not([desarrollo*="$"]) > * {
+	background-color: var(--brand-dark-color);
+}*/
+
+dialog.xover-component form > * {
+	background-color: initial;
+}
+
+.zoom-controls {
+	background-color: rgba(0, 0, 0, .5);
+	color: white;
+}
+
+#Filtros .filter [type="radio"] {
+	margin-right: .5rem;
+}
+
+.filter {
+	text-align: left;
+}
+
+.filter h4 {
+	padding-left: 1rem;
+}
+
+.numero-casa {
+	font-family: sans-serif;
+	background: rgba(255,255,255,0.5);
+	padding: 1px 3px;
+	border-radius: 3px;
+	white-space: nowrap;
+	font-size: 1.3rem;
+	color: white;
+}
+
+#ViviendaDetalles {
+	float:left;
+	background-color: #FFF;
+	padding: 5px;
+	border: thin dotted #666;
+	display: inline;
+}
+
+#datosPrivados {
+	display:none;
+}
+
+.visible {
+	display:inline !important;
+}
+
+#fotos, #detalles {
+
+	padding: 10px;
+	}
+	
+#Titulo {float:left;}
+
+#CerrarVentana {
+	float: right;
+	background-color: #C00;
+	color: #FFF;
+	cursor:pointer;
+	}
+
+.filter_option {
+    white-space: nowrap;
+}
+
+.filter_option input{
+    margin-right: 5px;
+}
+
+.table-centered td, .table-centered th {
+   text-align: center;   
+}
+
+td label {
+    font-weight: bolder;
+    margin-right: 5px;
+}

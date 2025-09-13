@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<settings>
+	<template class="details" xmlns="http://www.w3.org/1999/xhtml">
+		<div class="col-12 image">
+			<img class="img-fluid" src="" />
+		</div>
+		<div>
+			<div class="row g-3">
+				<div class="col-sm-12">
+					<label for="calle" class="form-label">Domicilio: </label>
+					<label id="calle"></label>
+					<label> #</label>
+					<label id="numero"></label>
+				</div>
+				<!--<div class="col-sm-12">
+					<label for="lote" class="form-label">Lote: </label>
+					<label id="lote"></label>
+				</div>-->
+				<!--<div class="col-sm-12">
+					<label for="status" class="form-label">Status: </label>
+					<label id="status"></label>
+				</div>-->
+			</div>
+		</div>
+	</template>
+	<filters bind="data/item" id="Id">
+		<filter id="mantenimiento" title="Cuota Ago 2025" bind="@Status" xo-source="#cantabria">
+			<option value="Anticipado" color="#4caf50"/>
+			<option value="Pagado" color="#97d933"/>
+			<option value="Incompleto" color="#ffeb3b">Parcialmente pagado</option>
+			<option value="Atrasado" color="#ff9800">Atrasado</option>
+			<option value="Morosidad" color="#f81409">3 meses de atraso o más</option>
+		</filter>
+		<filter id="extraordinarias_internas" title="Extraord. Internas" bind="@Status" xo-source="#cantabria_extraordinarias">
+			<option value="Pagado" color="#97d933"/>
+			<option value="Incompleto" color="#ffc107">Parcialmente pagado</option>
+			<option value="Morosidad" color="#f81409">3 meses de atraso o más</option>
+		</filter>
+		<filter id="extraordinarias_externas" title="Extraord. Externas" bind="@Status" xo-source="#cantabria_extraordinarias_externas">
+			<option value="Pagado" color="#97d933"/>
+			<option value="Incompleto" color="#ffc107">Parcialmente pagado</option>
+			<option value="Morosidad" color="#f81409">3 meses de atraso o más</option>
+		</filter>
+	</filters>
+</settings>

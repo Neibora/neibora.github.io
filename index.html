@@ -1,75 +1,321 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Neibora | Sitio en construcción</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #fef9f4;
-            color: #333;
-            font-family: 'Segoe UI', sans-serif;
-        }
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-        .brand-logo {
-            max-width: 110px;
-            margin-bottom: 1rem;
-        }
+    <meta name="description" content="Página web de venta de lotes">
+    <meta name="keywords" content="Lotes,Terrenos,Loteador,Desarrollos">
+    <meta name="author" content="Panax IT">
+    <meta name="debug" content="true">
 
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 2rem;
-        }
+    <meta property="og:site_name" content="neibora.com" />
+    <meta property="og:site" content="" />
+    <meta property="og:title" content="" />
+    <meta property="og:description" content="" />
+    <meta property="og:image" content="" />
+    <meta property="og:url" content="" />
+    <meta name="twitter:card" content="summary_large_image">
 
-        .highlight {
-            color: #2b8a3e;
-            font-weight: 600;
-        }
+    <!-- Title -->
+    <title>Neibora</title>
 
-        footer {
-            font-size: 0.9rem;
-            color: #666;
-            margin-top: 2rem;
-        }
-    </style>
+    <!-- Styles -->
+    <link rel="xover-manifest" href="manifest.json?v=20240401_0945">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="./css/bootstrap.min.css" rel="stylesheet">
+    <link href="./css/fontawesome-all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="./css/aos.min.css" rel="stylesheet">
+    <link href="./css/swiper.css" rel="stylesheet">
+    <link href="./css/style.css?v=20240401_0945" rel="stylesheet">
+    <script type="text/javascript" src="xover/xo.js?v=20240401_0945"></script>
+    <script type="text/javascript" src="custom.js?v=20240401_0945"></script>
+    <script type="text/javascript" src="socket.io.js?v=20250121_1904"></script>
+    <link rel="icon" href="./assets/img/favicon.png" type="image/x-icon" />
 </head>
-<body>
+<body class="styled-scroll">
+    <!-- Navbar -->
+    <nav id="navbar" class="navbar navbar-expand-lg fixed-top navbar-dark" aria-label="Main navigation" xo-source="navbar.html">
+    </nav>
+    <main>
+        <!-- Principal -->
+        <section class="home py-5 d-flex" id="header" style="padding-top: 1rem !important;">
+            <style>
+                section {
+                    display: flex;
+                    flex-direction: column;
+                    padding-inline: 1rem;
+                    padding-block: 2rem;
+                    font-size: 1.4rem;
+                }
 
-    <div class="container hero">
-        <div class="w-100">
-            <!-- LOGO -->
-            <img src="assets/img/logo.png" alt="Logo de Neibora" class="brand-logo">
+                    section li {
+                        font-size: 1.3rem;
+                    }
 
-            <h1 class="display-5 fw-bold mt-4">Estamos construyendo algo increíble</h1>
-            <p class="lead mt-3 mb-4">
-                Muy pronto podrás gestionar tu condominio con <span class="highlight">Neibora</span>, la plataforma hecha para ti y tu comunidad.
-            </p>
+                    section .row > div {
+                        padding-top: 1rem;
+                        padding-bottom: 1rem;
+                    }
 
-            <!-- Lista de beneficios -->
-            <div class="mt-5 text-start mx-auto" style="max-width: 600px;">
-                <h5 class="text-muted mb-3">¿Qué ofrecerá Neibora?</h5>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">📊 Gestión financiera y de cuotas</li>
-                    <li class="list-group-item">🏡 Control de residentes y propietarios</li>
-                    <li class="list-group-item">🔔 Avisos y mantenimiento programado</li>
-                    <li class="list-group-item">🛝 Reservación de amenidades</li>
-                    <li class="list-group-item">🔐 Acceso seguro y controlado</li>
-                </ul>
+                    section em {
+                        font-size: 1.1rem;
+                        margin-block: 3rem 1rem;
+                    }
+
+                    section .title {
+                        min-width: 300px;
+                        text-align: center;
+                        align-self: center;
+                        color: white;
+                    }
+
+                    section:nth-child(even) {
+                        background-image: url(./assets/img/2.jpg);
+                        color: black;
+                        background-size: cover;
+                    }
+
+                section {
+                    background-size: cover;
+                    background-position: center;
+                    background-repeat: no-repeat;
+                }
+
+                    section.home {
+                        background-image: url(./assets/img/home.jpg);
+                        background-size: cover;
+                        background-position: bottom;
+                        background-repeat: no-repeat;
+                        background-attachment: fixed;
+                        background-position-y: 30px;
+                    }
+            </style>
+            <div class="container-fluid text-light px-4 py-3" style="height: 77vh; position: relative;">
+                <h1 class="headline logo-container" data-aos="fade-right" style="text-align: center; max-width: 27vw;">
+                    <img class="logo" src="./assets/img/logo_vertical.png" style="max-width: 420px;" />
+                </h1>
+                <div class="py-3 h5" style="justify-content: end; display: flex; justify-content: end; display: flex; position: absolute; bottom: 3.5rem; width: 100%; font-size: 1rem; line-height: 1.5rem; max-width: 92vw; "><p class="para branded-message" data-aos="zoom-in" xo-source="#site" xo-stylesheet="resource.xslt" key="subtitulo" /></div>
             </div>
+        </section>
 
-            <!-- Pie -->
-            <footer class="mt-5">
-                <p>¿Tienes dudas? Escríbenos a <a href="mailto:contacto@neibora.com">contacto@neibora.com</a></p>
-                <p>📞 Teléfono: <a href="tel:4442864242">444 286 4242</a></p>
-                <p>© 2025 Neibora. Todos los derechos reservados.</p>
-            </footer>
+        <!-- Section1 -->
+        <section class="section-light d-flex align-items-center text-dark py-5" id="about">
+            <div class="container container-ub">
+                <div class="col-lg-12" data-aos="fade-right">
+                    <div class="row carousel-container">
+                        <div class="list-items col-sm-12 col-lg-4 col-xxl-4">
+                            <header class="tabs-head">
+                                <p class="tabs-subtitle text-uppercase">Residenciales</p>
+                                <div class="tabs-lead">
+                                    <!--<h4 class="tabs-title mb-3">Residenciales</h4>-->
+                                    <h5>Despreocúpate. Vive mejor. Crece</h5>
+                                </div>
+                            </header>
+                            <div class="list-group" id="list-tab" role="tablist" xo-source="#desarrollos" xo-stylesheet="gallery-list.xslt">
+                            </div>
+                        </div>
+                        <div class="gallery col-sm-12 col-lg-8 col-xxl-8">
+                            <div class="tab-content" id="nav-tabContent" xo-source="#desarrollos" xo-stylesheet="gallery.xslt">
+                                <div class="tab-pane fade show active" id="list-cantabria" role="tabpanel" aria-labelledby="list-cantabria-list">
+                                    <img src="assets/desarrollos/cantabria/cover.jpg" alt="" class="img-fluid">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Section2 -->
+        <section class="desarrollos section-dark d-flex align-items-center py-5" id="desarrollos" style="background: url(./assets/img/background.jpg); background-size: cover;">
+            <div class="container">
+                <div class="text-center pb-4">
+                    <h4>Desarrollos</h4>
+                </div>
+                <div class="row gy-4 py-2" data-aos="zoom-in" xo-stylesheet="section2.xslt" xo-source="#desarrollos" />
+            </div>
+        </section>
+
+        <!-- Section2 -->
+        <section class="desarrollos section-dark d-flex align-items-center py-5" id="desarrollos" style="background: url(./assets/img/background.jpg); background-size: cover;" class="img-fluid">
+            <div class="container">
+                <div class="text-center pb-4">
+                    <h4>Lotificación</h4>
+                </div>
+                <div class="row gy-4 py-2" data-aos="zoom-in">
+                    <img src="assets/desarrollos/cantabria/loteador.jpg" width="1809" height="1297" border="0" usemap="#map" style="max-width: revert; max-height: revert; " />
+
+                    <map name="map">
+                        <!-- #$-:Image map file created by GIMP Image Map plug-in -->
+                        <!-- #$-:GIMP Image Map plug-in by Maurits Rijk -->
+                        <!-- #$-:Please do not edit lines starting with "#$" -->
+                        <!-- #$VERSION:2.3 -->
+                        <!-- #$AUTHOR:Uriel Gomez   -->
+                        <area shape="poly" coords="61,235,169,235,171,297,61,298" alt="L1" target="lote_1" href="#" />
+                        <area shape="poly" coords="62,298,172,297,172,353,62,355" alt="L2" target="lote_2" href="#" />
+                        <area shape="poly" coords="62,355,172,353,173,411,63,413" alt="L3" target="lote_3" href="#" />
+                        <area shape="poly" coords="63,413,173,411,174,471,63,473" alt="L4" target="lote_4" href="#" />
+                        <area shape="poly" coords="63,473,174,471,175,529,64,531" alt="L5" target="lote_5" href="#" />
+                        <area shape="poly" coords="64,531,175,529,176,588,65,588" alt="L6" target="lote_6" href="#" />
+                        <area shape="poly" coords="65,588,176,587,177,643,65,646" alt="L7" target="lote_7" href="#" />
+                        <area shape="poly" coords="65,646,176,642,178,698,66,699" alt="L8" target="lote_8" href="#" />
+                        <area shape="poly" coords="66,699,178,698,180,754,66,757" alt="L9" target="lote_9" href="#" />
+                        <area shape="poly" coords="66,757,179,754,180,810,67,814" alt="L10" target="lote_10" href="#" />
+                        <area shape="poly" coords="67,814,180,810,181,869,67,872" alt="L11" target="lote_11" href="#" />
+                        <area shape="poly" coords="67,872,181,869,182,927,69,930" alt="L12" target="lote_12" href="#" />
+                        <area shape="poly" coords="69,930,181,927,184,992,69,995" alt="L13" target="lote_13" href="#" />
+                        <area shape="poly" coords="585,1119,591,1006,672,1014,654,1127,619,1119" alt="L14" target="lote_14" href="#" />
+                        <area shape="poly" coords="654,1125,676,1014,727,1025,704,1136" alt="15" target="lote_15" href="#" />
+                        <area shape="poly" coords="704,1136,727,1025,782,1036,761,1145" alt="16" target="lote_16" href="#" />
+                        <area shape="poly" coords="761,1145,782,1034,835,1046,811,1155" alt="17" target="lote_17" href="#" />
+                        <area shape="poly" coords="810,1156,836,1046,889,1056,866,1165" alt="18" target="lote_18" href="#" />
+                        <area shape="poly" coords="866,1165,888,1055,941,1065,921,1175" alt="19" target="lote_19" href="#" />
+                        <area shape="poly" coords="921,1175,941,1065,995,1075,972,1185" alt="20" target="lote_20" href="#" />
+                        <area shape="poly" coords="972,1185,995,1075,1048,1086,1025,1195" alt="21" target="lote_21" href="#" />
+                        <area shape="poly" coords="1025,1195,1049,1085,1101,1095,1078,1204" alt="22" target="lote_22" href="#" />
+                        <area shape="poly" coords="1078,1204,1101,1095,1154,1105,1133,1215" alt="23" target="lote_23" href="#" />
+                        <area shape="poly" coords="1133,1215,1154,1105,1207,1115,1186,1224" alt="24" target="lote_24" href="#" />
+                        <area shape="poly" coords="1186,1224,1207,1115,1261,1126,1238,1234" alt="25" target="lote_25" href="#" />
+                        <area shape="poly" coords="1238,1234,1261,1125,1315,1136,1293,1244" alt="26" target="lote_26" href="#" />
+                        <area shape="poly" coords="1293,1244,1315,1135,1368,1146,1347,1254" alt="27" target="lote_27" href="#" />
+                        <area shape="poly" coords="1347,1254,1367,1146,1421,1155,1399,1264" alt="28" target="lote_28" href="#" />
+                        <area shape="poly" coords="1399,1263,1421,1155,1449,1161,1507,1262,1438,1271" alt="29" target="lote_29" href="#" />
+                        <area shape="poly" coords="1448,1160,1507,1261,1535,1258,1564,1246,1588,1232,1599,1209,1512,1149" alt="30" target="lote_30" href="#" />
+                        <area shape="poly" coords="1512,1149,1598,1208,1608,1182,1620,1124,1524,1103" alt="31" target="lote_31" href="#" />
+                        <area shape="poly" coords="1524,1103,1620,1124,1632,1056,1536,1039" alt="32" target="lote_32" href="#" />
+                        <area shape="poly" coords="1536,1039,1633,1054,1644,996,1550,980" alt="33" target="lote_33" href="#" />
+                        <area shape="poly" coords="1550,980,1643,996,1653,940,1562,923" alt="34" target="lote_34" href="#" />
+                        <area shape="poly" coords="1562,923,1652,940,1679,800,1574,871" alt="35" target="lote_35" href="#" />
+                        <area shape="poly" coords="1574,870,1680,800,1696,731,1623,718,1553,827" alt="36" target="lote_36" href="#" />
+                        <area shape="poly" coords="1553,827,1498,800,1532,701,1623,718" alt="37" target="lote_37" href="#" />
+                        <area shape="poly" coords="1498,800,1532,700,1458,687,1439,789" alt="38" target="lote_38" href="#" />
+                        <area shape="poly" coords="1439,789,1458,687,1401,677,1383,778" alt="39" target="lote_39" href="#" />
+                        <area shape="poly" coords="1383,778,1401,677,1343,666,1326,767" alt="40" target="lote_40" href="#" />
+                        <area shape="poly" coords="1326,767,1343,666,1287,656,1268,756" alt="41" target="lote_41" href="#" />
+                        <area shape="poly" coords="1268,756,1287,656,1230,646,1211,745" alt="42" target="lote_42" href="#" />
+                        <area shape="poly" coords="1211,745,1230,645,1174,635,1155,734" alt="43" target="lote_43" href="#" />
+                        <area shape="poly" coords="1155,734,1174,635,1117,625,1096,723" alt="44" target="lote_44" href="#" />
+                        <area shape="poly" coords="1096,723,1117,624,1060,614,1042,712" alt="45" target="lote_45" href="#" />
+                        <area shape="poly" coords="1042,712,1060,614,1003,604,983,702" alt="46" target="lote_46" href="#" />
+                        <area shape="poly" coords="983,702,1003,604,947,594,928,691" alt="47" target="lote_47" href="#" />
+                        <area shape="poly" coords="928,691,947,593,890,583,871,680" alt="48" target="lote_48" href="#" />
+                        <area shape="poly" coords="871,680,890,583,834,573,814,669" alt="49" target="lote_49" href="#" />
+                        <area shape="poly" coords="814,669,834,573,778,563,757,658" alt="50" target="lote_50" href="#" />
+                        <area shape="poly" coords="757,658,778,563,719,552,702,648" alt="51" target="lote_51" href="#" />
+                        <area shape="poly" coords="702,648,719,552,664,542,644,636" alt="52" target="lote_52" href="#" />
+                        <area shape="poly" coords="644,636,664,542,605,531,588,626" alt="53" target="lote_53" href="#" />
+                        <area shape="poly" coords="588,626,605,531,560,523,512,611" alt="54" target="lote_54" href="#" />
+                        <area shape="poly" coords="642,945,535,925,545,867,653,886" alt="55" target="lote_55" href="#" />
+                        <area shape="poly" coords="653,886,545,867,556,806,664,827" alt="56" target="lote_56" href="#" />
+                        <area shape="poly" coords="664,827,556,807,566,752,675,774" alt="57" target="lote_57" href="#" />
+                        <area shape="poly" coords="675,774,566,752,576,697,685,719" alt="58" target="lote_58" href="#" />
+                        <area shape="poly" coords="685,719,740,730,718,838,665,828" alt="59" target="lote_59" href="#" />
+                        <area shape="poly" coords="740,730,718,838,772,848,792,740" alt="60" target="lote_60" href="#" />
+                        <area shape="poly" coords="792,739,772,848,825,858,846,750" alt="61" target="lote_61" href="#" />
+                        <area shape="poly" coords="845,749,825,859,878,868,899,760" alt="62" target="lote_62" href="#" />
+                        <area shape="poly" coords="899,760,878,869,932,879,953,771" alt="63" target="lote_63" href="#" />
+                        <area shape="poly" coords="953,771,932,879,984,889,1004,781" alt="64" target="lote_64" href="#" />
+                        <area shape="poly" coords="1004,781,984,888,1037,900,1057,791" alt="65" target="lote_65" href="#" />
+                        <area shape="poly" coords="1057,791,1037,899,1091,909,1111,801" alt="66" target="lote_66" href="#" />
+                        <area shape="poly" coords="1111,801,1091,910,1143,919,1165,812" alt="67" target="lote_67" href="#" />
+                        <area shape="poly" coords="1165,812,1143,920,1197,930,1218,821" alt="68" target="lote_68" href="#" />
+                        <area shape="poly" coords="1218,821,1197,930,1250,941,1269,832" alt="69" target="lote_69" href="#" />
+                        <area shape="poly" coords="1269,832,1250,940,1301,950,1323,842" alt="70" target="lote_70" href="#" />
+                        <area shape="poly" coords="1323,842,1301,950,1359,963,1377,853" alt="71" target="lote_71" href="#" />
+                        <area shape="poly" coords="1488,874,1377,852,1367,916,1476,935" alt="72" target="lote_72" href="#" />
+                        <area shape="poly" coords="1476,935,1367,916,1359,963,1466,987" alt="73" target="lote_73" href="#" />
+                        <area shape="poly" coords="1466,987,1358,963,1347,1021,1455,1042" alt="74" target="lote_74" href="#" />
+                        <area shape="poly" coords="1455,1042,1347,1021,1335,1074,1443,1097" alt="75" target="lote_75" href="#" />
+                        <area shape="poly" coords="1335,1074,1359,962,1302,951,1280,1065" alt="76" target="lote_76" href="#" />
+                        <area shape="poly" coords="1280,1065,1302,951,1250,940,1229,1055" alt="77" target="lote_77" href="#" />
+                        <area shape="poly" coords="1229,1055,1250,941,1197,930,1174,1045" alt="78" target="lote_78" href="#" />
+                        <area shape="poly" coords="1174,1044,1197,930,1142,920,1120,1035" alt="79" target="lote_79" href="#" />
+                        <area shape="poly" coords="1120,1035,1142,920,1090,909,1069,1024" alt="80" target="lote_80" href="#" />
+                        <area shape="poly" coords="1069,1024,1090,909,1037,900,1014,1015" alt="81" target="lote_81" href="#" />
+                        <area shape="poly" coords="1014,1014,1036,900,983,888,960,1004" alt="82" target="lote_82" href="#" />
+                        <area shape="poly" coords="960,1004,983,888,932,879,905,994" alt="83" target="lote_83" href="#" />
+                        <area shape="poly" coords="905,994,932,879,878,869,854,985" alt="84" target="lote_84" href="#" />
+                        <area shape="poly" coords="854,985,878,868,825,859,800,975" alt="85" target="lote_85" href="#" />
+                        <area shape="poly" coords="800,975,825,859,772,848,748,965" alt="86" target="lote_86" href="#" />
+                        <area shape="poly" coords="748,965,772,848,718,838,694,955" alt="87" target="lote_87" href="#" />
+                        <area shape="poly" coords="694,955,718,838,664,827,642,946" alt="88" target="lote_88" href="#" />
+                        <area shape="poly" coords="512,610,560,523,527,474,430,541" alt="89" target="lote_89" href="#" />
+                        <area shape="poly" coords="430,541,527,474,494,424,397,489" alt="90" target="lote_90" href="#" />
+                        <area shape="poly" coords="397,489,494,424,465,381,369,449" alt="91" target="lote_91" href="#" />
+                        <area shape="poly" coords="370,448,466,381,434,336,339,401" alt="92" target="lote_92" href="#" />
+                        <area shape="poly" coords="339,401,434,336,403,291,311,359" alt="93" target="lote_93" href="#" />
+                        <area shape="poly" coords="311,359,403,291,369,241,301,289" alt="94" target="lote_94" href="#" />
+                        <area shape="poly" coords="275,615,277,817,407,815,408,752,456,752,454,680,345,684,342,613" alt="casa_club" target="casa_club" href="#" />
+                        <area shape="poly" coords="247,411,252,603,244,920,254,930,269,933,454,941,466,933,474,922,478,910,480,835,493,755,503,721,514,692,512,667,468,652,438,629,387,578,317,493,271,406,262,402,252,403" alt="AV1" target="area_verde_1" href="#" />
+                        <area shape="poly" coords="59,18,62,236,170,235,156,128,107,104,77,67,69,50" alt="AV2" target="area_verde_2" href="#" />
+                        <area shape="poly" coords="301,289,273,105,369,241" alt="AV_3" target="area_verde_3" href="#" />
+                        <area shape="poly" coords="202,143,208,203,239,200,232,139" alt="C1" target="caseta_1" href="#" />
+                    </map>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Section3 -->
+        <section class="section-light d-flex align-items-center py-5" id="general">
+            <div class="container text-dark" xo-stylesheet="caracteristicas.xslt" xo-source="#caracteristicas">
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <!--<section class="footer text-light">
+        <div class="container">
+            <div class="row" data-aos="fade-right">
+                <div class="col-12 py-2">
+                    <div class="d-flex align-items-evenly justify-content-center" style="gap:50px;">
+                        <div class="d-flex align-items-center py-2" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottom" aria-controls="offcanvasBottom">
+                            <i class="fas fa-caret-right"></i>
+                            <a href="#aviso_privacidad">
+                                <p class="ms-3">
+                                    Aviso de privacidad
+                                </p>
+                            </a>
+                        </div>
+                        <div class="d-flex align-items-center py-2" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottom" aria-controls="offcanvasBottom">
+                            <i class="fas fa-caret-right"></i>
+                            <a href="#codigo_etica">
+                                <p class="ms-3">
+                                    Código de ética
+                                </p>
+                            </a>
+                        </div>
+                        <div class="d-flex align-items-center py-2" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottom" aria-controls="offcanvasBottom">
+                            <i class="fas fa-caret-right"></i>
+                            <a href="#terminos_condiciones">
+                                <p class="ms-3">
+                                    Términos y condiciones
+                                </p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+    </section>-->
+
+    <div class="offcanvas offcanvas-bottom xo-skip-compare" tabindex="-1" id="offcanvasBottom" aria-labelledby="offcanvasBottomLabel" xo-stylesheet="content-manager.xslt" xo-source="active">
     </div>
 
+    <!-- Bottom -->
+    <footer xo-source="footer.html"></footer>
+    <!-- end of back to top button -->
+    <!-- Scripts -->
+    <script src="./js/bootstrap.min.js"></script><!-- Bootstrap framework -->
+    <!-- <script src="./js/purecounter.min.js"></script>  -->
+    <!-- Purecounter counter for statistics numbers -->
+    <script src="./js/swiper.min.js"></script>
+    <!-- Swiper for image and text sliders -->
+    <script src="./js/aos.js"></script>
+    <!-- AOS on Animation Scroll -->
 </body>
 </html>

@@ -1,0 +1,63 @@
+{
+  "sources": {
+    "^#(.+)$": "/assets/desarrollos/$1/info.resx",
+    "^#(.+):loteador$": "/assets/desarrollos/$1/loteador.map",
+    "^#(.+):gallery$": "/assets/desarrollos/$1/gallery.resx",
+    "^#(.+):polygon$": "https://neibora.com/assets/desarrollos/$1/polygon.kml",
+    "#": "#desarrollos",
+    "^#(.+):info$": "#$1",
+    "#desarrollos": "/assets/desarrollos.resx",
+    "#iconos": "/assets/iconos.resx",
+    "#site": "/assets/site.resx",
+    "#aviso_privacidad": "/assets/aviso_privacidad.resx",
+    "#caracteristicas": "/assets/caracteristicas.resx",
+    "#codigo_etica": "/assets/codigo_etica.resx",
+    "#terminos_condiciones": "/assets/terminos_condiciones.resx",
+    "^#(.+)~edit$": "#$1",
+    "#ws": {
+      "xover.socket.connect": [
+        "ws://localhost:8003",
+        {
+          "message": "#messages",
+          "hotreload": "event:hotreload",
+          "databaseChange": "event:databaseChange"
+        }
+      ]
+    }
+  },
+  "state": {
+    "desarrollo": "${(xover.site.seed || '').replace(/^#/,'')}"
+  },
+  "start": [ "#desarrollos", "#site", "/navbar.html", "/footer.html", "/iconos.xslt", "#ws" ],
+  "settings": {
+    "~.asp": {
+      "headers": {
+        "x-referer-id": "${xover.session.referer_id}"
+      }
+    },
+    "~.map": {
+      "headers": {
+        "accept": "text/plain",
+        "cache": "no-store",
+        "Cache-Control": "no-cache"
+      }
+    },
+    "~.xslt||~.html": {
+      "headers": {
+        "Cache-Control": "max-age=0"
+      }
+    },
+    "^#(.+)~edit$": {
+      "stylesheets": [
+        {
+          "href": "resx-editor.xslt",
+          "target": "body",
+          "action": "append"
+        }
+      ]
+    },
+    "#desarrollos": {
+      "hash": "#"
+    }
+  }
+}

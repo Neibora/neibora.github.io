@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        #container {
+            position: relative;
+            width: 500px; /* Adjust container size as needed */
+            height: 300px;
+            overflow: hidden;
+        }
+
+        #clipped-image {
+            position: absolute;
+            top: 100px;
+            left: 50px;
+            /*pointer-events: none;*/
+        }
+    </style>
+</head>
+<body class="styled-scroll">
+    <div id="container">
+        <img id="clipped-image" src="/assets/img/slp.png">
+    </div>
+    <script>
+        const container = document.getElementById('container');
+        const clippedImage = document.getElementById('clipped-image');
+        let isDragging = false;
+        let initialX, initialY;
+
+        clippedImage.addEventListener('mousedown', startDragging);
+        clippedImage.addEventListener('mouseup', stopDragging);
+        clippedImage.addEventListener('mousemove', moveImage);
+
+        function startDragging(event) {
+            isDragging = true;
+            initialX = event.clientX;
+            initialY = event.clientY;
+        }
+
+        function stopDragging() {
+            isDragging = false;
+        }
+
+        function moveImage(event) {
+            if (isDragging) {
+                const deltaX = event.clientX - initialX;
+                const deltaY = event.clientY - initialY;
+                const newTop = clippedImage.offsetTop + deltaY;
+                const newLeft = clippedImage.offsetLeft + deltaX;
+
+                clippedImage.style.top = `${newTop}px`;
+                clippedImage.style.left = `${newLeft}px`;
+
+                initialX = event.clientX;
+                initialY = event.clientY;
+            }
+        }
+    </script>
+</body>
+</html>
