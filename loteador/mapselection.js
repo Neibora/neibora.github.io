@@ -1,732 +1,384 @@
-// Función para generar colores complementarios
-function generateComplementaryColors(baseColor, numColors) {
-    // Convertir el color base a formato RGB
-    const rgbBaseColor = hexToRgb(baseColor);
+/*
+  Loteador — enfoque por ÁREAS (arquitectura por eventos / métodos de <map>)
+  --------------------------------------------------------------------------
+  - No expone window.loteador: todo se invoca con node.dispatch('loteador:...')
+  - Métodos (listeners) del componente <map>:
+      • 'loteador:init'                → prepara maphilight + primera coloración + números
+      • 'loteador:colorea'             → recorre <area> y pinta según reglas activas
+      • 'loteador:mostrarNumerosDeCasa'→ coloca/actualiza labels con @Numero
+      • 'loteador:resize'              → reescala coords desde originales y recolorea + relabel
+      • 'loteador:iluminar'            → sólo toggle alwaysOn según predicado (sin recolorear colores)
+  - Se apoya en: jQuery, jquery.maphilight, xo/xover, helpers select()/single(), toArray(), distinct().
+*/
 
-    // Verificar si el color base es válido
-    if (!rgbBaseColor) {
-        console.error("El formato del color base no es válido.");
-        return [];
+(function(){
+  // -------------------- Utilidades --------------------
+  function getDesarrolloId(){
+    return (xo.site.seed || location.hash || '').replace(/^#/, '').toLowerCase();
+  }
+
+  async function getActiveDocs(){
+    let store = xo.stores.active; await store.ready;
+    const dataDoc = store.document;
+    const desarrollo_id = getDesarrolloId();
+    const settings = xover.sources[`#${desarrollo_id}:settings`];
+    await settings.ready; const settingsDoc = settings;
+    return { dataDoc, settingsDoc };
+  }
+
+  function getSettingsPaths(settingsDoc){
+    const filters = settingsDoc.find('filters');
+    return { bindPath: String(filters.attr('bind')||''), idAttr: String(filters.attr('id')||'Id') };
+  }
+
+  function parseBinding(binding){
+    const m = String(binding||'').match(/^(.+)?(@[^\]]+?)$/) || ['', '', ''];
+    let path = m[1] || ''; let attr = (m[2]||'').replace(/^@/, '');
+    if (path) path = path.replace(/\/$/, '').replace(/\//, '>');
+    return { path, attr };
+  }
+
+  function getValueFromBinding(itemNode, binding){
+    const { path, attr } = parseBinding(binding);
+    if(!attr) return undefined;
+    if(path){ const nodes = itemNode.select(path)||[]; const first = nodes[0]; return first ? first.attr(attr) : undefined; }
+    return itemNode.attr(attr);
+  }
+
+  function buildConditionsFromUI(){
+    const root = document.querySelector('#Filtros'); if(!root) return {};
+    const entries = root.querySelectorAll('.filter[bind]').toArray().map(filter=>{
+      const bind = filter.getAttribute('bind');
+      const picked = filter.querySelectorAll('.filter [type="checkbox"]:checked').toArray();
+      const map = new Map(picked.map(cb => [cb.getAttribute('value'), cb.previousElementSibling ? cb.previousElementSibling.style.backgroundColor : '']));
+      return [bind, map];
+    }).filter(([k,v])=>v.size);
+    return Object.fromEntries(entries);
+  }
+
+  function buildXPathPredicate(conditions){
+    const andParts = [];
+    for(const prop in conditions){
+      const map = conditions[prop]; const orParts = [];
+      const keys = typeof map.keys === 'function' ? map.keys() : Object.keys(map);
+      for(const value of keys){
+        if(String(value).includes('~')){ const [min,max] = String(value).split('~'); orParts.push(`${prop}>=${min} and ${prop}<=${max}`); }
+        else { orParts.push(`${prop}="${String(value).replace('"','&quot;')}"`); }
+      }
+      andParts.push(`[${orParts.join(' or ')}]`);
     }
+    return andParts.join('');
+  }
 
-    // Calcular el ángulo de separación para los colores complementarios
-    const separationAngle = 360 / numColors;
+  function testItemWithPredicate(itemNode, predicate){
+    if(!predicate) return true; return !!itemNode.selectFirst(`self::*${predicate}`);
+  }
 
-    // Array para almacenar los colores generados
-    const colors = [];
+  function getActiveFilterAndPalette(){
+    const chosen = document.querySelector('[name="filter_headers"]:checked');
+    const container = chosen ? chosen.closest('.filter[bind]') : null; if(!container) return null;
+    const bind = container.getAttribute('bind');
+    const palette = new Map(
+      container.querySelectorAll('.filter [type="checkbox"]').toArray()
+        .filter(cb => cb.previousElementSibling)
+        .map(cb => [cb.getAttribute('filtervalue')||cb.getAttribute('value'), cb.previousElementSibling.style.backgroundColor])
+    );
+    return { bind, palette };
+  }
 
-    // Generar los colores complementarios
-    for (let i = 0; i < numColors; i++) {
-        // Calcular el ángulo para el color actual
-        const angle = separationAngle * i;
+  function cssColorToHex(s){ if(!s) return ''; if(/^#/.test(s)) return s; const m = /^rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(s); if(!m) return ''; const r=(+m[1]).toString(16).padStart(2,'0'), g=(+m[2]).toString(16).padStart(2,'0'), b=(+m[3]).toString(16).padStart(2,'0'); return `#${r}${g}${b}`; }
 
-        // Calcular el color complementario para el ángulo actual
-        const complementaryColor = calculateComplementaryColor(rgbBaseColor, angle);
+  function setAreaColor(area, hex){
+    const data = $(area).data('maphilight') || {};
+    const clean = (hex||'').replace(/^0x|^#/ig, '');
+    data.fillColor = clean || '000000'; data.fillOpacity = hex ? 0.5 : 0.2; data.strokeColor = 'ffffff';
+    $(area).data('maphilight', data).trigger('alwaysOn.maphilight');
+    $(area).data('maphilight', data).trigger('fillColor.maphilight');
+    if(hex) area.setAttribute('data-maphilight', `{"fillColor":"${clean}","fillOpacity":0.5,"strokeColor":"ffffff"}`);
+  }
 
-        // Convertir el color complementario a formato hexadecimal
-        const hexColor = rgbToHex(complementaryColor);
+  function extractAreaId(area, desarrollo_id){ const t=area.getAttribute('target')||area.getAttribute('id')||''; const pref=`${desarrollo_id}_`; return t.startsWith(pref) ? t.slice(pref.length) : t; }
 
-        // Agregar el color a la lista
-        colors.push(hexColor);
-    }
+  function areaToSvg(areaElement){
+    if (!areaElement || areaElement.tagName !== 'AREA') return document.createElement('svg');
+    const nums = (areaElement.getAttribute('coords')||'').split(',').map(Number); const pts=[]; for(let i=0;i<nums.length;i+=2) pts.push({x:nums[i],y:nums[i+1]}); if(!pts.length) return document.createElement('svg');
+    const xs=pts.map(p=>p.x), ys=pts.map(p=>p.y); const minX=Math.min(...xs), minY=Math.min(...ys), maxX=Math.max(...xs), maxY=Math.max(...ys); const w=Math.max(1,maxX-minX), h=Math.max(1,maxY-minY);
+    const adj=pts.map(p=>`${p.x-minX},${p.y-minY}`).join(' ');
+    const NS='http://www.w3.org/2000/svg'; const svg=document.createElementNS(NS,'svg'); svg.setAttribute('xmlns',NS); svg.setAttribute('viewBox',`0 0 ${w} ${h}`); svg.setAttribute('width','100%'); svg.setAttribute('height','100%');
+    const poly=document.createElementNS(NS,'polygon'); poly.setAttribute('points',adj); poly.setAttribute('fill','currentColor'); poly.setAttribute('stroke','black'); poly.setAttribute('stroke-width','2'); svg.appendChild(poly); return svg;
+  }
 
-    return colors;
-}
+  // -------------------- Listeners del componente <map> --------------------
 
-
-// Función para convertir un color hexadecimal a RGB
-function hexToRgb(hexColor) {
-    const shorthandRegex = /^#?([a-f\d]{1,2})([a-f\d]{1,2})([a-f\d]{1,2})$/i;
-    const result = shorthandRegex.exec(hexColor);
-    if (result) {
-        return {
-            r: parseInt(result[1].length === 1 ? result[1] + result[1] : result[1], 16),
-            g: parseInt(result[2].length === 1 ? result[2] + result[2] : result[2], 16),
-            b: parseInt(result[3].length === 1 ? result[3] + result[3] : result[3], 16)
-        };
-    }
-    return null;
-}
-
-// Función para calcular un color complementario dado un color base y un ángulo
-function calculateComplementaryColor(baseColor, angle) {
-    // Convertir el ángulo a radianes
-    const radians = (angle * Math.PI) / 180;
-
-    // Calcular las componentes RGB del color complementario
-    const r = 255 - baseColor.r;
-    const g = 255 - baseColor.g;
-    const b = 255 - baseColor.b;
-
-    // Aplicar el ángulo para obtener una versión más clara u oscura del color complementario
-    const delta = Math.round(Math.cos(radians) * 128);
-    const complementColor = {
-        r: clamp(r + delta),
-        g: clamp(g + delta),
-        b: clamp(b + delta)
-    };
-
-    return complementColor;
-}
-
-// Función para asegurarse de que un valor RGB está dentro del rango válido (0-255)
-function clamp(value) {
-    return Math.min(Math.max(value, 0), 255);
-}
-
-// Función para convertir un color RGB a hexadecimal
-function rgbToHex(rgbColor) {
-    const { r, g, b } = rgbColor;
-    return `#${componentToHex(r)}${componentToHex(g)}${componentToHex(b)}`;
-}
-
-// Función para convertir un componente RGB a su representación hexadecimal
-function componentToHex(component) {
-    const hex = component.toString(16);
-    return hex.length === 1 ? "0" + hex : hex;
-}
-
-// Ejemplo de uso
-var baseColor = "#FF0000"; // Color base en formato hexadecimal (rojo)
-var numColors = 2; // Número de colores complementarios a generar
-
-var color_array = ['#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6',
-    '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
-    '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A',
-    '#FF99E6', '#CCFF1A', '#FF1A66', '#E6331A', '#33FFCC',
-    '#66994D', '#B366CC', '#4D8000', '#B33300', '#CC80CC',
-    '#66664D', '#991AFF', '#E666FF', '#4DB3FF', '#1AB399',
-    '#E666B3', '#33991A', '#CC9999', '#B3B31A', '#00E680',
-    '#4D8066', '#809980', '#E6FF80', '#1AFF33', '#999933',
-    '#FF3380', '#CCCC00', '#66E64D', '#4D80CC', '#9900B3',
-    '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF']/*generateComplementaryColors(baseColor, numColors);*/
-
-var filters = {}
-var attributes, attribute_pattern, value_attribute, text_attribute, oSource; //Definimos a este nivel para que sean accesibles dentro de las funciones jquery
-async function actualizaColores(oSource) {
-    function rgbStringToHex(rgb) {
-        if (!rgb) return undefined;
-        if (typeof rgb === 'string' && rgb.trim().startsWith('#')) return rgb.trim();
-        // Soporta rgb(...) y rgba(...)
-        const rgbValues = /^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)$/.exec(rgb);
-        if (!rgbValues) return undefined;
-        const r = parseInt(rgbValues[1]).toString(16).padStart(2, '0');
-        const g = parseInt(rgbValues[2]).toString(16).padStart(2, '0');
-        const b = parseInt(rgbValues[3]).toString(16).padStart(2, '0');
-        return `#${r}${g}${b}`;
-    }
-
-    let xmlData = xo.stores.active;
-    await xmlData.ready;
-    xmlData = xmlData.document;
-
-    let desarrollo_id = xo.state.desarrollo || xo.site.seed.replace(/^#/, '').toLowerCase();
-    let xmlFilters = xover.sources[`#${desarrollo_id}:settings`];
-    await xmlFilters.ready;
-    let sFilters_bind = `${xmlFilters.find('filters').attr('bind')}`;
-    let sElement_id = xmlFilters.find('filters').attr('id');
-    attributes = {};
-    attribute_pattern = undefined;
-    value_attribute = undefined;
-    text_attribute = undefined;
-    let bind;
-    //first = $(xmlData).find('filters').select('filter').first().attr("bind");
-
-    let filter = xmlFilters.select('//filters/filter').filter(function (filter) {
-        bind = $(oSource).closest('div.filter').attr("bind");
-        return filter.attr("bind") == bind || bind === undefined && $(this).find('option').length > 0
-    }).pop();
-
-    filter = (filter || xmlFilters.selectFirst('//filters/filter'));
-    attributes["value"] = (attributes["value"] || filter.attr('bind'));
-    attributes["text"] = (attributes["text"] || filter.attr('bind_text') || attributes["value"]);
-    //attribute_pattern = "{{@value}}"
-    //if (filter.select('option').length > 0) {
-    //    attribute_pattern = "{{@text}}::{{@value}}"
-    //    //if ($("#Filtros #" + attributes["value"].replace(/[\W@]/ig, '_') + " :checkbox:checked").length > 0) first = attributes["value"];
-    //}
-    //attribute_pattern = eval("'" + attribute_pattern.replace(/\{\{\@([^\}]+)\}\}/ig, '{{\'+attributes["$1"]+\'}}') + "'");
-
-    //$(xmlData).find('filters').select('filter[bind="' + first + '"]').select('option').each(function () {
-    //    filters[filter.attr("value")] = filter.attr("color") //.replace(/\s+/gi, "-")
-    //})
-    let binding = String(attributes["value"] || '').match(/^(.+)?(@[^\]]+?)$/) || ['', '', ''];
-    let path = binding[1] || '';
-    let attribute = (binding[2] || '').replace(/^@/, '');
-    if (path) path = String(path).replace(/\/$/, '').replace(/\//, '>');
-    attribute = attribute.replace(/^@/, '');
-    [document.querySelector(`[name="filter_headers"]:checked`)].filter(el => el).map(radio => radio.closest(`.filter[bind]`)).pop()
-    let active_filter = [document.querySelector(`[name="filter_headers"]:checked`)].filter(el => el).map(radio => radio.closest(`.filter[bind]`)).pop() || oSource && oSource.closest('.filter[bind]');// || [document.querySelector(`.filter[bind]`)].concat(document.querySelectorAll('[type="checkbox"]:checked').toArray().map(checkbox => checkbox.closest('.filter[bind]'))).concat([document.querySelector(`.filter[bind]`)]).filter(filter => !oSource).distinct().pop();
-    if (!active_filter && oSource && oSource.closest('.filter[bind]')) {
-        active_filter = oSource.closest('.filter[bind]');
-
-    }
-    let color_list = active_filter && Object.fromEntries([[active_filter].map(filter => [filter.getAttribute("bind"), new Map(filter.querySelectorAll(`.filter [type="checkbox"]`).toArray().filter(checkbox => checkbox.previousElementSibling).map(checkbox => [checkbox.getAttribute("filtervalue"), checkbox.previousElementSibling.style.backgroundColor]))]).filter(([key, values]) => values.size)[0]]);
-    if (!color_list) return;
-    for (let element of xmlData.select(sFilters_bind)) {
-        let oLote = document.querySelector(`area[target="${desarrollo_id}_${element.attr(sElement_id)}"],area[target="${element.attr(sElement_id)}"]`)
-        if (oLote) {
-            let color = Object.entries(color_list).map(([selector, options]) => [...options].find((test) => testConditions(element, Object.fromEntries([[selector, new Map([test])]]))) || []).filter(el => el).map(([, value]) => value).pop();
-            //let color = Object.entries(color_list).map(([selector, options]) => [attributes.find(attr => attr.matches(selector)), options]).map(([attr, options]) => options.get(attr.value)).pop();
-            coloreaLote(oLote, rgbStringToHex(color));
-        }
-    };
-}
-
-function coloreaLote(oLote, color = '') {
-    let data = $(oLote).data('maphilight') || {};
-    //data.alwaysOn = false;
-    data.fillColor = color && color.replace(/^0x|^#/ig, "") || "000000";
-    data.fillOpacity = color ? 0.5 : 0.2;
-    data.strokeColor = "ffffff";
-    $(oLote).data('maphilight', data).trigger('alwaysOn.maphilight');
-    $(oLote).data('maphilight', data).trigger('fillColor.maphilight');
-
-    $(oLote).attr("data-maphilight", '{"fillColor":"' + color.replace(/^0x/ig, "") + '","fillOpacity":0.5,"strokeColor":"ffffff"}');
-}
-
-function renderFilterOption(filter, values, target) {
-    if (typeof values == 'object' && values.length) {
-        for (let i = 0; i < values.length; ++i) {
-            let value = values[i];
-            renderFilterOption(filter, value, target);
-        }
-    } else if (typeof values == 'object' && values["_type"] == "attribute") {
-        let filter_name = filter.attr("bind").replace(/[\W@]/ig, '_');
-        /*renderFilterOption(filter, values["text"]);*/
-        //let attribute_pattern = "{{@value}}"
-        //if (filter.selectFirst('option')) {
-        //    attribute_pattern = "{{@text}}::{{@value}}"
-        //if ($("#Filtros #" + attributes["value"].replace(/[\W@]/ig, '_') + " :checkbox:checked").length > 0) first = attributes["value"];
-        //}
-        //let filter_value = eval("'" + attribute_pattern.replace(/\{\{\@([^\}]+)\}\}/ig, '\'+values["$1"]+\'') + "'");
-        let checkbox = xo.xml.createFragment(renderOption(filter_name, (filter.id + '_' + values.text + '__' + (values.value || '')), values.value, values.text, values.value, values.color, values.selected));
-        target.append(checkbox);
-    } else if (typeof values == 'object') {
-        for (let value in values) {
-            renderFilterOption(filter, values[value], target);
-        }
-    } else {
-        let filter_name = filter.attr("bind").replace(/[\W@]/ig, '_');
-        let txtCheckbox = `<input id="${values}" value="${values}" onclick='Colorea(this);' type="checkbox" class="${filter_name}" name="${filter_name}">${values}<br>`;
-        $("<span class='filter_option'></span>").html(txtCheckbox).appendTo("#Filtros #" + filter_name);
-    }
-}
-
-function fillTree(tree, path, value, text, color, selected) {
-    path = String(path).match(/^([^\/]+)(\/.+)?$/);
-    let partial_path = String(path[1] || '');
-    let new_path = String(path[2] || '').replace(/^\//, '');
-    if (!tree.hasOwnProperty(partial_path)) { tree[partial_path] = {}; }
-    if (String(partial_path).match(/^@/)) {
-        let attr_name = (text !== undefined ? text + "::" + value : value)
-        tree[partial_path][attr_name] = {}
-        tree[partial_path][attr_name]["_type"] = "attribute";
-        tree[partial_path][attr_name]["color"] = color;
-        tree[partial_path][attr_name]["value"] = value;
-        tree[partial_path][attr_name]["text"] = text;
-        tree[partial_path][attr_name]["selected"] = selected;
-        ////tree[partial_path][text] = value;
-        return tree[partial_path][text];
-    }
-    if (new_path) {
-        return fillTree(tree[partial_path], new_path, value, text, color, selected);
-    }
-}
-
-
-function fillOptions(txtNombreFiltro, tree, oNode, full_path, full_text_path, text, color) {
-    let path = String(full_path).match(/^([^\/]+)(\/.+)?$/);
-    let partial_path = String(path[1] || '');
-    let new_path = String(path[2] || '').replace(/^\//, '');
-    let text_path, partial_text_path, new_text_path
-    if (full_text_path) {
-        let text_path = String(full_text_path).match(/^([^\/]+)(\/.+)?$/);
-        let partial_text_path = String(text_path[1] || '');
-        let new_text_path = String(text_path[2] || '').replace(/^\//, '');
-        if (partial_text_path != partial_path) {
-            text = String(getValueFromTree($(oNode), full_text_path) || "")
-            new_text_path = undefined;
-        }
-    }
-
-    if (!tree.hasOwnProperty(partial_path)) {
-        tree[partial_path] = {};
-    }
-    if (partial_path.match(/^@/)) {
-        $(oNode).attr(partial_path.replace(/^@/, ''));
-        let value = String(getValueFromTree($(oNode), partial_path) || "undefined")//$(oNode).attr(partial_path.replace(/^@/, ''));
-        if (!tree[partial_path].hasOwnProperty(value)) {
-            color = (color !== undefined ? color : color_array.shift()); //Permite nulos para indicar que no lleva color
-            tree[partial_path][value] = {}
-            tree[partial_path][value]["_type"] = "attribute";
-            tree[partial_path][value]["color"] = color;
-            tree[partial_path][value]["value"] = value;
-            tree[partial_path][value]["text"] = (text || value || "Sin definir");
-            //renderOption(txtNombreFiltro, value, value, value);
-        }
-    } else {
-        $(oNode).select(partial_path).each(function () {
-            fillOptions(txtNombreFiltro, tree[partial_path], this, new_path, new_text_path, text, color);
-        })
-    }
-}
-
-function getValueObjectFromTree(oNode, full_path) {
-    let xmlTree = oNode;
-    let binding = full_path.match(/^(.+)?(@[^\]]+?)$/);
-    let path = binding[1];
-    let attribute = binding[2];
-    attribute = attribute.replace(/^@/, '');
-
-    let values = {};
-    if (path) {
-        path = String(path).replace(/\/$/, '').replace(/\//, '>'); /*Primer replace quita última diagonal*//*Segundo replace cambia diagonales por "mayor que" para buscarlo como selector*/
-        $(xmlTree).find(path).each(function () {
-            let oNode = $(this);
-            let val = oNode.attr(attribute);
-            values[val] = val;
-        })
-    } else {
-        let val = oNode.attr(attribute);
-        values[val] = val;
-    }
-    return values;
-
-}
-
-function getValueFromTree(oNode, full_path) {
-    let xmlTree = oNode;
-    let binding = full_path.match(/^(.+)?(@[^\]]+?)$/);
-    let path = binding[1];
-    let attribute = binding[2];
-    attribute = attribute.replace(/^@/, '');
-
-    let values = [];
-    if (path) {
-        path = String(path).replace(/\/$/, '').replace(/\//, '>'); /*Primer replace quita última diagonal*//*Segundo replace cambia diagonales por "mayor que" para buscarlo como selector*/
-        $(xmlTree).find(path).each(function () {
-            let element = $(this);
-            values.push(element.attr(attribute));
-        })
-    } else {
-        values.push(oNode.attr(attribute));
-    }
-    return values;
-}
-
-function renderOption(filter_name, id, value, text, filter_value, color, selected) {
-    id = String(id || '').replace(/[^\w\-:.]/g, '_');
-    let txtCheckbox = `<span class="filter_option">${(color ? "<span style='background-color: #" + color.replace(/^0x|^#/i, '') + "'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> " : "")} <input id="${id}" value="${(value || '').replace(/'/gi, "\\'")}" filterValue="${filter_value || value}" onclick="Colorea(this);"  type="checkbox" ${selected == 'true' ? 'checked="true"' : ''} class="${filter_name}" name="${filter_name}"/><label for="${id}" onclick="mutuallyExclusiveClick(); Colorea(this.previousSibling, true);">${text || value}</label><br/></span>`;
-    return txtCheckbox;
-}
-
-function getValueFromObject(oNode, path) {
-    path = String(path).match(/^([^\/]+)(\/.+)?$/);
-    let partial_path = String(path[1] || '');
-    let new_path = String(path[2] || '').replace(/^\//, '');
-
-    if (!oNode.hasOwnProperty(partial_path)) return undefined;
-    if (partial_path.match(/^@/)) {
-        value = oNode[partial_path];
-        return value;
-    } else {
-        value = getValueFromObject(oNode[partial_path], new_path);
-    }
-    return value;
-}
-
-function buildConditions(conditions) {
-    let compliesOverall = true;
-    let and_array = [];
-    for (let property in conditions) {
-        let or_array = [];
-        let entries = typeof (conditions[property].keys) == 'function' ? conditions[property].keys() : Object.keys(conditions[property]);
-        for (let value of entries) {
-            if (value.indexOf(`~`) != -1) {
-                let [min, max] = value.split("~");
-                or_array.push(`${property}>=${min} and ${property}<=${max}`);
-            } else {
-                or_array.push(`${property}="${value.replace('"', '&quot;')}"`);
-            }
-        }
-        and_array.push(`[${or_array.join(' or ')}]`)
-    }
-    return and_array.join('');
-}
-
-function testConditions(oNode, conditions) {
-    if (typeof (conditions) != "string") {
-        conditions = buildConditions(conditions);
-    }
-    let complies = !!oNode.selectFirst(`self::*${conditions}`)
-    return complies;
-}
-
-async function Colorea(oSource) {
-    let xmlData = xo.stores[xo.site.seed || location.hash];
-    try {
-        if (!xmlData.documentElement) await xmlData.fetch();
-    } catch (e) {
-        console.error(e)
-        return;
-    }
-    xmlData = xmlData.document;
-
-    let desarrollo_id = xo.site.seed.replace(/^#/, '').toLowerCase();
-    let xmlFilters = xover.sources[`#${desarrollo_id}:settings`];
-    if (!xmlFilters.documentElement) await xmlFilters.fetch();
-    if (oSource instanceof HTMLAreaElement) {
-        coloreaLote(oSource, '#ffffff')
-    }
-    if (oSource && oSource.closest(`.filter`) && !oSource.closest("#Filtros,body").querySelector(`[name="filter_headers"]:checked`)) {
-        oSource.closest(`.filter`).querySelector(`[name="filter_headers"]`).checked = true;
-    }
-    let conditions = Object.fromEntries(document.querySelector(`#Filtros`).querySelectorAll(`.filter[bind]`).toArray().map(filter => [filter.getAttribute("bind"), new Map(filter.querySelectorAll(`.filter [type="checkbox"]:checked`).toArray().map(checkbox => [checkbox.getAttribute("value"), checkbox.previousElementSibling ? checkbox.previousElementSibling.style.backgroundColor : '']))]).filter(([key, values]) => values.size))
-    //for (let filter of xmlFilters.select(`//filters/filter`)) {
-    //    let bind = filter.attr('bind');
-
-    //    //if (bind.match(/^@/)) {
-    //    let sBind = bind.replace(/[\W@]/ig, '_');
-    //    for (let selection of [...document.querySelectorAll(`#Filtros #${sBind} input[type=checkbox]:checked`)]) {
-    //        fillTree(conditions, bind, selection.value);
-    //    }
-    //}
-    actualizaColores(oSource);
-    iluminarMapa(conditions);
-}
-
-function mutuallyExclusiveClick() {
-    let source = event.target;
-    let domain = source.closest('.filter,body');
-    const forId = source.getAttribute('for');
-    let source_checkbox = domain.querySelector(`[id="${forId}"]`);
-    if (source_checkbox.checked) return;
-    source.closest('.filter').querySelectorAll('[type="checkbox"]:checked').toArray().filter(checkbox => checkbox.closest('.filter') == source.closest('.filter')).forEach(checkbox => checkbox.checked = false)
-}
-
-async function iluminarMapa(conditions) {
-    conditions = (conditions || {});
-
-    let xmlData = xo.stores.active;
-    if (xover.session.status == 'unauthorized') xmlData.remove();
-    await xmlData.ready;
-    xmlData = xmlData.document;
-    let desarrollo_id = xo.site.seed.replace(/^#/, '').toLowerCase();
-
-    let xmlFilters = xover.sources[`#${desarrollo_id}:settings`];
-    if (!xmlFilters.documentElement) await xmlFilters.fetch();
-
-    let sFilters_bind = $(xmlFilters).find('filters').attr('bind');
-    let sElement_id = $(xmlFilters).find('filters').attr('id');
-    conditions = buildConditions(conditions);
-    for (let element of xmlData.select(sFilters_bind)) {
-        let txtIdentificador = `area[target="${desarrollo_id}_${element.attr(sElement_id)}"],area[target="${element.attr(sElement_id)}"]`;
-        let oLote = document.querySelector(txtIdentificador);
-        if (!oLote) {
-            console.log(txtIdentificador + ' no existe')
-        } else {
-            let data = $(oLote).mouseout().data('maphilight') || {};
-            let turnOff = false;
-            turnOff = !testConditions(element, conditions);
-            data.alwaysOn = !turnOff;
-
-            $(oLote).data('maphilight', data);
-        }
-    };
-    if (!(document.querySelector(`[name="filter_headers"]:checked`) || Object.keys(conditions).length)) return;
-    $("map").trigger('alwaysOn.maphilight');
-}
-
-
-var ubicacion_seleccionada = undefined;
-var binding = {}
-binding.bindData = function (scope, attribute, x_source, removeAttribute) {
-    scope.find('*[' + attribute + ']').each(function () { // Buscamos dentro del detalle todos los nodos que son visibles dependiendo de un atributo (Sólo uno. TODO: que puedan ser más de un atributo y con operadores and y or)
-        let condition = $(this).attr('visible');
-        let bindings = condition.match(/{{[^}]+}}/);
-        for (let b = 0; b < bindings.length; b++) {
-            let attr = bindings[b]; //Recuperamos el nombre del atributo a enlazar.
-            let value = String(getValueFromTree(x_source, attr.replace(/[{}]/gi, ''))); //Recuperamos el valor sin importar la profundidad a la que está definido
-            value = (value.length ? "'" + value + "'" : value);
-            condition = condition.replace(attr, value)
-        }
-
-        if (!eval(condition)) {
-            $(this).remove();
-        } else {
-            $(this).removeAttr(attribute); //Quitamos el atributo para que no se renderee
-        }
-    });
-}
-
-var previousWidth = 0
-function resize() {
-    let ImageMap = function (map) {
-        let n,
-            areas = map.getElementsByTagName('area'),
-            len = areas.length,
-            coords = [];
-        let img = document.querySelector('#Mapa img');
-        const baseWidth = Number(img.getAttribute("orgwidth")) || img.naturalWidth || img.clientWidth; /*Tamaño original de la imagen*/
-
-        for (n = 0; n < len; n++) {
-            const original = areas[n].getAttribute('data-original-coords') || areas[n].coords;
-            coords[n] = original.split(',');
-            if (!areas[n].getAttribute('data-original-coords')) {
-                areas[n].setAttribute('data-original-coords', original);
-            }
-        }
-        this.resize = function () {
-            let n, m, clen,
-                x = img.clientWidth / baseWidth;
-            //x = document.body.clientWidth / previousWidth;
-            for (n = 0; n < len; n++) {
-                clen = coords[n].length;
-                const scaled = new Array(clen);
-                for (m = 0; m < clen; m++) {
-                    scaled[m] = coords[n][m] * x;
-                }
-                areas[n].coords = scaled.join(',');
-            }
-            //previousWidth tracking removed; using immutable baseWidth
-            //previousWidth = document.body.clientWidth;
-            Colorea();
-            return true;
-        };
-        window.removeEventListener('resize', resize);
-        window.addEventListener('resize', resize, { passive: true });
-    },
-        imageMap = new ImageMap(document.querySelector(`map`));
-
-    imageMap.resize();
-}
-
-loteador = {};
-loteador.limpiar = function () {
-    window.document.querySelectorAll(`.loteador,#Filtros`).select(`.//html:canvas|.//@data-maphilight|*[@bind]`).remove()
-}
-loteador.inicializar = async function () {
-    (function () {
-        //$('.map').maphilight();
-        img = document.querySelector('img[usemap]');
-        previousWidth = 0;
+  // Inicializar
+  xo.listener.on(['loteador:init::map'], async function(){
+      // 1) maphilight
+      const img = this.parentElement && this.parentElement.querySelector('img[usemap]');
+      if (img) {
         $('img[usemap]').maphilight();
-    })();
-
-    let color, txtBind;
-    let xmlData = xo.stores.active;
-    //if (loteador.inicializado == xmlData) return;
-    loteador.inicializado = xmlData;
-    await xmlData.ready;
-    xmlData = xmlData.document;
-    let desarrollo_id = xo.site.seed.replace(/^#/, '').toLowerCase();
-    let xmlFilters = xover.sources[`#${desarrollo_id}:settings`];
-
-    //let mapDoc = xo.sources[location.hash + ':loteador'];
-    //if (!mapDoc.firstElementChild) await mapDoc.fetch();
-
-    //let source_img = mapDoc.querySelector('img');
-    //let target_img = document.querySelector("img.map");
-    //if (!(target_img && source_img)) return;
-    //target_img.setAttribute("orgwidth", source_img.getAttribute("width"));
-
-    //let map = mapDoc.querySelector("map");
-    //target_img.parentNode.querySelector("map").replaceWith(map);
-
-    await xmlFilters.ready;
-    let sFilters_bind = $(xmlFilters).find('filters').attr('bind');
-
-    let defined_options = (xmlFilters.select('//filters/filter/option').length > 0)
-    let target = document.querySelector("#Filtros");
-    container = target.cloneNode();
-    //target.replaceChildren('');
-    if (!target) return;
-    for (let filter of xmlFilters.select('//filters/filter')) {
-        let bind = filter.attr("bind");
-        let bind_text = filter.attr("bind_text");
-        let xo_source = filter.attributes["xo-source"];
-        let baseId = filter.id || bind.replace(/[^A-Za-z0-9_@]/ig, '_');
-        let suffix = (filter.attr("title") || '').replace(/[^A-Za-z0-9_@]/g, '_').toLowerCase();
-        let txtNombreFiltro = suffix ? `${baseId}__${suffix}` : baseId;
-        let div = xo.xml.createNode(`<div xmlns="http://www.w3.org/1999/xhtml" id="${txtNombreFiltro}" bind="${bind}" class="filter col-12 col-sm-6 col-md-4 col-xs-4 col-lg-3 col-xl-2"><h4 style='cursor:pointer;'><input type="radio" id="radio_${txtNombreFiltro}" name="filter_headers" onchange="Colorea(this)"/><label for="radio_${txtNombreFiltro}">${filter.attr("title")}</label></h4></div>`)
-        div.applyAttributes(filter.attributes);
-        if (xo_source) {
-            div.querySelector('[type=radio]').setAttribute("onclick", `xo.site.active = '${xo_source}'`);
-
+        // Si la imagen aún no carga, re-escala al cargar (evita canvas desplazado)
+        if (!img.complete) {
+          img.addEventListener('load', ()=>{ try{ this.dispatch('loteador:resize'); }catch(e){} }, { once:true });
         }
-        container.append(div);
+      }
+      // 2) Asegurar escala correcta antes del primer pintado
+      this.dispatch('loteador:resize');
 
-        let values;
-        let filter_options = filter.select('option');
-        let options = {};
+      // 3) Construir filtros en #Filtros
+      const filtros = document.querySelector('#Filtros');
+      if (filtros && typeof filtros.dispatch === 'function') {
+        filtros.dispatch('loteador:buildFilters');
+      }
 
-        if (filter_options.length) {
-            //Checkboxes de colores
-            colors = color_array//generateComplementaryColors(baseColor, filter_options.length);
-            for (let option of filter_options) {
-                options[option.attr('value')] = { "_type": 'attribute', color: (option.attr('color') || colors.pop()), value: option.attr('value'), text: option.innerHTML || option.attr('text'), selected: option.attr('selected') }
-            }
-        } else {
-            //Checkboxes de otros filtros
-            values = xmlData.select(`${sFilters_bind}/${bind}`).map(attr => attr.value).distinct();
-            colors = color_array//generateComplementaryColors(baseColor, values.length);
-            options = Object.fromEntries(values.map(value => [value, { "_type": 'attribute', color: colors.pop(), value: value, text: value }]));
+      // 4) Pintar y numerar (por si la construcción de filtros no dispara recolor)
+      this.dispatch('loteador:colorea');
+      this.dispatch('loteador:mostrarNumerosDeCasa');
+  });
+
+// Construir/actualizar #Filtros a partir de settings
+// Construir/actualizar #Filtros a partir de settings (con label EXCLUSIVO)
+xo.listener.on(['loteador:buildFilters::#Filtros'], async function(){
+  const root = this;
+  root.replaceChildren();
+
+  const { dataDoc, settingsDoc } = await getActiveDocs();
+  const { bindPath } = getSettingsPaths(settingsDoc);
+
+  const basePalette = (window.color_array && window.color_array.slice()) || [
+    '#FF6633','#FFB399','#FF33FF','#FFFF99','#00B3E6','#E6B333','#3366E6','#999966','#99FF99','#B34D4D',
+    '#80B300','#809900','#E6B3B3','#6680B3','#66991A','#FF99E6','#CCFF1A','#FF1A66','#E6331A','#33FFCC',
+    '#66994D','#B366CC','#4D8000','#B33300','#CC80CC','#66664D','#991AFF','#E666FF','#4DB3FF','#1AB399',
+    '#E666B3','#33991A','#CC9999','#B3B31A','#00E680','#4D8066','#809980','#E6FF80','#1AFF33','#999933',
+    '#FF3380','#CCCC00','#66E64D','#4D80CC','#9900B3','#E64D66','#4DB380','#FF4D4D','#99E6E6','#6666FF'
+  ];
+
+  const filters = settingsDoc.select('//filters/filter');
+  let firstRadio;
+
+  for (const filter of filters){
+    const bind = filter.attr('bind');
+    const title = filter.attr('title') || bind;
+    const id = filter.id || bind.replace(/[\W@]/g,'_');
+
+    const div = document.createElement('div');
+    div.className = 'filter col-12 col-sm-6 col-md-4 col-xs-4 col-lg-3 col-xl-2';
+    div.setAttribute('bind', bind);
+    div.id = id;
+
+    // Header
+    const h4 = document.createElement('h4'); h4.style.cursor='pointer';
+    const radio = document.createElement('input'); radio.type='radio'; radio.name='filter_headers'; radio.id = `radio_${id}`;
+    const label = document.createElement('label'); label.setAttribute('for', radio.id); label.textContent = title;
+    h4.appendChild(radio); h4.appendChild(label); div.appendChild(h4);
+    if (!firstRadio) firstRadio = radio;
+
+    radio.addEventListener('change', ()=>{
+      const map=document.querySelector('map');
+      if (map && typeof map.dispatch==='function') map.dispatch('loteador:colorea');
+    });
+
+    // Helper: cablea checkbox y label
+    function wireOption(chk, text){
+      // Checkbox ⇒ acumulativo
+      chk.addEventListener('change', ()=>{
+        if (!document.querySelector('[name="filter_headers"]:checked')) { radio.checked = true; }
+        const map=document.querySelector('map');
+        if (map && typeof map.dispatch==='function') map.dispatch('loteador:colorea');
+      });
+
+      // Label ⇒ exclusivo (mutuallyExclusiveClick)
+      const lb = document.createElement('label');
+      lb.setAttribute('for', chk.id);
+      lb.textContent = text;
+      lb.addEventListener('click', (ev)=>{
+        const domain = lb.closest('.filter');
+        const target = domain.querySelector(`#${(window.CSS && CSS.escape) ? CSS.escape(chk.id) : chk.id}`) || document.getElementById(chk.id);
+
+        // Si no hay header activo aún, selecciona el de este filtro
+        if (!document.querySelector('[name="filter_headers"]:checked')) { radio.checked = true; }
+
+        // Si ya estaba seleccionado, evita “destoggle” del label
+        if (target && target.checked) {
+          ev.preventDefault();
+          const map=document.querySelector('map');
+          if (map && typeof map.dispatch==='function') map.dispatch('loteador:colorea');
+          return;
         }
-        renderFilterOption(filter, options, div);
-    }
-    xover.dom.combine(target, container);
-    actualizaColores();
-    resize()
-    mostrarNumerosDeCasa();
-    Colorea();
-    setTimeout(Colorea, 100);
-}
 
-xover.listener.on(`click`, async function (e) {
-    document.querySelector(".card-flipper").classList.remove("toggled")
-    Colorea();
-})
+        // Exclusividad dentro del filtro
+        domain.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => { if (cb !== target) cb.checked = false; });
+        if (target) target.checked = true;
 
-xover.listener.on(`click::area`, async function (e) {
-    e.preventDefault();
-    e.stopImmediatePropagation()
-    let txtIdentificador = $(this).attr('id') || `#${$(this).attr('target')}`.replace(/^#|^${xover.site.seed}_/, '');
-    if (ubicacion_seleccionada == txtIdentificador) {
-        ubicacion_seleccionada = undefined;
-    }
-    else {
-        ubicacion_seleccionada = txtIdentificador
+        ev.preventDefault();
+        const map=document.querySelector('map');
+        if (map && typeof map.dispatch==='function') map.dispatch('loteador:colorea');
+      });
+
+      return lb;
     }
 
-    //$('#DetalleSeleccion').show();
-    let xmlData = xo.stores[xo.site.seed || location.hash];
-    if (!xmlData.documentElement) await xmlData.fetch();
-    xmlData = xmlData.document;
+    // Opciones (declaradas) o derivadas
+    const options = filter.select('option');
+    let palette = basePalette.slice();
 
-    let desarrollo_id = xo.site.seed.replace(/^#/, '').toLowerCase();
-    let xmlFilters = xover.sources[`#${desarrollo_id}:settings`];
-    if (!xmlFilters.documentElement) await xmlFilters.fetch();
-    let template = xmlFilters.querySelector('template.details');
-    if (!template) return;
-    template = template.content.cloneNode(true);
-    let sFilters_bind = $(xmlFilters).find('filters').attr('bind'); //Recuperamos el nombre del nodo con el que se hace el binding principal
-    let sElement_id = $(xmlFilters).find('filters').attr('id'); //Recuperamos el nombre del atributo del nodo principal
-    let target_node = undefined;
-    if (ubicacion_seleccionada) {
-        target_node = xmlData.single(`${sFilters_bind}[@${sElement_id}="${ubicacion_seleccionada}"]`); //Recuperamos el nodo en el XML correspondiente al nodo seleccionado.
-        // TODO: Informar que si el nodo seleccionado no tiene correspondencia, considerar que a veces esto es con toda la intención, pues el rango obtenido podría estar filtrado.
-        if (!target_node) return;
-        for (let input of template.querySelectorAll('[id]')) {
-            attr = target_node.attributes[input.id] || [...target_node.attributes].find(attr => attr.localName.toLowerCase() == (input.id || "").toLowerCase()) || {};
-            if (input instanceof HTMLInputElement) {
-                input.value = attr.value
-            } else {
-                input.textContent = attr.value
-            }
-        }
-        let svg = areaToSvg(this)
-        template.querySelector("img").replaceWith(svg);
-        document.querySelector("#Detalles").setAttribute("xo-source", "active")
-        document.querySelector("#Detalles").setAttribute("xo-scope", target_node.getAttribute("xo:id"))
-        document.querySelector("#Detalles").replaceChildren(...template.childNodes)
-        document.querySelector(".card-flipper").classList.add("toggled")
-    }
-    if (ubicacion_seleccionada) {
-        coloreaLote(this, '#80FF00');
-        let conditions = { "@Id": {} }
-        conditions["@Id"][ubicacion_seleccionada] = { "color": "blue" }
-        iluminarMapa(conditions);
+    if (options.length){
+      for (const opt of options){
+        const value = opt.attr('value');
+        const text  = opt.innerHTML || opt.attr('text') || value;
+        const color = opt.attr('color') || palette.pop();
+        const selected = opt.attr('selected') === 'true' || opt.attr('selected') === 'selected';
+
+        const span = document.createElement('span'); span.className='filter_option';
+        const sw   = document.createElement('span'); sw.style.backgroundColor = color; sw.innerHTML='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+        const chk  = document.createElement('input');
+        chk.type='checkbox'; chk.id = `${id}_${value}`; chk.name = id; chk.value = value; chk.setAttribute('filterValue', value);
+        if (selected) chk.checked = true;
+
+        const lb = wireOption(chk, text);
+        const br = document.createElement('br');
+
+        span.appendChild(sw); span.appendChild(document.createTextNode(' '));
+        span.appendChild(chk); span.appendChild(lb); span.appendChild(br);
+        div.applyAttributes(filter.attributes)
+        div.appendChild(span);
+      }
     } else {
-        Colorea();
+      // Deriva valores desde datos para bind tipo path@Attr
+      const items = dataDoc.select(bindPath) || [];
+      const vals  = items.map(n=> getValueFromBinding(n, bind))
+                         .filter(v=> v!==undefined && v!==null && String(v).length)
+                         .distinct();
+
+      for (const value of vals){
+        const color = palette.pop();
+        const text  = String(value);
+
+        const span = document.createElement('span'); span.className='filter_option';
+        const sw   = document.createElement('span'); sw.style.backgroundColor = color; sw.innerHTML='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+        const chk  = document.createElement('input');
+        chk.type='checkbox'; chk.id = `${id}_${value}`; chk.name = id; chk.value = value; chk.setAttribute('filterValue', value);
+
+        const lb = wireOption(chk, text);
+        const br = document.createElement('br');
+
+        span.appendChild(sw); span.appendChild(document.createTextNode(' '));
+        span.appendChild(chk); span.appendChild(lb); span.appendChild(br);
+        div.appendChild(span);
+      }
+    }
+
+    root.appendChild(div);
+  }
+
+  // Si nadie quedó marcado, marca el primero
+  if (firstRadio && !root.querySelector('[name="filter_headers"]:checked')) {
+    firstRadio.checked = true;
+  }
+});
+
+  // Colorear (recorrer ÁREAS)
+  xo.listener.on(['loteador:colorea::map'], async function(){
+    const map = this; const { dataDoc, settingsDoc } = await getActiveDocs(); const { bindPath, idAttr } = getSettingsPaths(settingsDoc);
+    const conditions = buildConditionsFromUI(); const predicate = buildXPathPredicate(conditions);
+    const active = getActiveFilterAndPalette(); const desarrollo_id = getDesarrolloId();
+
+    const areas = map.querySelectorAll('area');
+    for (const area of areas) {
+      const lotId = extractAreaId(area, desarrollo_id); if(!lotId){ setAreaColor(area,''); continue; }
+      const item = dataDoc.single(`${bindPath}[@${idAttr}="${lotId}"]`);
+      if(!item){ const d=$(area).data('maphilight')||{}; d.alwaysOn=false; $(area).data('maphilight',d); continue; }
+      const match = testItemWithPredicate(item, predicate); const d=$(area).data('maphilight')||{}; d.alwaysOn=!!match; $(area).data('maphilight',d);
+      if(active){ const value = getValueFromBinding(item, active.bind); const css = active.palette.get(value)||''; const hex = cssColorToHex(css); setAreaColor(area, match ? hex : ''); }
+    }
+    $(map).trigger('alwaysOn.maphilight');
+  });
+
+  // Mostrar/actualizar números (@Numero)
+  xo.listener.on(['loteador:mostrarNumerosDeCasa::map'], async function(){
+    const map = this; const container = map.parentElement; if (!container) return;
+    if (getComputedStyle(container).position === 'static') container.style.position = 'relative';
+    container.querySelectorAll('.numero-casa').forEach(e=>e.remove());
+
+    const { dataDoc, settingsDoc } = await getActiveDocs(); const { bindPath, idAttr } = getSettingsPaths(settingsDoc); const desarrollo_id = getDesarrolloId();
+    const items = dataDoc.querySelectorAll(`${bindPath.split('/').join('>')}[Numero]`);
+    for (const item of items){
+      const id = item.getAttribute(idAttr), numero = item.getAttribute('Numero'); if(!id||!numero) continue;
+      const selector = `area[target="${desarrollo_id}_${id}"], area[target="${id}"]`; const area = map.querySelector(selector) || document.querySelector(selector); if(!area) continue;
+      const coords = (area.coords||'').split(',').map(Number); if(!coords.length) continue;
+      const xs=coords.filter((_,i)=>i%2===0), ys=coords.filter((_,i)=>i%2===1); const x=xs.reduce((a,b)=>a+b,0)/xs.length; const y=ys.reduce((a,b)=>a+b,0)/ys.length;
+      const label=document.createElement('div'); label.className='numero-casa'; label.textContent=numero; Object.assign(label.style,{position:'absolute',left:`${x}px`,top:`${y}px`,transform:'translate(-50%, -50%)',fontWeight:'bold',color:'black',fontSize:'.8rem',pointerEvents:'none',textShadow:'0 1px 2px rgba(255,255,255,.8)'});
+      container.appendChild(label);
+    }
+  });
+
+  // Iluminar (toggle only)
+  xo.listener.on(['loteador:iluminar::map'], async function(){
+    const map=this; const conditions = event.detail || {}; const { dataDoc, settingsDoc } = await getActiveDocs(); const { bindPath, idAttr } = getSettingsPaths(settingsDoc); const desarrollo_id=getDesarrolloId();
+    const predicate = buildXPathPredicate(conditions);
+    for (const area of map.querySelectorAll('area')){
+      const lotId = extractAreaId(area, desarrollo_id); if(!lotId) continue; const item = dataDoc.single(`${bindPath}[@${idAttr}="${lotId}"]`); if(!item) continue;
+      let data = $(area).mouseout().data('maphilight') || {}; data.alwaysOn = !!testItemWithPredicate(item, predicate); $(area).data('maphilight', data);
+    }
+    $(map).trigger('alwaysOn.maphilight');
+  });
+
+  // Resize (reescala desde coord originales y recolorea + relabel)
+  xo.listener.on(['loteador:resize::map'], function(){
+    const map=this; const img = map.parentElement && map.parentElement.querySelector('img[usemap]'); if(!img) return;
+    const baseWidth = Number(img.getAttribute('orgwidth')) || img.naturalWidth || img.clientWidth; const x = img.clientWidth / baseWidth;
+    const areas = map.querySelectorAll('area');
+    for (const area of areas){
+      const original = area.getAttribute('data-original-coords') || area.coords; const nums = original.split(','); if(!area.hasAttribute('data-original-coords')) area.setAttribute('data-original-coords', original);
+      const scaled = new Array(nums.length); for (let i=0;i<nums.length;i++){ scaled[i] = +nums[i] * x; } area.coords = scaled.join(',');
+    }
+    // tras reescalar, recolorea y reubica números
+    map.dispatch('loteador:colorea');
+    map.dispatch('loteador:mostrarNumerosDeCasa');
+  });
+
+  // -------------------- Integración con el ciclo de vida --------------------
+
+  // Cambios de filtros → recolorear
+  xo.listener.on(['click::#Filtros input[type="checkbox"]'], function(){ const map=document.querySelector('map'); if(map && typeof map.dispatch==='function') map.dispatch('loteador:colorea'); });
+  xo.listener.on(['change::#Filtros input[name="filter_headers"]'], function(){ const map=document.querySelector('map'); if(map && typeof map.dispatch==='function') map.dispatch('loteador:colorea'); });
+
+  // Click de área → detalle e iluminación focal
+  if (typeof window.ubicacion_seleccionada === 'undefined') window.ubicacion_seleccionada = undefined;
+  xover.listener.on('click::area', async function(e){
+    e.preventDefault(); e.stopImmediatePropagation(); const area=this; const map=area.closest('map');
+    const desarrollo_id = getDesarrolloId(); const raw = area.getAttribute('id') || area.getAttribute('target') || ''; const id = raw.replace(new RegExp(`^${desarrollo_id}_`, 'i'), '');
+
+    window.ubicacion_seleccionada = (window.ubicacion_seleccionada === id) ? undefined : id;
+
+    const { dataDoc, settingsDoc } = await getActiveDocs(); const { bindPath, idAttr } = getSettingsPaths(settingsDoc);
+    let template = settingsDoc.querySelector('template.details'); if (!template) return false; template = template.content.cloneNode(true);
+
+    if (window.ubicacion_seleccionada){
+      const node = dataDoc.single(`${bindPath}[@${idAttr}="${window.ubicacion_seleccionada}"]`); if(!node) return false;
+      for (let input of template.querySelectorAll('[id]')){
+        const k=input.id; const attr = node.attributes[k] || [...node.attributes].find(a=>a.localName.toLowerCase()===k.toLowerCase()) || { value:'' };
+        if (input instanceof HTMLInputElement) input.value = attr.value; else input.textContent = attr.value;
+      }
+      const svg = areaToSvg(area); const img = template.querySelector('img'); if (img) img.replaceWith(svg);
+      const detalles=document.querySelector('#Detalles'); if(detalles){ detalles.setAttribute('xo-source','active'); const xoId=node.getAttribute('xo:id')||''; if(xoId) detalles.setAttribute('xo-scope', xoId); detalles.replaceChildren(...template.childNodes); }
+      const flipper=document.querySelector('.card-flipper'); if (flipper) flipper.classList.add('toggled');
+    } else {
+      const flipper=document.querySelector('.card-flipper'); if (flipper) flipper.classList.remove('toggled');
+    }
+
+    if (window.ubicacion_seleccionada){
+      setAreaColor(area, '#80FF00');
+      const cond={}; cond[`@${idAttr}`]={}; cond[`@${idAttr}`][window.ubicacion_seleccionada] = { color:'blue' };
+      if (map && typeof map.dispatch==='function') map.dispatch('loteador:iluminar', cond);
+    } else {
+      if (map && typeof map.dispatch==='function') map.dispatch('loteador:colorea');
     }
     return false;
-})
+  });
 
-function areaToSvg(areaElement) {
-    if (!areaElement || areaElement.tagName !== "AREA") {
-        throw new Error("Invalid area element");
-    }
+  // Resize global → cada <map> reescala y repinta (debounce interno del navegador)
+  window.addEventListener('resize', function(){
+    document.querySelectorAll('map').forEach(map => { if (typeof map.dispatch==='function') map.dispatch('loteador:resize'); });
+  }, { passive:true });
 
-    // Get the coordinates from the area element
-    const coords = areaElement.getAttribute("coords").split(",").map(Number);
-
-    // Split coordinates into pairs of [x, y]
-    const points = [];
-    for (let i = 0; i < coords.length; i += 2) {
-        points.push({ x: coords[i], y: coords[i + 1] });
-    }
-
-    // Find minimum x and y to offset the points
-    const minX = Math.min(...points.map(p => p.x));
-    const minY = Math.min(...points.map(p => p.y));
-
-    // Offset the points to start at (0, 0)
-    const adjustedPoints = points.map(p => `${p.x - minX},${p.y - minY}`).join(" ");
-
-    // Create the SVG element
-    const svgNamespace = "http://www.w3.org/2000/svg";
-    const svg = document.createElementNS(svgNamespace, "svg");
-    svg.setAttribute("xmlns", svgNamespace);
-    svg.setAttribute("viewBox", `0 0 ${Math.max(...points.map(p => p.x - minX))} ${Math.max(...points.map(p => p.y - minY))}`);
-    svg.setAttribute("width", "100%");
-    svg.setAttribute("height", "100%");
-
-    // Create the polygon element
-    const polygon = document.createElementNS(svgNamespace, "polygon");
-    polygon.setAttribute("points", adjustedPoints);
-    polygon.setAttribute("fill", "currentColor");
-    polygon.setAttribute("stroke", "black");
-    polygon.setAttribute("stroke-width", "2");
-
-    // Append the polygon to the SVG
-    svg.appendChild(polygon);
-
-    return svg;
-}
-function mostrarNumerosDeCasa() {
-    // Quitar etiquetas anteriores si las hay
-    document.querySelectorAll(".numero-casa").forEach(e => e.remove());
-
-    let xmlData = xo.stores[xo.site.seed || location.hash];
-    if (!xmlData.documentElement) return;
-
-    let desarrollo_id = xo.site.seed.replace(/^#/, '').toLowerCase();
-
-    for (let item of xmlData.querySelectorAll("item[Numero]")) {
-        let numero = item.getAttribute("Numero");
-        let id = item.getAttribute("Id");
-        let selector = `area[target="${desarrollo_id}_${id}"], area[target="${id}"]`;
-        let area = document.querySelector(selector);
-        if (!area) continue;
-
-        // Calcular centroide
-        let coords = area.coords.split(',').map(Number);
-        let xs = coords.filter((_, i) => i % 2 === 0);
-        let ys = coords.filter((_, i) => i % 2 === 1);
-        let x = xs.reduce((a, b) => a + b, 0) / xs.length;
-        let y = ys.reduce((a, b) => a + b, 0) / ys.length;
-
-        // Crear etiqueta
-        let label = document.createElement("div");
-        label.className = "numero-casa";
-        label.textContent = numero;
-        Object.assign(label.style, {
-            position: "absolute",
-            left: `${x}px`,
-            top: `${y}px`,
-            transform: "translate(-50%, -50%)",
-            fontSize: "10px",
-            fontWeight: "bold",
-            color: "black",
-            fontSize: ".8rem",
-            pointerEvents: "none"
-        });
-        // Adjuntar sobre imagen
-        const container = area.closest("map").parentElement;
-        if (container && getComputedStyle(container).position === 'static') {
-          container.style.position = 'relative';
-        }
-        container.appendChild(label);
-    }
-}
+})();
