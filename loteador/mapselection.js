@@ -104,17 +104,15 @@ var color_array = ['#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6',
 var filters = {}
 var attributes, attribute_pattern, value_attribute, text_attribute, oSource; //Definimos a este nivel para que sean accesibles dentro de las funciones jquery
 async function actualizaColores(oSource) {
-    function rgbToHex(rgb) {
+    function rgbStringToHex(rgb) {
         if (!rgb) return undefined;
-        // Get the RGB values by extracting the numbers
-        const rgbValues = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
-
-        // Convert each RGB value to hexadecimal
+        if (typeof rgb === 'string' && rgb.trim().startsWith('#')) return rgb.trim();
+        // Soporta rgb(...) y rgba(...)
+        const rgbValues = /^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*[\d.]+)?\)$/.exec(rgb);
+        if (!rgbValues) return undefined;
         const r = parseInt(rgbValues[1]).toString(16).padStart(2, '0');
         const g = parseInt(rgbValues[2]).toString(16).padStart(2, '0');
         const b = parseInt(rgbValues[3]).toString(16).padStart(2, '0');
-
-        // Return the hexadecimal color
         return `#${r}${g}${b}`;
     }
 
@@ -152,9 +150,9 @@ async function actualizaColores(oSource) {
     //$(xmlData).find('filters').select('filter[bind="' + first + '"]').select('option').each(function () {
     //    filters[filter.attr("value")] = filter.attr("color") //.replace(/\s+/gi, "-")
     //})
-    let binding = String(attributes["value"]).match(/^(.+)?(@[^\]]+?)$/);
-    let path = binding[1];
-    let attribute = binding[2];
+    let binding = String(attributes["value"] || '').match(/^(.+)?(@[^\]]+?)$/) || ['', '', ''];
+    let path = binding[1] || '';
+    let attribute = (binding[2] || '').replace(/^@/, '');
     if (path) path = String(path).replace(/\/$/, '').replace(/\//, '>');
     attribute = attribute.replace(/^@/, '');
     [document.querySelector(`[name="filter_headers"]:checked`)].filter(el => el).map(radio => radio.closest(`.filter[bind]`)).pop()
@@ -170,7 +168,7 @@ async function actualizaColores(oSource) {
         if (oLote) {
             let color = Object.entries(color_list).map(([selector, options]) => [...options].find((test) => testConditions(element, Object.fromEntries([[selector, new Map([test])]]))) || []).filter(el => el).map(([, value]) => value).pop();
             //let color = Object.entries(color_list).map(([selector, options]) => [attributes.find(attr => attr.matches(selector)), options]).map(([attr, options]) => options.get(attr.value)).pop();
-            coloreaLote(oLote, rgbToHex(color));
+            coloreaLote(oLote, rgbStringToHex(color));
         }
     };
 }
@@ -181,16 +179,16 @@ function coloreaLote(oLote, color = '') {
     data.fillColor = color && color.replace(/^0x|^#/ig, "") || "000000";
     data.fillOpacity = color ? 0.5 : 0.2;
     data.strokeColor = "ffffff";
-    $(this).data('maphilight', data).trigger('alwaysOn.maphilight');
-    $(this).data('maphilight', data).trigger('fillColor.maphilight');
+    $(oLote).data('maphilight', data).trigger('alwaysOn.maphilight');
+    $(oLote).data('maphilight', data).trigger('fillColor.maphilight');
 
     $(oLote).attr("data-maphilight", '{"fillColor":"' + color.replace(/^0x/ig, "") + '","fillOpacity":0.5,"strokeColor":"ffffff"}');
 }
 
 function renderFilterOption(filter, values, target) {
     if (typeof values == 'object' && values.length) {
-        for (let i = 0; i < nodes.length; ++i) {
-            let value = nodes[i];
+        for (let i = 0; i < values.length; ++i) {
+            let value = values[i];
             renderFilterOption(filter, value, target);
         }
     } else if (typeof values == 'object' && values["_type"] == "attribute") {
@@ -318,6 +316,7 @@ function getValueFromTree(oNode, full_path) {
 }
 
 function renderOption(filter_name, id, value, text, filter_value, color, selected) {
+    id = String(id || '').replace(/[^\w\-:.]/g, '_');
     let txtCheckbox = `<span class="filter_option">${(color ? "<span style='background-color: #" + color.replace(/^0x|^#/i, '') + "'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> " : "")} <input id="${id}" value="${(value || '').replace(/'/gi, "\\'")}" filterValue="${filter_value || value}" onclick="Colorea(this);"  type="checkbox" ${selected == 'true' ? 'checked="true"' : ''} class="${filter_name}" name="${filter_name}"/><label for="${id}" onclick="mutuallyExclusiveClick(); Colorea(this.previousSibling, true);">${text || value}</label><br/></span>`;
     return txtCheckbox;
 }
@@ -398,9 +397,10 @@ async function Colorea(oSource) {
 }
 
 function mutuallyExclusiveClick() {
-    let source = event.srcElement;
+    let source = event.target;
     let domain = source.closest('.filter,body');
-    let source_checkbox = domain.querySelector(`[id="${source.attributes["for"]}"]`);
+    const forId = source.getAttribute('for');
+    let source_checkbox = domain.querySelector(`[id="${forId}"]`);
     if (source_checkbox.checked) return;
     source.closest('.filter').querySelectorAll('[type="checkbox"]:checked').toArray().filter(checkbox => checkbox.closest('.filter') == source.closest('.filter')).forEach(checkbox => checkbox.checked = false)
 }
@@ -468,29 +468,34 @@ function resize() {
             len = areas.length,
             coords = [];
         let img = document.querySelector('#Mapa img');
-        previousWidth = previousWidth || img.getAttribute("orgwidth"); /*Tamaño original de la imagen*/
+        const baseWidth = Number(img.getAttribute("orgwidth")) || img.naturalWidth || img.clientWidth; /*Tamaño original de la imagen*/
 
         for (n = 0; n < len; n++) {
-            coords[n] = areas[n].coords.split(',');
+            const original = areas[n].getAttribute('data-original-coords') || areas[n].coords;
+            coords[n] = original.split(',');
+            if (!areas[n].getAttribute('data-original-coords')) {
+                areas[n].setAttribute('data-original-coords', original);
+            }
         }
         this.resize = function () {
             let n, m, clen,
-                x = img.clientWidth / previousWidth;
+                x = img.clientWidth / baseWidth;
             //x = document.body.clientWidth / previousWidth;
             for (n = 0; n < len; n++) {
                 clen = coords[n].length;
+                const scaled = new Array(clen);
                 for (m = 0; m < clen; m++) {
-                    coords[n][m] *= x;
+                    scaled[m] = coords[n][m] * x;
                 }
-                areas[n].coords = coords[n].join(',');
+                areas[n].coords = scaled.join(',');
             }
-            previousWidth = img.clientWidth;
+            //previousWidth tracking removed; using immutable baseWidth
             //previousWidth = document.body.clientWidth;
             Colorea();
             return true;
         };
         window.removeEventListener('resize', resize);
-        window.addEventListener('resize', resize);
+        window.addEventListener('resize', resize, { passive: true });
     },
         imageMap = new ImageMap(document.querySelector(`map`));
 
@@ -511,7 +516,7 @@ loteador.inicializar = async function () {
 
     let color, txtBind;
     let xmlData = xo.stores.active;
-    if (loteador.inicializado == xmlData) return;
+    //if (loteador.inicializado == xmlData) return;
     loteador.inicializado = xmlData;
     await xmlData.ready;
     xmlData = xmlData.document;
@@ -541,7 +546,9 @@ loteador.inicializar = async function () {
         let bind = filter.attr("bind");
         let bind_text = filter.attr("bind_text");
         let xo_source = filter.attributes["xo-source"];
-        let txtNombreFiltro = filter.id || bind.replace(/[\W@]/ig, '_');
+        let baseId = filter.id || bind.replace(/[^A-Za-z0-9_@]/ig, '_');
+        let suffix = (filter.attr("title") || '').replace(/[^A-Za-z0-9_@]/g, '_').toLowerCase();
+        let txtNombreFiltro = suffix ? `${baseId}__${suffix}` : baseId;
         let div = xo.xml.createNode(`<div xmlns="http://www.w3.org/1999/xhtml" id="${txtNombreFiltro}" bind="${bind}" class="filter col-12 col-sm-6 col-md-4 col-xs-4 col-lg-3 col-xl-2"><h4 style='cursor:pointer;'><input type="radio" id="radio_${txtNombreFiltro}" name="filter_headers" onchange="Colorea(this)"/><label for="radio_${txtNombreFiltro}">${filter.attr("title")}</label></h4></div>`)
         div.applyAttributes(filter.attributes);
         if (xo_source) {
@@ -668,7 +675,7 @@ function areaToSvg(areaElement) {
     // Create the polygon element
     const polygon = document.createElementNS(svgNamespace, "polygon");
     polygon.setAttribute("points", adjustedPoints);
-    polygon.setAttribute("fill", "current");
+    polygon.setAttribute("fill", "currentColor");
     polygon.setAttribute("stroke", "black");
     polygon.setAttribute("stroke-width", "2");
 
@@ -716,6 +723,10 @@ function mostrarNumerosDeCasa() {
             pointerEvents: "none"
         });
         // Adjuntar sobre imagen
-        area.closest("map").parentElement.appendChild(label);
+        const container = area.closest("map").parentElement;
+        if (container && getComputedStyle(container).position === 'static') {
+          container.style.position = 'relative';
+        }
+        container.appendChild(label);
     }
 }
