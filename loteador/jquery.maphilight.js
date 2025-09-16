@@ -222,12 +222,12 @@
 			let img, wrap, options, map, canvas, canvas_always, highlighted_shape, usemap, imgSrc;
 			img = $(this);
 
-			if (!is_image_loaded(this)) {
-				// If the image isn't fully loaded, this won't work right.  Try again later.
-				return window.setTimeout(function () {
-					img.maphilight(opts);
-				}, 200);
-			}
+			//if (!is_image_loaded(this)) {
+			//	// If the image isn't fully loaded, this won't work right.  Try again later.
+			//	return window.setTimeout(function () {
+			//		img.maphilight(opts);
+			//	}, 200);
+			//}
 
 			options = $.extend({}, opts, $.metadata ? img.metadata() : false, img.data('maphilight'));
 
@@ -239,7 +239,7 @@
 				return;
 			}
 
-			map = $('map[name="' + usemap.substr(1) + '"]');
+			map = $('map[name="' + usemap.substr(1) + '"]', this.parentNode);
 
 			if (!(img.is('img,input[type="image"]') && usemap && map.length > 0)) {
 				return;
