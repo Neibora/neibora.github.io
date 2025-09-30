@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="es" translate="no">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dashboard HOA – Neibora (Full v2)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --bg: #0f1115;
+            --panel: #151923;
+            --panel-2: #0e1420;
+            --text: #e8eef6;
+            --muted: #9fb0c8;
+            --ok: #2fb67e;
+            --warn: #f3b23a;
+            --risk: #e35d6a;
+            --brand: #20787A;
+            --brand-2: #1aa3a5;
+            --grid-gap: 18px;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html, body {
+            height: 100%
+        }
+
+        body {
+            margin: 0;
+            font-family: Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;
+            background: linear-gradient(180deg,#0c0f17, #0a0d14 40%, #0b0f1a 100%);
+            color: var(--text)
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: rgba(10,14,20,.7);
+            backdrop-filter: saturate(140%) blur(10px);
+            border-bottom: 1px solid #1f2533
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 14px 18px
+        }
+
+        .title {
+            display: flex;
+            align-items: center;
+            gap: 10px
+        }
+
+        .badge {
+            font-size: 12px;
+            color: #cfe8ff;
+            background: #11253a;
+            border: 1px solid #213a5b;
+            padding: 2px 8px;
+            border-radius: 999px
+        }
+
+        .filters {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 10px;
+            margin-top: 12px
+        }
+
+        select, input[type="month"] {
+            width: 100%;
+            background: #0f1522;
+            color: var(--text);
+            border: 1px solid #233048;
+            border-radius: 10px;
+            padding: 10px;
+            appearance: none
+        }
+
+        .grid {
+            display: grid;
+            gap: var(--grid-gap)
+        }
+
+            .grid.cols-3 {
+                grid-template-columns: repeat(3,1fr)
+            }
+
+            .grid.cols-2 {
+                grid-template-columns: repeat(2,1fr)
+            }
+
+        @media (max-width:1024px) {
+            .grid.cols-3 {
+                grid-template-columns: 1fr 1fr
+            }
+        }
+
+        @media (max-width:720px) {
+            .filters {
+                grid-template-columns: 1fr 1fr
+            }
+
+            .grid.cols-3, .grid.cols-2 {
+                grid-template-columns: 1fr
+            }
+        }
+
+        .card {
+            background: linear-gradient(180deg,var(--panel),var(--panel-2));
+            border: 1px solid #1e2636;
+            border-radius: 16px;
+            padding: 14px 14px 10px 14px;
+            box-shadow: 0 10px 30px rgba(0,0,0,.25)
+        }
+
+            .card h3 {
+                margin: 0 0 8px 0;
+                font-size: 14px;
+                color: #c9d6ea;
+                font-weight: 600
+            }
+
+        .kpis {
+            display: grid;
+            grid-template-columns: repeat(4,1fr);
+            gap: var(--grid-gap)
+        }
+
+        @media (max-width:1024px) {
+            .kpis {
+                grid-template-columns: repeat(2,1fr)
+            }
+        }
+
+        @media (max-width:720px) {
+            .kpis {
+                grid-template-columns: 1fr
+            }
+        }
+
+        .kpi {
+            display: flex;
+            flex-direction: column;
+            gap: 10px
+        }
+
+            .kpi .val {
+                font-size: 28px;
+                font-weight: 700
+            }
+
+            .kpi small {
+                color: var(--muted)
+            }
+
+        .delta {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            border: 1px solid #2a344a;
+            width: max-content
+        }
+
+        .ok {
+            color: #c8ffe7;
+            border-color: #2b5b49;
+            background: linear-gradient(180deg,#0e231c,#0d1916)
+        }
+
+        .warn {
+            color: #fff3d3;
+            border-color: #6b4f1b;
+            background: linear-gradient(180deg,#22190b,#1b150b)
+        }
+
+        .risk {
+            color: #ffe1e4;
+            border-color: #6d2a2f;
+            background: linear-gradient(180deg,#2a0f12,#1b0c0e)
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border: 1px solid #202a3d;
+            border-radius: 12px;
+            overflow: hidden
+        }
+
+            .table th, .table td {
+                padding: 10px 12px;
+                text-align: left;
+                border-bottom: 1px solid #1f283a
+            }
+
+            .table th {
+                background: #0f1522;
+                color: #aecdff;
+                font-weight: 600;
+                font-size: 12px
+            }
+
+            .table tr:last-child td {
+                border-bottom: 0
+            }
+
+        .bar-cell {
+            height: 8px;
+            background: #0f1522;
+            border-radius: 6px;
+            position: relative
+        }
+
+            .bar-cell > i {
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                border-radius: 6px;
+                background: linear-gradient(90deg,var(--brand),var(--brand-2))
+            }
+
+        .chips {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap
+        }
+
+        .chip {
+            font-size: 11px;
+            border: 1px solid #2a344a;
+            padding: 2px 8px;
+            border-radius: 999px;
+            color: #d0deff
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 8px 0 4px
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px
+        }
+
+        .btn {
+            background: #0f1522;
+            border: 1px solid #22314a;
+            color: #e6f0ff;
+            padding: 8px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            cursor: pointer
+        }
+
+            .btn:hover {
+                filter: brightness(1.1)
+            }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            white-space: nowrap;
+            border: 0
+        }
+
+        .spark {
+            height: 28px
+        }
+
+        .footer {
+            color: #7a8aa6;
+            font-size: 12px;
+            margin: 18px 0;
+            text-align: center
+        }
+
+        .line-loader {
+            position: fixed;
+            left: 0;
+            right: 0;
+            top: 0;
+            height: 3px;
+            background: linear-gradient(90deg,transparent, var(--brand), var(--brand-2), transparent);
+            background-size: 200% 100%;
+            animation: load 2s linear infinite;
+            opacity: .0;
+            pointer-events: none
+        }
+
+            .line-loader.active {
+                opacity: .9
+            }
+
+        @keyframes load {
+            0% {
+                background-position: 200% 0
+            }
+
+            100% {
+                background-position: -200% 0
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="line-loader" id="loader"></div>
+    <header>
+        <div class="container">
+            <div class="title">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 10h16v10H4z" stroke="#7ad6d7" /><path d="M8 10V6h8v4" stroke="#7ad6d7" /></svg>
+                <h1 style="margin:0;font-size:18px;font-weight:700">Dashboard HOA – Neibora</h1>
+                <span class="badge">Vista general</span>
+            </div>
+            <div class="filters" role="group" aria-label="Filtros">
+                <select id="selCoto" aria-label="Coto">
+                    <option value="Cantabria" selected>Cantabria</option>
+                    <option value="Galicia">Galicia</option>
+                    <option value="Asturias">Asturias</option>
+                </select>
+                <input id="selMes" type="month" aria-label="Mes" />
+                <select id="selAgrup" aria-label="Agrupación">
+                    <option value="dia" selected>Por día</option>
+                    <option value="semana">Por semana</option>
+                    <option value="mes">Por mes</option>
+                </select>
+                <select id="selArea" aria-label="Área">
+                    <option value="all" selected>Todos los módulos</option>
+                    <option value="finanzas">Finanzas</option>
+                    <option value="operacion">Operación</option>
+                    <option value="convivencia">Convivencia</option>
+                    <option value="gobierno">Gobierno</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <main class="container" id="app" aria-live="polite">
+
+        <!-- KPIs PRINCIPALES -->
+        <section class="kpis" aria-labelledby="kpis-title">
+            <h2 id="kpis-title" class="sr-only">Indicadores principales</h2>
+            <div class="card kpi" id="kpi-recaudacion">
+                <h3>Recaudación del mes</h3>
+                <div class="val" id="kpiRecaudacionVal">$0</div>
+                <div class="delta ok" id="kpiRecaudacionDelta">+0% vs mes anterior</div>
+                <canvas class="spark" id="sparkRecaudacion" aria-label="Tendencia de recaudación" role="img"></canvas>
+            </div>
+            <div class="card kpi" id="kpi-morosidad">
+                <h3>Morosidad total</h3>
+                <div class="val" id="kpiMorosidadVal">0%</div>
+                <div class="delta warn" id="kpiMorosidadDelta">0 cuentas en riesgo</div>
+                <canvas class="spark" id="sparkMorosidad" aria-label="Tendencia de morosidad" role="img"></canvas>
+            </div>
+            <div class="card kpi" id="kpi-sla">
+                <h3>Tiempo medio de resolución</h3>
+                <div class="val" id="kpiSlaVal">0 h</div>
+                <div class="delta ok" id="kpiSlaDelta">SLA dentro de objetivo</div>
+                <canvas class="spark" id="sparkSLA" aria-label="Tendencia de SLA" role="img"></canvas>
+            </div>
+            <div class="card kpi" id="kpi-ocupacion">
+                <h3>Ocupación áreas comunes</h3>
+                <div class="val" id="kpiOcupacionVal">0%</div>
+                <div class="delta warn" id="kpiOcupacionDelta">Horas pico: —</div>
+                <canvas class="spark" id="sparkOcupacion" aria-label="Tendencia de ocupación" role="img"></canvas>
+            </div>
+        </section>
+
+        <!-- FILA 1: Finanzas -->
+        <section style="margin-top:18px">
+            <div class="section-title">
+                <h2 style="margin:0;font-size:16px">Finanzas</h2>
+                <div class="actions">
+                    <button class="btn" data-export="finanzas">Exportar CSV</button>
+                </div>
+            </div>
+            <div class="grid cols-3">
+                <article class="card">
+                    <h3>Recaudación (ordinaria vs extraordinaria)</h3>
+                    <canvas id="chRecaudacion"></canvas>
+                </article>
+                <article class="card">
+                    <h3>Morosidad por antigüedad</h3>
+                    <canvas id="chMorosidad"></canvas>
+                </article>
+                <article class="card">
+                    <h3>Flujo 30 días (ingresos vs egresos)</h3>
+                    <canvas id="chFlujo"></canvas>
+                </article>
+            </div>
+
+            <div class="grid cols-2" style="margin-top:var(--grid-gap)">
+                <article class="card">
+                    <div class="section-title"><h3 style="margin:0">Top 10 adeudos</h3></div>
+                    <table class="table" aria-label="Top 10 adeudos">
+                        <thead><tr><th>Domicilio</th><th>Antigüedad</th><th> Monto </th><th style="width:40%">% del total</th></tr></thead>
+                        <tbody id="tbAdeudos"></tbody>
+                    </table>
+                </article>
+                <article class="card">
+                    <h3>Ingresos por multas e intereses (YTD)</h3>
+                    <canvas id="chMultas"></canvas>
+                </article>
+            </div>
+        </section>
+
+        <!-- FILA 2: Operación y Accesos -->
+        <section style="margin-top:18px">
+            <div class="section-title">
+                <h2 style="margin:0;font-size:16px">Operación y Accesos</h2>
+                <div class="actions"><button class="btn" data-export="operacion">Exportar CSV</button></div>
+            </div>
+            <div class="grid cols-3">
+                <article class="card"><h3>Tickets por categoría (abiertos/cerrados)</h3><canvas id="chTickets"></canvas></article>
+                <article class="card"><h3>Tags activos vs solicitados</h3><canvas id="chTags"></canvas></article>
+                <article class="card"><h3>Altas/Bajas de habitantes (90 días)</h3><canvas id="chAltasBajas"></canvas></article>
+            </div>
+        </section>
+
+        <!-- FILA 3: Convivencia y Áreas Comunes -->
+        <section style="margin-top:18px">
+            <div class="section-title">
+                <h2 style="margin:0;font-size:16px">Convivencia y Áreas Comunes</h2>
+                <div class="actions"><button class="btn" data-export="convivencia">Exportar CSV</button></div>
+            </div>
+            <div class="grid cols-3">
+                <article class="card"><h3>Reservas por área</h3><canvas id="chReservas"></canvas></article>
+                <article class="card"><h3>Aforo estimado (horas pico)</h3><canvas id="chAforo"></canvas></article>
+                <article class="card"><h3>Multas por tipo (Pareto)</h3><canvas id="chPareto"></canvas></article>
+            </div>
+        </section>
+
+        <!-- FILA 4: Gobierno y Cumplimiento -->
+        <section style="margin-top:18px">
+            <div class="section-title">
+                <h2 style="margin:0;font-size:16px">Gobierno y Cumplimiento</h2>
+                <div class="actions"><button class="btn" data-export="gobierno">Exportar CSV</button></div>
+            </div>
+            <div class="grid cols-2">
+                <article class="card">
+                    <h3>Ejecución presupuestal (CapEx / OpEx)</h3>
+                    <canvas id="chPresupuesto"></canvas>
+                </article>
+                <article class="card">
+                    <div class="section-title"><h3 style="margin:0">Contratos por vencer</h3></div>
+                    <table class="table" aria-label="Contratos por vencer">
+                        <thead><tr><th>Proveedor</th><th>Rubro</th><th>Vence</th><th>Estatus</th></tr></thead>
+                        <tbody id="tbContratos"></tbody>
+                    </table>
+                </article>
+            </div>
+        </section>
+
+        <p class="footer">Starter UI listo para conectar a datos reales (CSV/JSON/API). © Neibora</p>
+    </main>
+
+    <div class="line-loader" id="loader2" style="display:none"></div>
+
+    <script>
+        // ===============================
+        // Helpers UI
+        // ===============================
+        const $ = (sel, el = document) => el.querySelector(sel)
+        const $$ = (sel, el = document) => [...el.querySelectorAll(sel)]
+        const fmtMoney = v => v.toLocaleString('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 })
+        const fmtPct = v => (v * 100).toFixed(1) + '%'
+        const loader = $('#loader')
+        const showLoader = (on = true) => loader.classList.toggle('active', !!on)
+
+        // ===============================
+        // Seed de ejemplo (reemplace con datos reales)
+        // ===============================
+        function mockData(seedMonth) {
+            const days = 30
+            const recOrd = Array.from({ length: days }, (_, i) => Math.round(800 + Math.random() * 1200))
+            const recExt = Array.from({ length: days }, (_, i) => Math.round(Math.random() * 600))
+            const morAging = { '0-30': 0.42, '31-60': 0.28, '61-90': 0.18, '>90': 0.12 }
+            const flujoIn = Array.from({ length: 30 }, () => Math.round(1200 + Math.random() * 1500))
+            const flujoOut = Array.from({ length: 30 }, () => Math.round(600 + Math.random() * 900))
+            const multasYTD = Array.from({ length: 12 }, () => Math.round(2000 + Math.random() * 6000))
+            const interesesYTD = Array.from({ length: 12 }, () => Math.round(1500 + Math.random() * 4000))
+            const adeudos = Array.from({ length: 10 }, (_, i) => ({ domicilio: `Cantabria ${90 + i}`, meses: Math.ceil(Math.random() * 6), monto: Math.round(1500 + Math.random() * 12000) }))
+            const tickets = ['Alberca', 'Jardín', 'Accesos', 'Limpieza', 'Seguridad'].map(cat => ({ cat, abiertos: Math.round(2 + Math.random() * 8), cerrados: Math.round(5 + Math.random() * 12) }))
+            const tags = { activos: 380, solicitados: 420 }
+            const altasBajas = Array.from({ length: 13 }, (_, i) => ({ mes: i, altas: Math.round(Math.random() * 6), bajas: Math.round(Math.random() * 4) }))
+            const reservas = { 'Salón': Array.from({ length: 12 }, () => Math.round(Math.random() * 12)), 'Terraza': Array.from({ length: 12 }, () => Math.round(Math.random() * 12)), 'Alberca': Array.from({ length: 12 }, () => Math.round(Math.random() * 12)) }
+            const aforo = Array.from({ length: 24 }, (_, h) => ({
+                h,
+                val: Math.round(
+                    Math.max(0, Math.sin(((h - 6) / 24) * 2 * Math.PI) * 40 + 50 + Math.random() * 10)
+                )
+            }))
+            const multasTipo = { Ruido: 21, Estacionamiento: 12, Mascotas: 9, Basura: 6, Otros: 4 }
+            const presupuesto = { CapEx: { meta: 250000, ejecutado: 180000 }, OpEx: { meta: 900000, ejecutado: 702000 } }
+            const contratos = [
+                { prov: 'Limpieza Total', rubro: 'Limpieza', vence: '2025-10-15', est: 'Vigente' },
+                { prov: 'Seguritek', rubro: 'Seguridad', vence: '2025-11-01', est: 'Por vencer' },
+                { prov: 'AquaPlus', rubro: 'Mantenimiento Alberca', vence: '2025-12-05', est: 'Vigente' },
+            ]
+            return { recOrd, recExt, morAging, flujoIn, flujoOut, multasYTD, interesesYTD, adeudos, tickets, tags, altasBajas, reservas, aforo, multasTipo, presupuesto, contratos }
+        }
+
+        // ===============================
+        // Charts (Chart.js 4)
+        // ===============================
+        const charts = {}
+        function makeChart(ctx, config) {
+            if (charts[ctx]) { charts[ctx].destroy() }
+            const c = new Chart(document.getElementById(ctx), config)
+            charts[ctx] = c; return c
+        }
+
+        function initCharts(data) {
+            // Recaudación stacked
+            makeChart('chRecaudacion', {
+                type: 'bar',
+                data: {
+                    labels: Array.from({ length: data.recOrd.length }, (_, i) => String(i + 1)),
+                    datasets: [
+                        { label: 'Ordinaria', data: data.recOrd, backgroundColor: 'rgba(32,120,122,.9)', stack: 'rec' },
+                        { label: 'Extraordinaria', data: data.recExt, backgroundColor: 'rgba(26,163,165,.8)', stack: 'rec' }
+                    ]
+                },
+                options: { responsive: true, scales: { x: { grid: { display: false } }, y: { grid: { color: '#1f293b' }, beginAtZero: true } }, plugins: { legend: { labels: { color: '#cfe8ff' } }, tooltip: { mode: 'index', intersect: false } } }
+            })
+
+            // Morosidad donut (aging)
+            makeChart('chMorosidad', {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(data.morAging),
+                    datasets: [{ data: Object.values(data.morAging), backgroundColor: ['#2fb67e', '#f3b23a', '#f0874a', '#e35d6a'] }]
+                }, options: { plugins: { legend: { labels: { color: '#cfe8ff' } } }, cutout: '60%' }
+            })
+
+            // Flujo 30 días
+            makeChart('chFlujo', {
+                type: 'line',
+                data: {
+                    labels: Array.from({ length: data.flujoIn.length }, (_, i) => String(i + 1)),
+                    datasets: [
+                        { label: 'Ingresos', data: data.flujoIn, tension: .3 },
+                        { label: 'Egresos', data: data.flujoOut, tension: .3 }
+                    ]
+                },
+                options: { responsive: true, scales: { x: { grid: { display: false } }, y: { grid: { color: '#1f293b' }, beginAtZero: true } } }
+            })
+
+            // Multas + Intereses (YTD)
+            makeChart('chMultas', {
+                type: 'bar',
+                data: {
+                    labels: ['E', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'], datasets: [
+                        { label: 'Multas', data: data.multasYTD },
+                        { label: 'Intereses', data: data.interesesYTD }
+                    ]
+                }, options: { scales: { x: { grid: { display: false } }, y: { grid: { color: '#1f293b' }, beginAtZero: true } } }
+            })
+
+            // Tickets abiertos/cerrados apilados
+            makeChart('chTickets', {
+                type: 'bar',
+                data: {
+                    labels: data.tickets.map(t => t.cat), datasets: [
+                        { label: 'Abiertos', data: data.tickets.map(t => t.abiertos), stack: 't' },
+                        { label: 'Cerrados', data: data.tickets.map(t => t.cerrados), stack: 't' }
+                    ]
+                }, options: { scales: { x: { grid: { display: false } }, y: { grid: { color: '#1f293b' }, beginAtZero: true } } }
+            })
+
+            // Tags gauge (doughnut parcial)
+            const avance = Math.min(1, data.tags.activos / data.tags.solicitados)
+            makeChart('chTags', {
+                type: 'doughnut',
+                data: { labels: ['Activos', 'Pendiente'], datasets: [{ data: [avance, 1 - avance] }] },
+                options: { rotation: -90, circumference: 180, plugins: { legend: { display: false } }, cutout: '70%' }
+            })
+
+            // Altas/Bajas últimos 12 meses
+            makeChart('chAltasBajas', {
+                type: 'bar', data: {
+                    labels: Array.from({ length: 12 }, (_, i) => ['E', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'][i]),
+                    datasets: [{ label: 'Altas', data: data.altasBajas.slice(1).map(x => x.altas) }, { label: 'Bajas', data: data.altasBajas.slice(1).map(x => x.bajas) }]
+                }, options: { scales: { x: { grid: { display: false } }, y: { grid: { color: '#1f293b' }, beginAtZero: true } } }
+            })
+
+            // Reservas por área (apiladas)
+            makeChart('chReservas', {
+                type: 'bar', data: { labels: ['E', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'], datasets: Object.entries(data.reservas).map(([k, vals]) => ({ label: k, data: vals, stack: 'r' })) }, options: { scales: { x: { grid: { display: false } }, y: { grid: { color: '#1f293b' }, beginAtZero: true } } }
+            })
+
+            // Aforo por hora (línea)
+            makeChart('chAforo', { type: 'line', data: { labels: data.aforo.map(a => a.h + ':00'), datasets: [{ label: 'Aforo', data: data.aforo.map(a => a.val), tension: .35 }] }, options: { scales: { x: { grid: { display: false } }, y: { grid: { color: '#1f293b' }, beginAtZero: true } } } })
+
+            // Pareto multas por tipo
+            const tipos = Object.keys(data.multasTipo)
+            const vals = Object.values(data.multasTipo)
+            const total = vals.reduce((a, b) => a + b, 0)
+            const accPct = vals.map((v, i) => vals.slice(0, i + 1).reduce((a, b) => a + b, 0) / total)
+            makeChart('chPareto', {
+                type: 'bar', data: { labels: tipos, datasets: [{ label: 'Casos', data: vals, yAxisID: 'y' }, { type: 'line', label: '% Acumulado', data: accPct.map(p => p * 100), yAxisID: 'y1', tension: .2 }] },
+                options: { scales: { x: { grid: { display: false } }, y: { position: 'left', beginAtZero: true, grid: { color: '#1f293b' } }, y1: { position: 'right', min: 0, max: 100, grid: { drawOnChartArea: false } } } }
+            })
+
+            // Presupuesto CapEx/OpEx (donut doble)
+            makeChart('chPresupuesto', {
+                type: 'doughnut', data: {
+                    labels: ['CapEx meta', 'CapEx ejecutado', 'OpEx meta', 'OpEx ejecutado'], datasets: [
+                        { data: [data.presupuesto.CapEx.meta, data.presupuesto.CapEx.ejecutado, 0, 0], backgroundColor: ['#26486b', '#3a89c9', '#00000000', '#00000000'] },
+                        { data: [0, 0, data.presupuesto.OpEx.meta, data.presupuesto.OpEx.ejecutado], backgroundColor: ['#00000000', '#00000000', '#2fb67e', '#8bd3b5'] }
+                    ]
+                }, options: { plugins: { legend: { display: false } }, cutout: '60%' }
+            })
+        }
+
+        function fillTables(data) {
+            // Top adeudos
+            const total = data.adeudos.reduce((a, b) => a + b.monto, 0)
+            const rows = data.adeudos.sort((a, b) => b.monto - a.monto).map(a => {
+                const pct = a.monto / total; const w = Math.max(4, Math.round(pct * 100))
+                return `<tr>
+              <td>${a.domicilio}</td>
+              <td>${a.meses} mes(es)</td>
+              <td>${fmtMoney(a.monto)}</td>
+              <td><div class="bar-cell" aria-label="${(pct * 100).toFixed(1)}% del total"><i style="width:${w}%"></i></div></td>
+            </tr>`
+            }).join('')
+            $('#tbAdeudos').innerHTML = rows
+
+            // Contratos por vencer
+            $('#tbContratos').innerHTML = data.contratos.map(c => {
+                const days = Math.round((new Date(c.vence) - new Date()) / 86400000)
+                const cls = days < 15 ? 'risk' : days < 45 ? 'warn' : 'ok'
+                return `<tr>
+              <td>${c.prov}</td>
+              <td>${c.rubro}</td>
+              <td>${new Date(c.vence).toLocaleDateString('es-MX')}</td>
+              <td><span class="delta ${cls}">${c.est} • ${days} días</span></td>
+            </tr>`
+            }).join('')
+        }
+
+        function updateKpis(data) {
+            const recMes = data.recOrd.reduce((a, b) => a + b, 0) + data.recExt.reduce((a, b) => a + b, 0)
+            const recPrev = recMes * (0.9 + Math.random() * 0.2)
+            $('#kpiRecaudacionVal').textContent = fmtMoney(recMes)
+            const delta = ((recMes - recPrev) / recPrev); const deltaEl = $('#kpiRecaudacionDelta')
+            deltaEl.textContent = `${delta > 0 ? '+' : ''}${(delta * 100).toFixed(1)}% vs mes anterior`
+            deltaEl.className = 'delta ' + (delta > 0 ? 'ok' : delta < -0.05 ? 'risk' : 'warn')
+
+            const morTotal = Object.values(data.morAging).reduce((a, b) => a + b, 0)
+            $('#kpiMorosidadVal').textContent = fmtPct(morTotal)
+            $('#kpiMorosidadDelta').textContent = `${Math.round(morTotal * 100)} cuentas en riesgo`
+
+            const sla = 12 + Math.round(Math.random() * 10)
+            $('#kpiSlaVal').textContent = `${sla} h`
+            $('#kpiSlaDelta').textContent = sla <= 24 ? 'SLA dentro de objetivo' : 'SLA fuera de objetivo'
+            $('#kpiSlaDelta').className = 'delta ' + (sla <= 24 ? 'ok' : 'risk')
+
+            const ocup = 0.55 + Math.random() * 0.25
+            $('#kpiOcupacionVal').textContent = fmtPct(ocup)
+            $('#kpiOcupacionDelta').textContent = `Horas pico: ${["17:00", "18:00", "19:00"][Math.floor(Math.random() * 3)]}`
+        }
+
+        function initSparks() {
+            const base = { type: 'line', options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } } }
+            makeChart('sparkRecaudacion', { ...base, data: { labels: Array.from({ length: 14 }, (_, i) => i + 1), datasets: [{ data: Array.from({ length: 14 }, () => 800 + Math.random() * 1200), fill: false, tension: .3 }] } })
+            makeChart('sparkMorosidad', { ...base, data: { labels: Array.from({ length: 14 }, (_, i) => i + 1), datasets: [{ data: Array.from({ length: 14 }, () => 15 + Math.random() * 10), fill: false, tension: .3 }] } })
+            makeChart('sparkSLA', { ...base, data: { labels: Array.from({ length: 14 }, (_, i) => i + 1), datasets: [{ data: Array.from({ length: 14 }, () => 10 + Math.random() * 15), fill: false, tension: .3 }] } })
+            makeChart('sparkOcupacion', { ...base, data: { labels: Array.from({ length: 14 }, (_, i) => i + 1), datasets: [{ data: Array.from({ length: 14 }, () => 50 + Math.random() * 30), fill: false, tension: .3 }] } })
+        }
+
+        async function boot() {
+            showLoader(true)
+            const yyyymm = new Date().toISOString().slice(0, 7)
+            $('#selMes').value = yyyymm
+            const data = mockData(yyyymm)
+            initSparks()
+            initCharts(data)
+            fillTables(data)
+            updateKpis(data)
+            showLoader(false)
+        }
+
+        // Eventos de filtros (ejemplo)
+        $$('#selCoto, #selMes, #selAgrup, #selArea').forEach(el => {
+            el.addEventListener('change', () => {
+                showLoader(true)
+                setTimeout(() => { // simula recarga
+                    const data = mockData($('#selMes').value)
+                    initCharts(data); fillTables(data); updateKpis(data)
+                    showLoader(false)
+                }, 400)
+            })
+        })
+
+        // Export CSV (placeholder)
+        $$('.btn[data-export]').forEach(b => b.addEventListener('click', () => {
+            alert('Export CSV – Conectar a dataset real o construir con los datos de cada bloque.')
+        }))
+
+        boot()
+    </script>
+</body>
+</html>
