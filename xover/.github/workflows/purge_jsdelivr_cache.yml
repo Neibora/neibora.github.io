@@ -1,0 +1,17 @@
+name: purge-jsdelivr-cache
+
+on: 
+  workflow_dispatch: # Put here!!
+  push: 
+    branches: 
+      - main
+
+jobs:
+  purge-jsdelivr-cache:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: gacts/purge-jsdelivr-cache@v1
+        with:
+          url: |
+            https://cdn.jsdelivr.net/gh/panaxit/xover@latest/xo.js
+            https://cdn.jsdelivr.net/gh/panaxit/xover@latest/xo.min.js
