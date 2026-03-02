@@ -1,4 +1,4 @@
-////xo.listener.on('error', function () {
+﻿////xo.listener.on('error', function () {
 ////    if (!(this instanceof HTMLImageElement)) return;
 ////    this.appendBefore(this.ownerDocument.createComment(`No se pudo descargar ${this.getAttribute("src")}`));
 ////    let svg = this.replaceWith(xo.xml.createNode(`<html:div class="p-4 m-2"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-image" viewBox="0 0 16 16">
@@ -150,3 +150,20 @@ xo.listener.on(`show::.toast-container`, function () {
         toast.show();
     }
 })
+
+async function updateTunnel() {
+	 try {
+			let gist = xover.manifest.session.gist;
+			if (!gist) return;
+			await fetch(gist)
+				 .then(res => res.text())
+				 .then(gist => xover.session.server = gist["tunnel"] || gist)
+			if (!xover.session.server) xover.session.server = prompt("Proporcione la dirección del túnel")
+	 } catch (e) {
+			console.error(e)
+	 }
+}
+function image_manager() {
+  debugger
+}
+xo.listener.on('error', image_manager)
