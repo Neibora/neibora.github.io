@@ -2,168 +2,186 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta name="debug" content="true">
-    <meta name="google-signin-client_id" content="702910492615-1j349kcolfamd93ovgt1jog7c28kur2m.apps.googleusercontent.com" />
-    <title>Lotificador</title>
-    <!--<meta http-equiv="refresh" content="30">-->
-    <link href="../css/style.css" rel="stylesheet" type="text/css" />
-    <link href="loteador.css" rel="stylesheet" type="text/css" />
-    <link rel="xover-manifest" href="../manifest.json?v=20250121_1904">
-    <link rel="xover-manifest" href="manifest.json?v=20250121_1904">
-    <script type="text/javascript" src="../xover/xo.js?v=20250121_1904"></script>
-    <script type="text/javascript" src="../custom.js?v=20250121_1904"></script>
-    <script type="text/javascript" src="../socket.io.js?v=20250121_1904"></script>
-    <script type="text/javascript" src="jquery.min.js"></script>
-    <link rel="icon" href="../assets/img/icon.png" type="image/x-icon" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="debug" content="true">
+  <meta name="google-signin-client_id" content="702910492615-1j349kcolfamd93ovgt1jog7c28kur2m.apps.googleusercontent.com" />
+  <title>Lotificador</title>
+  <!--<meta http-equiv="refresh" content="30">-->
+  <link href="../css/style.css" rel="stylesheet" type="text/css" />
+  <link href="loteador.css" rel="stylesheet" type="text/css" />
+  <link rel="xover-manifest" href="../manifest.json?v=20250121_1904">
+  <link rel="xover-manifest" href="manifest.json?v=20250121_1904">
+  <link rel="xover-manifest" href=".manifest?v=20250121_1904">
+  <script type="text/javascript" src="../xover/xo.js?v=20250121_1904"></script>
+  <script type="text/javascript" src="../custom.js?v=20250121_1904"></script>
+  <script type="text/javascript" src="../socket.io.js?v=20250121_1904"></script>
+  <script type="text/javascript" src="jquery.min.js"></script>
+  <link rel="icon" href="../assets/img/icon.png" type="image/x-icon" />
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" defer></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" defer></script>
+  <script>
+    //xo.listener.on(['transform?stylesheet.href*=loteador.xslt'], function ({result}) {
+    //    result.querySelector('map')?.dispatch('loteador:init');
+    //})
+    xo.listener.on(['render?stylesheet.href*=loteador.xslt'], function () {
+      //this.querySelector('map')?.dispatch('loteador:init');
+      if (typeof (loteador.inicializar) === undefined) return;
+      loteador.inicializar()
+    })
 
-    <script>
-        xo.listener.on(['render?stylesheet.href*=loteador.xslt'], function () {
-            window.loteador && loteador.inicializar()
-        })
-        function generateKML() {
-            // Center point coordinates
-            const centerLat = 22.191940881741285;
-            const centerLng = -101.0647421765323;
+    xo.listener.on(['fetch?href*=.map'], function ({ body }) {
+      let fragment = xover.string.toHTML(body)
+      return xover.xml.createDocument(fragment.querySelector("map"));
+    })
 
-            // Function to calculate latitude and longitude offsets from center point
-            function calculateOffset(x, y, rotationAngle = 0, scaleX = .3, scaleY = .3) {
-                // Adjust for flipping vertically
-                const flippedY = -y;
+    xo.listener.on(['append::map'], function () {
+      //let map = this;
+      //   map.dispatch('loteador:init');
+      if (typeof (loteador.inicializar) === undefined) return;
+      loteador.inicializar()
+    })
 
-                // Apply rotation
-                const rotatedX = x * Math.cos(rotationAngle) - flippedY * Math.sin(rotationAngle);
-                const rotatedY = x * Math.sin(rotationAngle) + flippedY * Math.cos(rotationAngle);
+    function generateKML() {
+      // Center point coordinates
+      const centerLat = 22.191940881741285;
+      const centerLng = -101.0647421765323;
 
-                // Apply scaling
-                const scaledX = rotatedX * scaleX;
-                const scaledY = rotatedY * scaleY;
+      // Function to calculate latitude and longitude offsets from center point
+      function calculateOffset(x, y, rotationAngle = 0, scaleX = .3, scaleY = .3) {
+        // Adjust for flipping vertically
+        const flippedY = -y;
 
-                // Calculate latitude and longitude offsets from center point
-                const latOffset = scaledY / 110540; // 1 degree of latitude is approximately 110540 meters
-                const lngOffset = scaledX / (111320 * Math.cos(centerLat * Math.PI / 180)); // 1 degree of longitude varies depending on latitude
+        // Apply rotation
+        const rotatedX = x * Math.cos(rotationAngle) - flippedY * Math.sin(rotationAngle);
+        const rotatedY = x * Math.sin(rotationAngle) + flippedY * Math.cos(rotationAngle);
 
-                // Calculate latitude and longitude
-                const lat = centerLat + latOffset;
-                const lng = centerLng + lngOffset;
+        // Apply scaling
+        const scaledX = rotatedX * scaleX;
+        const scaledY = rotatedY * scaleY;
 
-                return [lng, lat]; // Return [lng, lat] instead of [lat, lng] for KML format
-            }
+        // Calculate latitude and longitude offsets from center point
+        const latOffset = scaledY / 110540; // 1 degree of latitude is approximately 110540 meters
+        const lngOffset = scaledX / (111320 * Math.cos(centerLat * Math.PI / 180)); // 1 degree of longitude varies depending on latitude
+
+        // Calculate latitude and longitude
+        const lat = centerLat + latOffset;
+        const lng = centerLng + lngOffset;
+
+        return [lng, lat]; // Return [lng, lat] instead of [lat, lng] for KML format
+      }
 
 
-            // Create KML content
-            let kmlContent = `<?xml version="1.0" encoding="UTF-8"?>\n`;
-            kmlContent += `<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">\n`;
-            kmlContent += `<Document><StyleMap id="msn_ylw-pushpin">
-        <Pair>
-            <key>normal</key>
-            <styleUrl>#sn_ylw-pushpin</styleUrl>
-        </Pair>
-        <Pair>
-            <key>highlight</key>
-            <styleUrl>#sh_ylw-pushpin</styleUrl>
-        </Pair>
+      // Create KML content
+      let kmlContent = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+      kmlContent += `<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">\n`;
+      kmlContent += `<Document><StyleMap id="msn_ylw-pushpin">
+                <Pair>
+                    <key>normal</key>
+                    <styleUrl>#sn_ylw-pushpin</styleUrl>
+                </Pair>
+                <Pair>
+                    <key>highlight</key>
+                    <styleUrl>#sh_ylw-pushpin</styleUrl>
+                </Pair>
 </StyleMap>
 <Style id="sh_ylw-pushpin">
-        <IconStyle>
-            <scale>1.3</scale>
-            <Icon>
-                <href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
-            </Icon>
-            <hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
-        </IconStyle>
-        <BalloonStyle>
-        </BalloonStyle>
-        <LineStyle>
-            <width>4</width>
-        </LineStyle>
-        <PolyStyle>
-            <color>00ffffff</color>
-        </PolyStyle>
+                <IconStyle>
+                    <scale>1.3</scale>
+                    <Icon>
+                        <href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+                    </Icon>
+                    <hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
+                </IconStyle>
+                <BalloonStyle>
+                </BalloonStyle>
+                <LineStyle>
+                    <width>4</width>
+                </LineStyle>
+                <PolyStyle>
+                    <color>00ffffff</color>
+                </PolyStyle>
 </Style>
 <Style id="sn_ylw-pushpin">
-        <IconStyle>
-            <scale>1.1</scale>
-            <Icon>
-                <href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
-            </Icon>
-            <hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
-        </IconStyle>
-        <BalloonStyle>
-        </BalloonStyle>
-        <LineStyle>
-            <width>4</width>
-        </LineStyle>
-        <PolyStyle>
-            <color>00ffffff</color>
-        </PolyStyle>
+                <IconStyle>
+                    <scale>1.1</scale>
+                    <Icon>
+                        <href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+                    </Icon>
+                    <hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
+                </IconStyle>
+                <BalloonStyle>
+                </BalloonStyle>
+                <LineStyle>
+                    <width>4</width>
+                </LineStyle>
+                <PolyStyle>
+                    <color>00ffffff</color>
+                </PolyStyle>
 </Style>\n`;
 
-            // Iterate through areas and convert to KML format
-            const areas = document.querySelectorAll('map area');
-            areas.forEach((area, index) => {
-                const coords = area.getAttribute('coords');
-                const pairs = coords.split(',').map(parseFloat);
-                const points = [];
-                for (let i = 0; i < pairs.length; i += 2) {
-                    const [x, y] = pairs.slice(i, i + 2);
-                    const [lng, lat] = calculateOffset(x, y);
-                    points.push(`${lng},${lat},0`); // Assuming altitude is 0
-                }
-                // Close the polygon
-                points.push(points[0]);
-                kmlContent += `<Placemark>\n`;
-                kmlContent += `<name>Area ${index + 1}</name>\n`;
-                kmlContent += `<Polygon>\n`;
-                kmlContent += `<outerBoundaryIs><LinearRing><coordinates>${points.join(' ')}</coordinates></LinearRing></outerBoundaryIs>\n`;
-                kmlContent += `</Polygon>\n`;
-                kmlContent += `</Placemark>\n`;
-            });
-
-            // Close KML tags
-            kmlContent += `</Document>\n`;
-            kmlContent += `</kml>`;
-
-            // Download KML file
-            const blob = new Blob([kmlContent], { type: 'application/kml' });
-            const link = document.createElement('a');
-            link.href = window.URL.createObjectURL(blob);
-            link.download = 'output.kml';
-            link.click();
+      // Iterate through areas and convert to KML format
+      const areas = document.querySelectorAll('map area');
+      areas.forEach((area, index) => {
+        const coords = area.getAttribute('coords');
+        const pairs = coords.split(',').map(parseFloat);
+        const points = [];
+        for (let i = 0; i < pairs.length; i += 2) {
+          const [x, y] = pairs.slice(i, i + 2);
+          const [lng, lat] = calculateOffset(x, y);
+          points.push(`${lng},${lat},0`); // Assuming altitude is 0
         }
-    </script>
-    <script>
-        document.addEventListener('wheel', function (e) {
-            if (e.ctrlKey) {
-                e.preventDefault();
-                if (e.deltaY > 0) {
-                    document.querySelector(`.bi-zoom-out`).onclick()
-                } else {
-                    document.querySelector(`.bi-zoom-in`).onclick()
-                }
-            }
-        }, { passive: false });
+        // Close the polygon
+        points.push(points[0]);
+        kmlContent += `<Placemark>\n`;
+        kmlContent += `<name>Area ${index + 1}</name>\n`;
+        kmlContent += `<Polygon>\n`;
+        kmlContent += `<outerBoundaryIs><LinearRing><coordinates>${points.join(' ')}</coordinates></LinearRing></outerBoundaryIs>\n`;
+        kmlContent += `</Polygon>\n`;
+        kmlContent += `</Placemark>\n`;
+      });
 
-        document.addEventListener('keydown', function (e) {
-            if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '-' || e.key === '0')) {
-                e.preventDefault();
-                if (e.key === '-') {
-                    document.querySelector(`.bi-zoom-out`).onclick()
-                } else if (e.key === '+') {
-                    document.querySelector(`.bi-zoom-in`).onclick()
-                } else if (e.key === '0') {
-                    target = document.querySelector(`.bi-zoom-in`).closest('form').querySelector('.zoomable');
-                    target.style.transform = 'scale(1)';
+      // Close KML tags
+      kmlContent += `</Document>\n`;
+      kmlContent += `</kml>`;
 
-                    target = document.querySelector(`.bi-zoom-in`).closest('form').querySelector('.draggable');
-                    target.style.transform = `translate(0px, 0px)`
-                }
-            }
-        });
-    </script>
+      // Download KML file
+      const blob = new Blob([kmlContent], { type: 'application/kml' });
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = 'output.kml';
+      link.click();
+    }
+  </script>
+  <script>
+    document.addEventListener('wheel', function (e) {
+      if (e.ctrlKey) {
+        e.preventDefault();
+        if (e.deltaY > 0) {
+          document.querySelector(`.bi-zoom-out`).onclick()
+        } else {
+          document.querySelector(`.bi-zoom-in`).onclick()
+        }
+      }
+    }, { passive: false });
+
+    document.addEventListener('keydown', function (e) {
+      if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '-' || e.key === '0')) {
+        e.preventDefault();
+        if (e.key === '-') {
+          document.querySelector(`.bi-zoom-out`).onclick()
+        } else if (e.key === '+') {
+          document.querySelector(`.bi-zoom-in`).onclick()
+        } else if (e.key === '0') {
+          target = document.querySelector(`.bi-zoom-in`).closest('form').querySelector('.zoomable');
+          target.style.transform = 'scale(1)';
+
+          target = document.querySelector(`.bi-zoom-in`).closest('form').querySelector('.draggable');
+          target.style.transform = `translate(0px, 0px)`
+        }
+      }
+    });
+  </script>
 </head>
 <body style="height: 100vh; background-color: #688356; padding-left: 20rem;">
     <div class="toast-container position-fixed bottom-0 end-0 p-3"></div>
@@ -174,7 +192,7 @@
             <div id="Mapa" class="zoomable" style="height: 100%; position: relative; transform: scale(1); transform-origin: top left;" ondblclick="this.closest('form').querySelector('.bi-zoom-in').onclick(); return false" oncontextmenu="this.closest('form').querySelector('.bi-zoom-out').onclick(); return false">
                 <div style="width: 100%;height: 10%;" class="d-lg-none"></div>
                 <div style="width: 100%;height: 5%;" class="d-sm-none"></div>
-                <div class="loteador" xo-source="active" xo-stylesheet="../assets/desarrollos/{$state:desarrollo}/loteador.xslt" />
+                <div id="loteador" class="loteador" xo-source="active" xo-stylesheet="../assets/desarrollos/{$state:desarrollo}/loteador.xslt" />
             </div>
         </div>
         <div class="branded-message card-flipper">

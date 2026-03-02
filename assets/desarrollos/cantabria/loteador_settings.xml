@@ -24,7 +24,7 @@
 		</div>
 	</template>
 	<filters bind="data/item" id="Id">
-		<filter id="mantenimiento" title="Cuota Ago 2025" bind="@Status" xo-source="#cantabria">
+		<filter id="mantenimiento" title="Cuota Feb. 2026" bind="@Status" xo-source="#cantabria">
 			<option value="Anticipado" color="#4caf50"/>
 			<option value="Pagado" color="#97d933"/>
 			<option value="Incompleto" color="#ffeb3b">Parcialmente pagado</option>
@@ -33,12 +33,12 @@
 		</filter>
 		<filter id="extraordinarias_internas" title="Extraord. Internas" bind="@Status" xo-source="#cantabria_extraordinarias">
 			<option value="Pagado" color="#97d933"/>
-			<option value="Incompleto" color="#ffc107">Parcialmente pagado</option>
+			<option value="Incompleto" color="#ff9800">Parcialmente pagado</option>
 			<option value="Morosidad" color="#f81409">3 meses de atraso o más</option>
 		</filter>
 		<filter id="extraordinarias_externas" title="Extraord. Externas" bind="@Status" xo-source="#cantabria_extraordinarias_externas">
 			<option value="Pagado" color="#97d933"/>
-			<option value="Incompleto" color="#ffc107">Parcialmente pagado</option>
+			<option value="Incompleto" color="#ff9800">Parcialmente pagado</option>
 			<option value="Morosidad" color="#f81409">3 meses de atraso o más</option>
 		</filter>
 	</filters>

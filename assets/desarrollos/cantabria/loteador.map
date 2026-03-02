@@ -5,7 +5,7 @@
 <!-- #$-:GIMP Image Map plug-in by Maurits Rijk -->
 <!-- #$-:Please do not edit lines starting with "#$" -->
 <!-- #$VERSION:2.3 -->
-<!-- #$AUTHOR:Uriel Gomez   -->
+<!-- #$AUTHOR:Uriel Gomez    -->
 <area shape="poly" coords="61,235,169,235,171,297,61,298" alt="1" target="lote_1" href="#" />
 <area shape="poly" coords="62,298,172,297,172,353,62,355" alt="2" target="lote_2" href="#" />
 <area shape="poly" coords="62,355,172,353,173,411,63,413" alt="3" target="lote_3" href="#" />
@@ -19,12 +19,12 @@
 <area shape="poly" coords="67,814,180,810,181,869,67,872" alt="11" target="lote_11" href="#" />
 <area shape="poly" coords="67,872,181,869,182,927,69,930" alt="12" target="lote_12" href="#" />
 <area shape="poly" coords="69,930,181,927,184,992,69,995" alt="13" target="lote_13" href="#" />
-<area shape="poly" coords="585,1119,591,1006,672,1014,654,1127,619,1119" alt="14" target="lote_14" href="#" />
-<area shape="poly" coords="654,1125,676,1014,727,1025,704,1136" alt="15" target="lote_15" href="#" />
-<area shape="poly" coords="704,1136,727,1025,782,1036,761,1145" alt="16" target="lote_16" href="#" />
-<area shape="poly" coords="761,1145,782,1034,835,1046,811,1155" alt="17" target="lote_17" href="#" />
-<area shape="poly" coords="810,1156,836,1046,889,1056,866,1165" alt="18" target="lote_18" href="#" />
-<area shape="poly" coords="866,1165,888,1055,941,1065,921,1175" alt="19" target="lote_19" href="#" />
+<area shape="poly" coords="585,1119,591,1006,675,1017,654,1127,619,1119" alt="14" target="lote_14" href="#" />
+<area shape="poly" coords="654,1125,675,1017,727,1026,704,1136" alt="15" target="lote_15" href="#" />
+<area shape="poly" coords="704,1136,727,1026,782,1035,761,1145" alt="16" target="lote_16" href="#" />
+<area shape="poly" coords="761,1145,782,1035,833,1046,811,1155" alt="17" target="lote_17" href="#" />
+<area shape="poly" coords="811,1156,833,1046,888,1056,867,1165" alt="18" target="lote_18" href="#" />
+<area shape="poly" coords="866,1165,888,1056,941,1065,921,1175" alt="19" target="lote_19" href="#" />
 <area shape="poly" coords="921,1175,941,1065,995,1075,972,1185" alt="20" target="lote_20" href="#" />
 <area shape="poly" coords="972,1185,995,1075,1048,1086,1025,1195" alt="21" target="lote_21" href="#" />
 <area shape="poly" coords="1025,1195,1049,1085,1101,1095,1078,1204" alt="22" target="lote_22" href="#" />
@@ -34,14 +34,14 @@
 <area shape="poly" coords="1238,1234,1261,1125,1315,1136,1293,1244" alt="26" target="lote_26" href="#" />
 <area shape="poly" coords="1293,1244,1315,1135,1368,1146,1347,1254" alt="27" target="lote_27" href="#" />
 <area shape="poly" coords="1347,1254,1367,1146,1421,1155,1399,1264" alt="28" target="lote_28" href="#" />
-<area shape="poly" coords="1399,1263,1421,1155,1449,1161,1507,1262,1438,1271" alt="29" target="lote_29" href="#" />
-<area shape="poly" coords="1448,1160,1507,1261,1535,1258,1564,1246,1588,1232,1599,1209,1512,1149" alt="30" target="lote_30" href="#" />
-<area shape="poly" coords="1512,1149,1598,1208,1608,1182,1620,1124,1524,1103" alt="31" target="lote_31" href="#" />
-<area shape="poly" coords="1524,1103,1620,1124,1632,1056,1536,1039" alt="32" target="lote_32" href="#" />
-<area shape="poly" coords="1536,1039,1633,1054,1644,996,1550,980" alt="33" target="lote_33" href="#" />
-<area shape="poly" coords="1550,980,1643,996,1653,940,1562,923" alt="34" target="lote_34" href="#" />
-<area shape="poly" coords="1562,923,1652,940,1679,800,1574,871" alt="35" target="lote_35" href="#" />
-<area shape="poly" coords="1574,870,1680,800,1696,731,1623,718,1553,827" alt="36" target="lote_36" href="#" />
+<area shape="poly" coords="1399,1263,1421,1155,1449,1161,1509,1263,1467,1274,1438,1271" alt="29" target="lote_29" href="#" />
+<area shape="poly" coords="1448,1160,1509,1263,1535,1258,1562,1249,1588,1232,1599,1209,1509,1146" alt="30" target="lote_30" href="#" />
+<area shape="poly" coords="1509,1146,1598,1208,1608,1182,1620,1124,1520,1103" alt="31" target="lote_31" href="#" />
+<area shape="poly" coords="1520,1103,1620,1124,1632,1057,1534,1038" alt="32" target="lote_32" href="#" />
+<area shape="poly" coords="1534,1038,1632,1057,1644,996,1545,979" alt="33" target="lote_33" href="#" />
+<area shape="poly" coords="1545,979,1643,996,1653,940,1554,922" alt="34" target="lote_34" href="#" />
+<area shape="poly" coords="1554,922,1652,940,1679,800,1564,869" alt="35" target="lote_35" href="#" />
+<area shape="poly" coords="1564,869,1679,800,1696,731,1623,718,1553,827" alt="36" target="lote_36" href="#" />
 <area shape="poly" coords="1553,827,1498,800,1532,701,1623,718" alt="37" target="lote_37" href="#" />
 <area shape="poly" coords="1498,800,1532,700,1458,687,1439,789" alt="38" target="lote_38" href="#" />
 <area shape="poly" coords="1439,789,1458,687,1401,677,1383,778" alt="39" target="lote_39" href="#" />

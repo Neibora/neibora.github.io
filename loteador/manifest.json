@@ -4,30 +4,37 @@
     "login": "",
     "download": "https://server.panax.io/download.asp"
   },
-  "state": { "desarrollo": "cantabria" },
-  "session": {
-    "referer_id": "${location.host + location.pathname.split('/',2).join('/')}"
-  },
+  "state": { "desarrollo": "${xo.site.seed.replace(/^#/,'')}" },
+   "session": {
+      "gist": "https://gist.githubusercontent.com/uriel-online/800af4cecfa9471b81712394e5aff147/raw/panax-server",
+      "referer_id": "${location.host + location.pathname.split('/',2).join('/')}"
+   },
   "sources": {
-    "^#(.+)$": "../assets/desarrollos/$1/lotes.xml",
-    "^#(.+)_(.+)$": "../assets/desarrollos/$1/$2.xml",
-    "^#(.+)_extraordinarias$": "../assets/desarrollos/$1/extraordinarias_internas.xml",
-    "^#(.+)_extraordinarias_externas$": "../assets/desarrollos/$1/extraordinarias_externas.xml",
+    "^#(.+)$": "${xover.session.server}/repository/$1/lotes.xml",
+    "^#(.+)_(.+)$": "${xover.session.server}/repository/$1/$2.xml",
+    "^#(.+)_extraordinarias$": "${xover.session.server}/repository/$1/extraordinarias_internas.xml",
+    "^#(.+)_extraordinarias_externas$": "${xover.session.server}/repository/$1/extraordinarias_externas.xml",
     "^#(peninsula)$": {
       "server:download": {
-        "file": "assets/desarrollos/$1/lotes.xml",
+        "file": "${xover.session.server}/repository/$1/lotes.xml",
         "^authorization": "${xover.session.encodeCredential(xover.session.user_login, xover.session.id_token) || ''}",
         "^x-referer-id": "${xover.session.referer_id || ''}"
       }
     },
     "^#(.+):map$": "../assets/desarrollos/$1/loteador.map",
     "^#(.+):settings$": "../assets/desarrollos/$1/loteador_settings.xml",
-    "^#(.+)_jardineria:settings$": "../assets/desarrollos/$1/jardineria_settings.xml",
+    "^#(.+)_servicios:settings$": "../assets/desarrollos/$1/servicios_settings.xml",
+    "^#(.+)_estacionamiento:settings$": "../assets/desarrollos/$1/estacionamiento_settings.xml",
     "^#(.+)_extraordinarias:settings$": "../assets/desarrollos/$1/loteador_settings.xml",
     "^#(.+)_extraordinarias_externas:settings$": "../assets/desarrollos/$1/loteador_settings.xml",
+    "^px-(.+)": "../components/$1.xhtml",
     "#login": "login.xml"
   },
-  "start": [ "#ws" ],
+   "start": [
+      "#ws",
+      "px-loteador",
+      { "updateTunnel": [] }
+   ],
   "settings": {
     "^#(.+)$": {
       "headers": {

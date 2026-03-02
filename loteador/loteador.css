@@ -19,8 +19,8 @@ xo-param {
 
 body {
 	background-color: #eeeeee;
-	font-family:Arial, Helvetica, sans-serif;
-	}
+	font-family: Arial, Helvetica, sans-serif;
+}
 
 form:not([desarrollo*="$"]) #Mapa {
 	background-size: 100%;
@@ -34,15 +34,19 @@ form:not([desarrollo*="$"]) #Mapa {
 	min-width: 250px;
 }
 
-.map {width:100%;}
+.map {
+	width: 100%;
+}
 
-#sPrototipo, #sManzana, #sLote {font-weight: bold;}
-	
+#sPrototipo, #sManzana, #sLote {
+	font-weight: bold;
+}
+
 .foto {
 	float: none;
 	margin-left: auto;
-	margin-right:auto;
-	}
+	margin-right: auto;
+}
 
 .card-flipper {
 	bottom: 20px;
@@ -56,9 +60,9 @@ form:not([desarrollo*="$"]) #Mapa {
 	visibility: hidden;
 }
 
-.card-flipper:has(#Filtros > *) {
-	visibility: visible;
-}
+	.card-flipper:has(#Filtros > *) {
+		visibility: visible;
+	}
 
 /* Card flipper start */
 /*.card-flipper {
@@ -67,7 +71,7 @@ form:not([desarrollo*="$"]) #Mapa {
 
 .card-flipper .card {
 	backface-visibility: hidden;*/ /* Hides the back face when flipped */
-	/*transform-style: preserve-3d;
+/*transform-style: preserve-3d;
 	transition: transform 0.6s ease, opacity 0.6s ease;
 	border-radius: 10px;
 	width: 100%;
@@ -91,69 +95,69 @@ form:not([desarrollo*="$"]) #Mapa {
 }
 */
 .card-flipper {
-    perspective: 1000px;  /*For 3D effect */
+	perspective: 1000px; /*For 3D effect */
 	height: 80vh;
 	width: 300px;
 	padding-inline: 1.5rem;
 	top: 1rem;
 }
 
-.card-flipper .card {
-	position: absolute;
-	backface-visibility: hidden; /*Hides the back face when flipped */
-	transform-style: preserve-3d;
-	transition: transform 0.6s ease;
-	width: 270px;
-	border-radius: 0 0 70px 0;
-}
+	.card-flipper .card {
+		position: absolute;
+		backface-visibility: hidden; /*Hides the back face when flipped */
+		transform-style: preserve-3d;
+		transition: transform 0.6s ease;
+		width: 270px;
+		border-radius: 0 0 70px 0;
+	}
 
-.card-flipper .card > * {
-	border-radius: 0 0 70px 0;
-}
+		.card-flipper .card > * {
+			border-radius: 0 0 70px 0;
+		}
 
-.card-flipper .card.back {
-	transform: rotateY(180deg);
-}
+		.card-flipper .card.back {
+			transform: rotateY(180deg);
+		}
 
-.card-flipper.toggled .card.front {
-	transform: rotateY(180deg);  
-}
+	.card-flipper.toggled .card.front {
+		transform: rotateY(180deg);
+	}
 
-.card-flipper.toggled .card.back {
-	transform: rotateY(360deg);  
-}
-/* Card flipper end */
+	.card-flipper.toggled .card.back {
+		transform: rotateY(360deg);
+	}
+	/* Card flipper end */
 
-.card-flipper .image {
-	padding: .5rem;
-	padding-bottom: 1.5rem;
-}
+	.card-flipper .image {
+		padding: .5rem;
+		padding-bottom: 1.5rem;
+	}
 
-.card-flipper .image svg {
-    overflow: visible;
-	max-height: 200px;
-}
+		.card-flipper .image svg {
+			overflow: visible;
+			max-height: 200px;
+		}
 
-.card-flipper .image svg > * {
-	fill: var(--brand-dark-color);
-	stroke: var(--brand-light-color);
-}
+			.card-flipper .image svg > * {
+				fill: var(--brand-dark-color);
+				stroke: var(--brand-light-color);
+			}
 
-.card-flipper .back .row {
-	margin-bottom: 1rem;
-}
+	.card-flipper .back .row {
+		margin-bottom: 1rem;
+	}
 
-.card-flipper .back .row > * {
-	flex-direction: row;
-    display: flex;
-	margin-top: 0;
-}
+		.card-flipper .back .row > * {
+			flex-direction: row;
+			display: flex;
+			margin-top: 0;
+		}
 
-.card-flipper .back label[id] {
-	font-size: 14pt;
-	font-weight: bolder;
-	margin-inline: .5rem;
-}
+	.card-flipper .back label[id] {
+		font-size: 14pt;
+		font-weight: bolder;
+		margin-inline: .5rem;
+	}
 
 
 div.card-flipper div:not(:has(h4>:checked)) .filter_option span {
@@ -164,6 +168,56 @@ div.card-flipper div:not(:has(h4>:checked)) .filter_option span {
 /*form:not([desarrollo*="$"]) #Mapa, form:not([desarrollo*="$"]) > * {
 	background-color: var(--brand-dark-color);
 }*/
+
+
+.radio-group {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+	flex-wrap: wrap;
+	margin-top: 4px;
+}
+
+	.radio-group input[type="radio"] {
+		appearance: none;
+		width: 14px;
+		height: 14px;
+		border-radius: 50%;
+		border: 2px solid #c9c9c9;
+		cursor: pointer;
+		position: relative;
+		transition: all .2s ease;
+	}
+
+		/* Punto interno */
+		.radio-group input[type="radio"]::before {
+			content: "";
+			position: absolute;
+			width: 6px;
+			height: 6px;
+			border-radius: 50%;
+			background: #2e7d32;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%) scale(0);
+			transition: transform .2s ease;
+		}
+
+		/* Seleccionado */
+		.radio-group input[type="radio"]:checked {
+			border-color: #2e7d32;
+		}
+
+			.radio-group input[type="radio"]:checked::before {
+				transform: translate(-50%, -50%) scale(1);
+			}
+
+	.radio-group label {
+		font-size: 13px;
+		color: #444;
+		cursor: pointer;
+		margin-right: 12px;
+	}
 
 dialog.xover-component form > * {
 	background-color: initial;
@@ -182,9 +236,9 @@ dialog.xover-component form > * {
 	text-align: left;
 }
 
-.filter h4 {
-	padding-left: 1rem;
-}
+	.filter h4 {
+		padding-left: 1rem;
+	}
 
 .numero-casa {
 	font-family: sans-serif;
@@ -197,7 +251,7 @@ dialog.xover-component form > * {
 }
 
 #ViviendaDetalles {
-	float:left;
+	float: left;
 	background-color: #FFF;
 	padding: 5px;
 	border: thin dotted #666;
@@ -205,40 +259,41 @@ dialog.xover-component form > * {
 }
 
 #datosPrivados {
-	display:none;
+	display: none;
 }
 
 .visible {
-	display:inline !important;
+	display: inline !important;
 }
 
 #fotos, #detalles {
-
 	padding: 10px;
-	}
-	
-#Titulo {float:left;}
+}
+
+#Titulo {
+	float: left;
+}
 
 #CerrarVentana {
 	float: right;
 	background-color: #C00;
 	color: #FFF;
-	cursor:pointer;
-	}
+	cursor: pointer;
+}
 
 .filter_option {
-    white-space: nowrap;
+	white-space: nowrap;
 }
 
-.filter_option input{
-    margin-right: 5px;
-}
+	.filter_option input {
+		margin-right: 5px;
+	}
 
 .table-centered td, .table-centered th {
-   text-align: center;   
+	text-align: center;
 }
 
 td label {
-    font-weight: bolder;
-    margin-right: 5px;
+	font-weight: bolder;
+	margin-right: 5px;
 }
