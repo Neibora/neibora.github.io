@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<settings>
+	<template class="details" xmlns="http://www.w3.org/1999/xhtml">
+		<div class="col-12 image">
+			<img class="img-fluid" src="" />
+		</div>
+		<div>
+			<div class="row g-3">
+				<div class="col-sm-12">
+					<label for="calle" class="form-label">Domicilio: </label>
+					<label id="calle"></label>
+					<label> #</label>
+					<label id="numero"></label>
+				</div>
+				<!--<div class="col-sm-12">
+					<label for="lote" class="form-label">Lote: </label>
+					<label id="lote"></label>
+				</div>-->
+				<!--<div class="col-sm-12">
+					<label for="status" class="form-label">Status: </label>
+					<label id="status"></label>
+				</div>-->
+			</div>
+		</div>
+	</template>
+	<filters bind="data/item" id="Id">
+		<filter id="servicios" title="Jardinería 10 Feb" bind="@Status" xo-source="#cantabria_servicios">
+			<option value="Suspender" color="#f81409">No realizar servicio</option>
+			<option value="Reprogramar" color="#ffc107">No realizar servicio por solicitud</option>
+			<option value="Preguntar" color="#0dcaf0">Preguntar instrucciones</option>
+			<option value="Realizar" color="#97d933">Servicio negociado</option>
+		</filter>
+	</filters>
+</settings>
