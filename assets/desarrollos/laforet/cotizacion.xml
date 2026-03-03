@@ -9,19 +9,16 @@
 
 	<Condominio
     nombre="Edificio La Foret"
-    razon="Edificio La Foret"
     saludo="CONDOMINIO: ESTIMADOS RESIDENTES"
-    municipio="San Luis Potosí, S.L.P."
-    departamentos="32"/>
-
-	<Referencia
-    cuota_mensual="1850.00"
-    ingreso_mensual="59200.00"
-    moneda="MXN"/>
+    municipio="San Luis Potosí, S.L.P.">
+		<departamentos cantidad="32" cuota="1850" cuota_administracion="150"/>
+		<casas cantidad="2" cuota="1000" cuota_administracion="150"/>
+		<lotes cantidad="10" cuota="2000" cuota_administracion="100"/>		
+	</Condominio>
 
 	<Tabla>
 		<Seccion titulo="SEGURIDAD, PERSONAL Y LIMPIEZA">
-			<Partida concepto="Conserje" cantidad="1" gravable="1" precio="17000">2 días completos y 1 día medio día.</Partida>
+			<Partida concepto="Conserje" cantidad="1" gravable="1" precio="17000">5 días.</Partida>
 			<Partida concepto="Guardia de seguridad 24×24" cantidad="2" gravable="1" precio="17000.00">Vigilante nocturno</Partida>
 			<Partida concepto="Gastos generales" cantidad="1" gravable="1" precio="2000.00">Productos de limpieza, garrafones, etc.</Partida>
 		</Seccion>
@@ -31,7 +28,7 @@
 		</Seccion>
 
 		<Seccion titulo="ADMINISTRACIÓN">
-			<Partida concepto="Servicio de Administración" cantidad="1" gravable="1" precio="10000.00">Ver anexo de descrip.</Partida>
+			<Partida proveedor="Neibora" concepto="Administración" cantidad="1" gravable="1" precio="cuota_administracion">Ver anexo de descripción.</Partida>
 		</Seccion>
 
 		<Seccion titulo="SERVICIOS">
@@ -41,8 +38,7 @@
 		</Seccion>
 	</Tabla>
 
-	<Texto>
-		<P>De acuerdo con este presupuesto, se considera como referencia la cuota mensual de mantenimiento de $1,850.00 por departamento (32 departamentos), con un ingreso mensual estimado de $59,200.00. Los importes gravables consideran IVA conforme a la tabla.</P>
+	<Texto>		
 	</Texto>
 
 	<Firmas>

@@ -27,8 +27,9 @@
 		</xsl:choose>
 	</xsl:template>
 
-	<xsl:template name="sumPrecios">
-		<xsl:param name="nodes" select="/Cotizacion/Tabla/Seccion/Partida"/>
+	<xsl:key name="named_nodes" match="Condominio/*/@*" use="name()"/>
+	<xsl:template name="sum-costo">
+		<xsl:param name="nodes" select="."/>
 		<xsl:param name="i" select="1"/>
 		<xsl:param name="acc" select="0"/>
 
@@ -38,29 +39,59 @@
 			</xsl:when>
 			<xsl:otherwise>
 				<xsl:variable name="n" select="$nodes[$i]"/>
-				<xsl:variable name="v" select="number($n/@precio)"/>
-				<xsl:call-template name="sumPrecios">
-					<xsl:with-param name="nodes" select="$nodes"/>
-					<xsl:with-param name="i" select="$i + 1"/>
-					<xsl:with-param name="acc" select="$acc + $v"/>
-				</xsl:call-template>
+				<xsl:variable name="v" select="$n"/>
+				<xsl:variable name="q">
+					<xsl:choose>
+						<xsl:when test="$n/../@cantidad">
+							<xsl:value-of select="$n/../@cantidad"/>
+						</xsl:when>
+						<xsl:otherwise>1</xsl:otherwise>
+					</xsl:choose>
+				</xsl:variable>
+				<xsl:variable name="current" select="number($v) * number($q)"/>
+				<xsl:choose>
+					<xsl:when test="not(number($n)=$n)">
+						<xsl:variable name="named_nodes" select="key('named_nodes',$n)"/>
+						<xsl:variable name="acc_nombrado">
+							<xsl:call-template name="sum-costo">
+								<xsl:with-param name="nodes" select="$named_nodes"/>
+							</xsl:call-template>
+						</xsl:variable>
+						<xsl:call-template name="sum-costo">
+							<xsl:with-param name="nodes" select="$nodes"/>
+							<xsl:with-param name="i" select="$i + 1"/>
+							<xsl:with-param name="acc" select="$acc + $acc_nombrado"/>
+						</xsl:call-template>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:call-template name="sum-costo">
+							<xsl:with-param name="nodes" select="$nodes"/>
+							<xsl:with-param name="i" select="$i + 1"/>
+							<xsl:with-param name="acc" select="$acc + number($v) * number($q)"/>
+						</xsl:call-template>
+					</xsl:otherwise>
+				</xsl:choose>
 			</xsl:otherwise>
 		</xsl:choose>
+	</xsl:template>
+
+	<xsl:template mode="subtotal" match="@*">
+		<xsl:call-template name="sum-costo">
+			<xsl:with-param name="nodes" select="."/>
+		</xsl:call-template>
 	</xsl:template>
 
 	<!-- ===== Root ===== -->
 
 	<xsl:template match="/Cotizacion">
-		<xsl:variable name="ingreso"
-	select="
-		(number(Condominio/departamentos/@cantidad) * number(Condominio/departamentos/@cuota)) +
-		(number(Condominio/casas/@cantidad) * number(Condominio/casas/@cuota)) +
-		(number(Condominio/lotes/@cantidad) * number(Condominio/lotes/@cuota))
-	"/>
-
+		<xsl:variable name="ingreso">
+			<xsl:call-template name="sum-ingreso">
+				<xsl:with-param name="nodes" select="Condominio/*/@cuota"/>
+			</xsl:call-template>
+		</xsl:variable>
 		<xsl:variable name="total">
-			<xsl:call-template name="sumPrecios">
-				<xsl:with-param name="nodes" select="Tabla/Seccion/Partida"/>
+			<xsl:call-template name="sum-costo">
+				<xsl:with-param name="nodes" select="/Cotizacion/Tabla/Seccion/Partida/@precio"/>
 			</xsl:call-template>
 		</xsl:variable>
 		<xsl:variable name="totalN" select="number($total)"/>
@@ -72,7 +103,12 @@
 	border-left: 6px solid #dc3545;
 	color: #7f1d1d;
 	font-weight: 600;
-}]]>
+}
+
+[xo-slot] {
+	cursor: pointer;
+}
+]]>
 			</style>
 			<div class="bg-white dark:bg-slate-900 shadow-2xl rounded-xl overflow-hidden print-shadow-none border border-slate-200 dark:border-slate-800">
 				<div class="h-2 bg-gradient-to-r from-primary via-secondary to-accent"></div>
@@ -104,11 +140,15 @@
 								Por medio de la presente se pone a su consideración la propuesta de costos de
 								<span class="font-medium">Administración y Mantenimiento mensual</span>
 								para el condominio denominado
-								<span class="font-bold">
-									<xsl:value-of select="Condominio/@razon"/>
-								</span>.
-								Ubicado en el Municipio de <xsl:value-of select="Condominio/@municipio"/>,
-								y conformado por <xsl:apply-templates select="Condominio/@departamentos"/> en su totalidad.
+								<xsl:apply-templates select="Condominio/@razon">
+									<xsl:with-param name="class">font-bold</xsl:with-param>
+								</xsl:apply-templates>
+								Ubicado en el Municipio de <xsl:apply-templates select="Condominio/@municipio"/>,
+								<xsl:text>y conformado por </xsl:text>
+								<xsl:apply-templates mode="leyenda" select="Condominio/*/@cantidad">
+									<xsl:with-param name="class">text-primary dark:text-accent font-bold</xsl:with-param>
+								</xsl:apply-templates>
+								<xsl:text> en su totalidad.</xsl:text>
 							</p>
 						</div>
 					</div>
@@ -119,48 +159,21 @@
 								<tr>
 									<th class="px-6 py-4">Concepto</th>
 									<th class="px-6 py-4 text-center">Precio</th>
+									<th class="px-6 py-4 text-center">Precio Unitario</th>
 									<th class="px-6 py-4">Descripción</th>
 								</tr>
 							</thead>
 
 							<tbody class="divide-y divide-slate-200 dark:divide-slate-800">
 								<xsl:for-each select="Tabla/Seccion">
-
 									<tr class="bg-primary text-white">
-										<td class="px-6 py-2 font-bold uppercase text-xs tracking-wider" colspan="3">
+										<td class="px-6 py-2 font-bold uppercase text-xs tracking-wider" colspan="4">
 											<xsl:value-of select="@titulo"/>
 										</td>
 									</tr>
-
-									<xsl:for-each select="Partida">
-										<xsl:variable name="precio" select="number(@precio)"/>
-										<xsl:variable name="pct">
-											<xsl:call-template name="pct1">
-												<xsl:with-param name="num" select="$precio"/>
-												<xsl:with-param name="den" select="$ingreso"/>
-											</xsl:call-template>
-										</xsl:variable>
-
-										<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-											<td class="px-6 py-4 font-medium">
-												<xsl:value-of select="@concepto"/>
-											</td>
-											<td class="px-6 py-4 text-center font-mono">
-												<xsl:apply-templates select="@precio"/>
-											</td>
-											<td class="px-6 py-4 text-slate-600 dark:text-slate-400 italic">
-												<xsl:value-of select="normalize-space(.)"/>
-												<span class="not-italic text-slate-500 dark:text-slate-400">
-													<xsl:text> | </xsl:text>
-												</span>
-												<span class="not-italic font-medium">
-													<xsl:value-of select="$pct"/>%
-												</span>
-												<span class="not-italic text-slate-500 dark:text-slate-400">del ingreso mensual</span>
-											</td>
-										</tr>
-
-									</xsl:for-each>
+									<xsl:apply-templates mode="table-row" select="Partida/@precio">
+										<xsl:with-param name="ingreso" select="$ingreso"/>
+									</xsl:apply-templates>
 								</xsl:for-each>
 
 								<!-- TOTAL -->
@@ -186,7 +199,7 @@
 											<xsl:with-param name="v" select="$totalN"/>
 										</xsl:call-template>
 									</td>
-									<td class="px-6 py-4">
+									<td class="px-6 py-4" colspan="2">
 										Operación mensual estimada.
 										<span class="block font-semibold mt-1">
 											Equivale a <xsl:value-of select="$pctTotal"/>% del ingreso mensual de referencia.
@@ -205,12 +218,9 @@
 											<xsl:with-param name="v" select="$ingreso"/>
 										</xsl:call-template>
 									</td>
-									<td class="px-6 py-4 text-sm leading-snug">
+									<td class="px-6 py-4 text-sm leading-snug" colspan="2">
 										<div>
-											<xsl:apply-templates mode="leyenda-pago-mensual" select="Referencia/@cuota_mensual"/>
-										</div>
-										<div>
-											Total mensual esperado (<xsl:value-of select="Condominio/@departamentos"/> departamentos)
+											<xsl:apply-templates mode="leyenda-pago-mensual" select="Condominio/*/@cuota"/>
 										</div>
 										<div class="text-white/90 font-normal">Referencia: ingreso basado en la cuota mensual vigente</div>
 									</td>
@@ -221,6 +231,13 @@
 					</div>
 
 					<div class="space-y-4 text-sm text-slate-600 dark:text-slate-400 leading-relaxed border-l-4 border-accent pl-6 mb-12">
+						<p>
+							De acuerdo con este presupuesto, se considera como referencia la cuota mensual de mantenimiento de de <xsl:apply-templates mode="leyenda" select="Condominio/*/@cantidad"/>, con un ingreso mensual estimado de <strong>
+								<xsl:call-template name="money">
+									<xsl:with-param name="v" select="$ingreso"/>
+								</xsl:call-template>
+							</strong>. Los importes gravables consideran IVA conforme a la tabla.
+						</p>
 						<xsl:for-each select="Texto/P">
 							<p>
 								<xsl:value-of select="normalize-space(.)"/>
@@ -298,34 +315,171 @@
 
 	<xsl:template match="@*">
 		<xsl:param name="class">font-medium text-slate-800 dark:text-slate-200</xsl:param>
-		<p class="{$class}">
+		<span class="{$class}">
 			<xsl:value-of select="."/>
-		</p>
+		</span>
 	</xsl:template>
 
-	<xsl:template match="@precio" name="money-value">
+	<xsl:template match="@*" mode="money-field">
 		<xsl:param name="class">font-medium text-slate-800 dark:text-slate-200</xsl:param>
-		<span>
+		<span class="$class">
 			<xsl:call-template name="money">
 				<xsl:with-param name="v" select="."/>
 			</xsl:call-template>
 		</span>
 	</xsl:template>
 
-	<xsl:template match="Referencia/@cuota_mensual" mode="leyenda-pago-mensual">
-		Pago mensual por casa!!:
-		<span class="font-mono">
-			<xsl:call-template name="money-value"/>
+	<xsl:template match="@*" mode="leyenda-pago-mensual">
+		<p class="font-mono" xo-scope="">
+			Cuota mensual unitaria de <xsl:apply-templates mode="field" select="../@cantidad"/>:
+			<xsl:apply-templates mode="money-field" select="."/>
+		</p>
+	</xsl:template>
+
+	<xsl:template match="@*" mode="field">
+		<xsl:param name="class"></xsl:param>
+		<span class="{$class}">
+			<xsl:value-of select="."/>
 		</span>
 	</xsl:template>
 
-	<xsl:template match="@departamentos|@casas">
-		<xsl:param name="class">text-primary dark:text-accent font-bold</xsl:param>
+	<xsl:template match="Condominio/*/@*" mode="field">
+		<xsl:param name="class"></xsl:param>
 		<span class="{$class}">
 			<xsl:value-of select="number(.)"/>
 			<xsl:text> </xsl:text>
-			<xsl:value-of select="name()"/>
+			<xsl:value-of select="name(..)"/>
 		</span>
 	</xsl:template>
 
+	<xsl:template name="sum-ingreso">
+		<xsl:param name="nodes" select="current()"/>
+		<xsl:param name="i" select="1"/>
+		<xsl:param name="acc" select="0"/>
+
+		<xsl:choose>
+			<xsl:when test="$i &gt; count($nodes)">
+				<xsl:value-of select="$acc"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:variable name="n" select="$nodes[$i]"/>
+				<xsl:variable name="acc2" select="$acc + (number($n/../@cantidad) * number($n))"/>
+				<xsl:call-template name="sum-ingreso">
+					<xsl:with-param name="nodes" select="$nodes"/>
+					<xsl:with-param name="i" select="$i + 1"/>
+					<xsl:with-param name="acc" select="$acc2"/>
+				</xsl:call-template>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template>
+
+	<xsl:template mode="table-row" match="@*">
+		<xsl:param name="ingreso" select="0"/>
+		<xsl:param name="concepto" select="../@concepto"/>
+		<xsl:param name="detalle" select="../@detalle"/>
+		<xsl:param name="precio" select="../@precio"/>
+		<xsl:param name="descripcion" select="normalize-space(..)"/>
+		<xsl:variable name="subtotal">
+			<xsl:apply-templates mode="subtotal" select="$precio"/>
+		</xsl:variable>
+		<xsl:variable name="pct">
+			<xsl:call-template name="pct1">
+				<xsl:with-param name="num" select="$subtotal"/>
+				<xsl:with-param name="den" select="$ingreso"/>
+			</xsl:call-template>
+		</xsl:variable>
+		<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50" xo-slot="">
+			<td class="px-6 py-4 font-medium">
+				<xsl:apply-templates mode="leyenda" select="$concepto">
+					<xsl:with-param name="detail" select="$detalle"/>
+				</xsl:apply-templates>
+			</td>
+			<td class="px-6 py-4 text-center font-mono">
+				<xsl:call-template name="money">
+					<xsl:with-param name="v" select="$subtotal"/>
+				</xsl:call-template>
+			</td>
+			<td class="px-6 py-4 text-center font-mono">
+				<xsl:apply-templates mode="money-field" select="$precio"/>
+			</td>
+			<td class="px-6 py-4 text-slate-600 dark:text-slate-400 italic">
+				<span xo-slot="text()">
+				<xsl:value-of select="$descripcion"/></span>
+				<span class="not-italic text-slate-500 dark:text-slate-400">
+					<xsl:text> | </xsl:text>
+				</span>
+				<span class="not-italic font-medium">
+					<xsl:value-of select="$pct"/>%
+				</span>
+				<span class="not-italic text-slate-500 dark:text-slate-400">del ingreso mensual</span>
+			</td>
+		</tr>
+	</xsl:template>
+
+	<xsl:template mode="table-row" match="@*[number(.)!=.]">
+		<xsl:param name="ingreso" select="0"/>
+		<xsl:param name="concepto" select="../@concepto"/>
+		<xsl:param name="precio" select="../@precio"/>
+		<xsl:param name="descripcion" select="normalize-space(..)"/>
+		<xsl:variable name="pct">
+			<xsl:call-template name="pct1">
+				<xsl:with-param name="num" select="$precio"/>
+				<xsl:with-param name="den" select="$ingreso"/>
+			</xsl:call-template>
+		</xsl:variable>
+		<xsl:variable name="ref" select="key('named_nodes',.)"/>
+		<xsl:for-each select="$ref">
+			<xsl:apply-templates mode="table-row" select=".">
+				<xsl:with-param name="ingreso" select="$ingreso"/>
+				<xsl:with-param name="concepto" select="$concepto"/>
+				<xsl:with-param name="detalle">
+					<xsl:apply-templates mode="detalle_concepto" select="."/>
+				</xsl:with-param>
+				<xsl:with-param name="precio" select="."/>
+				<xsl:with-param name="descripcion" select="$descripcion"/>
+			</xsl:apply-templates>
+		</xsl:for-each>
+	</xsl:template>
+
+	<xsl:template mode="leyenda" match="@*">
+		<xsl:param name="class"></xsl:param>
+		<xsl:if test="position() &gt; 1">
+			<xsl:choose>
+				<xsl:when test="position() = last()">
+					<xsl:text> y </xsl:text>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:text>, </xsl:text>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:if>
+		<xsl:apply-templates select="." mode="field">
+			<xsl:with-param name="class" select="$class"/>
+		</xsl:apply-templates>
+	</xsl:template>
+
+	<xsl:template mode="leyenda" match="@concepto">
+		<xsl:param name="class"></xsl:param>
+		<xsl:param name="detail"/>
+		<xsl:choose>
+			<xsl:when test="not(../@cantidad) or ../@cantidad='1' or ../@cantidad='0'"></xsl:when>
+			<xsl:otherwise>
+				<xsl:apply-templates mode="field" select="../@cantidad">
+					<xsl:with-param name="class" select="$class"/>
+				</xsl:apply-templates>
+				<xsl:text> </xsl:text>
+			</xsl:otherwise>
+		</xsl:choose>
+		<xsl:apply-templates mode="field" select="."/>
+		<xsl:text> </xsl:text>
+		<xsl:value-of select="$detail"/>
+	</xsl:template>
+
+	<xsl:template mode="detalle_concepto" match="*|@*"></xsl:template>
+
+	<xsl:template mode="detalle_concepto" match="Condominio/*/@cuota_administracion">
+		<xsl:text> de </xsl:text>
+		<xsl:apply-templates select="../@cantidad"/>
+		<xsl:text> </xsl:text><xsl:value-of select="name(..)"/>
+	</xsl:template>
 </xsl:stylesheet>
