@@ -1,22 +1,8 @@
 ﻿function extractNumberSmart(text) {
 	const cleaned = String(text).replace(/,/g, "")
-	const match = cleaned.match(/^\s*-?\d+(\.\d+)?/)
-	return match ? Number(match[0]) : null
+	const match = cleaned === "" ? "  " : cleaned.match(/^(?:\s*\$?)(-?\d+\.?\d*)?/);
+	return match != null ? Number(match[1]) : null
 }
-
-xo.listener.on("change::Condominio/@departamentos", "change::@precio|@cuota_mensual", function ({ value }) {
-	value = extractNumberSmart(value)
-
-	if (value == null) {
-		alert("Número inválido")
-		this.value = old
-		return
-	}
-
-	if (String(this.value) !== String(value)) {
-		this.value = value
-	}
-})
 
 function normalizarCotizacion({ document }) {
 	let condominio = document.single(`//Condominio`);
@@ -264,6 +250,15 @@ xo.listener.on("change::@fecha[.='hoy']", function () {
 
 function concepto_listener({ element, value, old }) {
 	let cantidad = extractNumberSmart(value);
+	if (value === "" || cantidad === 0) {
+		if (element.getAttributeNodeNS(xo.spaces.state, "mock") || !element.getAttribute("precio") || confirm(`Esta acción eliminaría el registro ${old}`)) {
+			element.remove()
+			event.stopImmediatePropagation()
+			return false
+		}
+		this.value = old
+		return
+	}
 	if (cantidad) {
 		element.setAttribute("cantidad", cantidad)
 		let regex = new RegExp(`^${cantidad}\\s*`)
@@ -273,6 +268,27 @@ function concepto_listener({ element, value, old }) {
 	this.value = value
 }
 xo.listener.on("change::@concepto", concepto_listener)
+
+xo.listener.on("change::Condominio/*/@cantidad", function ({ element, value, old }) {
+	let cantidad = extractNumberSmart(value)
+	if (cantidad === 0) {
+		if (confirm(`Esta acción eliminaría el registro ${element.nodeName}`)) {
+			element.remove()
+			event.stopImmediatePropagation()
+			return false
+		}
+		this.value = old
+		return
+	}
+	if (cantidad == null) {
+		alert("Número inválido")
+		this.value = old
+		return
+	}
+	if (String(this.value) !== String(value)) {
+		this.value = value
+	}
+})
 
 //xover.listener.on("focusout::[contenteditable][xo-scope]", function (e) {
 
@@ -290,3 +306,38 @@ xo.listener.on("change::@concepto", concepto_listener)
 //	this.classList.remove("is-editing")
 
 //})
+
+
+cotizador = {}
+cotizador.download = function () {
+	let document = xo.sources["cotizacion.xml"];
+	document.select(`//@xo:*`).remove();
+	document.download()
+}
+cotizador.save = function () {
+	let document = xo.sources["cotizacion.xml"];
+	document.select(`//@xo:*`).remove();
+	document.upload()
+}
+
+
+cotizador.nuevaPartida = function () {
+	let new_node = this.duplicate({ seed: true });
+	new_node.attributes.filterNS("").forEach(attr => attr.value = "");
+	new_node.setAttribute("cantidad", "1")
+	new_node.setAttribute("seccion", "Otros datos")
+	new_node.setAttribute("concepto", "Nueva partida")
+	new_node.setAttribute("state:mock", "true")
+}
+
+xo.listener.on(`change::Partida[@state:mock]`, function ({ attributes }) {
+	if ("mock" in (attributes[xo.spaces.state] || {})) return;
+	if (Object.values(attributes[""]).every(([attr]) => !attr.value)) return;
+	this.removeAttribute("state:mock")
+})
+
+xo.listener.on(`change::@seccion`, function ({ element, value, old }) {
+	if (instanceOf.call(event.srcEvent, DragEvent)) return;
+	let scope = this;
+	element.select(`preceding-sibling::*[@${scope.nodeName}="${old}"]|following-sibling::*[@${scope.nodeName}="${old}"]`).forEach(partida => partida.setAttribute("seccion", value));
+})
