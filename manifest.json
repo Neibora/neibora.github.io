@@ -6,6 +6,7 @@
     "^#(.+):polygon$": "https://neibora.com/assets/desarrollos/$1/polygon.kml",
     "#": "#desarrollos",
     "^#(.+):info$": "#$1",
+    "#cotizacion": "/assets/desarrollos/${xo.state.desarrollo}/cotizacion.xml",
     "#desarrollos": "/assets/desarrollos.resx",
     "#iconos": "/assets/iconos.resx",
     "#site": "/assets/site.resx",
@@ -26,7 +27,7 @@
     }
   },
   "state": {
-    "desarrollo": "${(xover.site.seed || '').replace(/^#/,'')}"
+    "desarrollo": "${(xover.site.seed || '').replace(/^#/,'') || xover.site.location.url.foldername}"
   },
   "start": [ "#desarrollos", "#site", "/navbar.html", "/footer.html", "/iconos.xslt", "#ws" ],
   "settings": {

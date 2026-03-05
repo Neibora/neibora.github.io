@@ -148,10 +148,11 @@
 								Por medio de la presente se pone a su consideración la propuesta de costos de
 								<span class="font-medium">Administración y Mantenimiento mensual</span>
 								para el condominio denominado
-								<xsl:apply-templates select="Condominio/@razon">
+								<xsl:apply-templates select="Condominio/@nombre">
 									<xsl:with-param name="class">font-bold</xsl:with-param>
 								</xsl:apply-templates>
-								Ubicado en el Municipio de <xsl:apply-templates select="Condominio/@municipio"/>,
+								<xsl:text>, </xsl:text>
+								ubicado en el Municipio de <xsl:apply-templates select="Condominio/@municipio"/>,
 								<xsl:text>y conformado por </xsl:text>
 								<xsl:apply-templates mode="leyenda" select="Condominio/*/@cantidad">
 									<xsl:with-param name="class">text-primary dark:text-accent font-bold</xsl:with-param>
@@ -175,7 +176,7 @@
 							<tbody class="divide-y divide-slate-200 dark:divide-slate-800">
 								<xsl:variable name="secciones" select="key('secciones', '*')"/>
 								<xsl:for-each select="$secciones[count(.|key('secciones', .)[1])=1]">
-									<tr class="bg-primary text-white" data-seccion="{.}">
+									<tr class="bg-primary text-white" data-seccion="{.}" draggable="true">
 										<th class="px-6 py-2 font-bold uppercase text-xs tracking-wider" colspan="4">
 											<xsl:value-of select="."/>
 										</th>
@@ -186,9 +187,9 @@
 								</xsl:for-each>
 								<xsl:for-each select="$secciones[not(../@state:mock)][last()]/..">
 									<tr class="bg-primary text-white cursor-pointer" onclick="scope.dispatch('cotizador.nuevaPartida')" data-seccion="--">
-										<td class="px-6 py-1 font-bold uppercase text-xs tracking-wider" colspan="4"></td>
+										<th class="px-6 py-1 font-bold uppercase text-xs tracking-wider" colspan="4"></th>
 									</tr>
-									<tr data-seccion="--">
+									<tr data-seccion="--" droptarget="">
 										<td class="py-3" colspan="4"></td>
 									</tr>
 								</xsl:for-each>
@@ -230,7 +231,7 @@
 
 								<!-- INGRESO -->
 								<tr class="bg-accent text-white font-bold text-lg">
-									<td class="px-6 py-4">INGRESO MENSUAL (REFERENCIA)</td>
+									<td class="px-6 py-4">INGRESO MENSUAL</td>
 									<td class="px-6 py-4 text-center font-mono">
 										<xsl:call-template name="money">
 											<xsl:with-param name="v" select="$ingreso"/>
@@ -352,8 +353,9 @@
 
 	<xsl:template match="@*" mode="leyenda-pago-mensual">
 		<p class="font-mono" xo-scope="">
-			Cuota mensual unitaria de <xsl:apply-templates mode="field" select="../@cantidad"/>:
+			Cuota mensual de <xsl:apply-templates mode="field" select="../@cantidad"/>:
 			<xsl:apply-templates mode="money-field" select="."/>
+			<label> Unitario</label>
 		</p>
 	</xsl:template>
 
@@ -397,7 +399,7 @@
 	<xsl:template mode="table-row" match="@*">
 		<xsl:param name="ingreso" select="0"/>
 		<xsl:param name="concepto" select="../@concepto"/>
-		<xsl:param name="detalle" select="../@detalle"/>
+		<xsl:param name="referencias" select="self::*"/>
 		<xsl:param name="seccion" select="../@seccion"/>
 		<xsl:param name="precio" select="../@precio"/>
 		<xsl:param name="descripcion" select="normalize-space(..)"/>
@@ -410,11 +412,13 @@
 				<xsl:with-param name="den" select="$ingreso"/>
 			</xsl:call-template>
 		</xsl:variable>
-		<xsl:variable name="mock"><xsl:if test="../@state:mock"> mock</xsl:if></xsl:variable>
-		<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 {$mock}" xo-slot="" xo-scope="{$concepto/../@xo:id}" data-seccion="{$seccion}">
+		<xsl:variable name="mock">
+			<xsl:if test="../@state:mock"> mock</xsl:if>
+		</xsl:variable>
+		<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 {$mock}" xo-slot="" xo-scope="{$concepto/../@xo:id}" data-seccion="{$seccion}" draggable="true">
 			<td class="px-6 py-4 font-medium">
 				<xsl:apply-templates mode="leyenda" select="$concepto">
-					<xsl:with-param name="detail" select="$detalle"/>
+					<xsl:with-param name="detail" select="$referencias"/>
 				</xsl:apply-templates>
 			</td>
 			<td class="px-6 py-4 text-center font-mono">
@@ -462,9 +466,7 @@
 			<xsl:apply-templates mode="table-row" select=".">
 				<xsl:with-param name="ingreso" select="$ingreso"/>
 				<xsl:with-param name="concepto" select="$concepto"/>
-				<xsl:with-param name="detalle">
-					<xsl:apply-templates mode="detalle_concepto" select="."/>
-				</xsl:with-param>
+				<xsl:with-param name="referencias" select="."/>
 				<xsl:with-param name="seccion" select="$seccion"/>
 				<xsl:with-param name="precio" select="."/>
 				<xsl:with-param name="descripcion" select="$descripcion"/>
@@ -491,7 +493,7 @@
 
 	<xsl:template mode="leyenda" match="@concepto">
 		<xsl:param name="class"></xsl:param>
-		<xsl:param name="detail"/>
+		<xsl:param name="detail" select="self::*"/>
 		<xsl:choose>
 			<xsl:when test="not(../@cantidad) or ../@cantidad='1' or ../@cantidad='0'"></xsl:when>
 			<xsl:otherwise>
@@ -503,14 +505,19 @@
 		</xsl:choose>
 		<xsl:apply-templates mode="field" select="."/>
 		<xsl:text> </xsl:text>
-		<xsl:value-of select="$detail"/>
+		<xsl:apply-templates mode="leyenda" select="$detail">
+			<xsl:with-param name="class">
+				<xsl:apply-templates mode="concepto_detalle-class" select="$detail"/>
+			</xsl:with-param>
+		</xsl:apply-templates>
 	</xsl:template>
 
-	<xsl:template mode="detalle_concepto" match="*|@*"></xsl:template>
-
-	<xsl:template mode="detalle_concepto" match="Condominio/*/@cuota_administracion">
+	<xsl:template mode="leyenda" match="Condominio/*/@cuota_administracion">
+		<xsl:param name="class"></xsl:param>
 		<xsl:text> de </xsl:text>
-		<xsl:apply-templates select="../@cantidad"/>
+		<xsl:apply-templates select="../@cantidad">
+			<xsl:with-param name="class" select="$class"/>
+		</xsl:apply-templates>
 		<xsl:text> </xsl:text>
 		<xsl:value-of select="name(..)"/>
 	</xsl:template>
@@ -527,5 +534,8 @@
 			<xsl:copy-of select="."/>
 		</p>
 	</xsl:template>
+
+	<xsl:template mode="concepto_detalle-class" match="@*|*">otro</xsl:template>
+	<xsl:template mode="concepto_detalle-class" match="Condominio/*/@cuota_administracion">reference</xsl:template>
 
 </xsl:stylesheet>

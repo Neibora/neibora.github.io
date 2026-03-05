@@ -1,9 +1,9 @@
-﻿<Cotizacion folio="NEI-LAF-2025-09" lugar="San Luis Potosí, S.L.P" fecha="28 de Febrero de 2026" marca="Neibora" sitio="www.neibora.com" correo="contacto@neibora.com">
+<Cotizacion folio="NEI-LAF-2025-09" lugar="San Luis Potosí, S.L.P" fecha="05 de Marzo de 2026" marca="Neibora" sitio="www.neibora.com" correo="contacto@neibora.com">
 
 	<Condominio nombre="Edificio La Foret" saludo="CONDOMINIO: ESTIMADOS RESIDENTES" municipio="San Luis Potosí, S.L.P.">
-		<departamentos cantidad="32" cuota="1850" cuota_administracion="150"/>
-		<casas cantidad="2" cuota="1000" cuota_administracion="150"/>
-		<lotes cantidad="10" cuota="2000" cuota_administracion="100"/>
+		<departamentos cantidad="32" cuota="1850" cuota_administracion="320"/>
+		
+		
 	</Condominio>
 
 	<Tabla>

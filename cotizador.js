@@ -310,14 +310,14 @@ xo.listener.on("change::Condominio/*/@cantidad", function ({ element, value, old
 
 cotizador = {}
 cotizador.download = function () {
-	let document = xo.sources["cotizacion.xml"];
+	let document = xo.sources["#cotizacion"];
 	document.select(`//@xo:*`).remove();
 	document.download()
 }
 cotizador.save = function () {
-	let document = xo.sources["cotizacion.xml"];
+	let document = xo.sources["#cotizacion"];
 	document.select(`//@xo:*`).remove();
-	document.upload()
+	document.download()
 }
 
 
@@ -325,7 +325,7 @@ cotizador.nuevaPartida = function () {
 	let new_node = this.duplicate({ seed: true });
 	new_node.attributes.filterNS("").forEach(attr => attr.value = "");
 	new_node.setAttribute("cantidad", "1")
-	new_node.setAttribute("seccion", "Otros datos")
+	new_node.setAttribute("seccion", "--")
 	new_node.setAttribute("concepto", "Nueva partida")
 	new_node.setAttribute("state:mock", "true")
 }
