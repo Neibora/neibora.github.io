@@ -1,9 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xsl:stylesheet version="1.0"
-  xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns="http://www.w3.org/1999/xhtml">
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:xo="http://panax.io/xover"
+	xmlns:state="http://panax.io/state"
+	>
 
 	<xsl:output method="html" indent="yes" encoding="utf-8"/>
 	<xsl:strip-space elements="*"/>
+
+	<xsl:key name="secciones" match="Partida/@seccion" use="'*'"/>
+	<xsl:key name="secciones" match="Partida/@seccion" use="."/>
 
 	<!-- ===== Helpers ===== -->
 
@@ -91,7 +97,7 @@
 		</xsl:variable>
 		<xsl:variable name="total">
 			<xsl:call-template name="sum-costo">
-				<xsl:with-param name="nodes" select="/Cotizacion/Tabla/Seccion/Partida/@precio"/>
+				<xsl:with-param name="nodes" select="/Cotizacion/Tabla/Partida/@precio"/>
 			</xsl:call-template>
 		</xsl:variable>
 		<xsl:variable name="totalN" select="number($total)"/>
@@ -108,6 +114,8 @@
 [xo-slot] {
 	cursor: pointer;
 }
+
+.mock td {color:silver}
 ]]>
 			</style>
 			<div class="bg-white dark:bg-slate-900 shadow-2xl rounded-xl overflow-hidden print-shadow-none border border-slate-200 dark:border-slate-800">
@@ -165,17 +173,27 @@
 							</thead>
 
 							<tbody class="divide-y divide-slate-200 dark:divide-slate-800">
-								<xsl:for-each select="Tabla/Seccion">
-									<tr class="bg-primary text-white">
-										<td class="px-6 py-2 font-bold uppercase text-xs tracking-wider" colspan="4">
-											<xsl:value-of select="@titulo"/>
-										</td>
+								<xsl:variable name="secciones" select="key('secciones', '*')"/>
+								<xsl:for-each select="$secciones[count(.|key('secciones', .)[1])=1]">
+									<tr class="bg-primary text-white" data-seccion="{.}">
+										<th class="px-6 py-2 font-bold uppercase text-xs tracking-wider" colspan="4">
+											<xsl:value-of select="."/>
+										</th>
 									</tr>
-									<xsl:apply-templates mode="table-row" select="Partida/@precio">
+									<xsl:apply-templates mode="table-row" select="key('secciones', .)/../@precio">
 										<xsl:with-param name="ingreso" select="$ingreso"/>
 									</xsl:apply-templates>
 								</xsl:for-each>
-
+								<xsl:for-each select="$secciones[not(../@state:mock)][last()]/..">
+									<tr class="bg-primary text-white cursor-pointer" onclick="scope.dispatch('cotizador.nuevaPartida')" data-seccion="--">
+										<td class="px-6 py-1 font-bold uppercase text-xs tracking-wider" colspan="4"></td>
+									</tr>
+									<tr data-seccion="--">
+										<td class="py-3" colspan="4"></td>
+									</tr>
+								</xsl:for-each>
+							</tbody>
+							<tfoot>
 								<!-- TOTAL -->
 								<xsl:variable name="pctTotal">
 									<xsl:call-template name="pct1">
@@ -225,8 +243,7 @@
 										<div class="text-white/90 font-normal">Referencia: ingreso basado en la cuota mensual vigente</div>
 									</td>
 								</tr>
-
-							</tbody>
+							</tfoot>
 						</table>
 					</div>
 
@@ -238,11 +255,7 @@
 								</xsl:call-template>
 							</strong>. Los importes gravables consideran IVA conforme a la tabla.
 						</p>
-						<xsl:for-each select="Texto/P">
-							<p>
-								<xsl:value-of select="normalize-space(.)"/>
-							</p>
-						</xsl:for-each>
+						<xsl:apply-templates select="Texto/*|Texto/text()"/>
 					</div>
 
 					<div class="mt-5 pt-2 border-t border-slate-100 dark:border-slate-800">
@@ -322,9 +335,17 @@
 
 	<xsl:template match="@*" mode="money-field">
 		<xsl:param name="class">font-medium text-slate-800 dark:text-slate-200</xsl:param>
+		<xsl:param name="value">
+			<xsl:choose>
+				<xsl:when test=".=''">0</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="."/>
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:param>
 		<span class="$class">
 			<xsl:call-template name="money">
-				<xsl:with-param name="v" select="."/>
+				<xsl:with-param name="v" select="$value"/>
 			</xsl:call-template>
 		</span>
 	</xsl:template>
@@ -377,6 +398,7 @@
 		<xsl:param name="ingreso" select="0"/>
 		<xsl:param name="concepto" select="../@concepto"/>
 		<xsl:param name="detalle" select="../@detalle"/>
+		<xsl:param name="seccion" select="../@seccion"/>
 		<xsl:param name="precio" select="../@precio"/>
 		<xsl:param name="descripcion" select="normalize-space(..)"/>
 		<xsl:variable name="subtotal">
@@ -388,7 +410,8 @@
 				<xsl:with-param name="den" select="$ingreso"/>
 			</xsl:call-template>
 		</xsl:variable>
-		<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50" xo-slot="">
+		<xsl:variable name="mock"><xsl:if test="../@state:mock"> mock</xsl:if></xsl:variable>
+		<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 {$mock}" xo-slot="" xo-scope="{$concepto/../@xo:id}" data-seccion="{$seccion}">
 			<td class="px-6 py-4 font-medium">
 				<xsl:apply-templates mode="leyenda" select="$concepto">
 					<xsl:with-param name="detail" select="$detalle"/>
@@ -404,7 +427,13 @@
 			</td>
 			<td class="px-6 py-4 text-slate-600 dark:text-slate-400 italic">
 				<span xo-slot="text()">
-				<xsl:value-of select="$descripcion"/></span>
+					<xsl:choose>
+						<xsl:when test="normalize-space($descripcion)=''">&#8212;</xsl:when>
+						<xsl:otherwise>
+							<xsl:value-of select="$descripcion"/>
+						</xsl:otherwise>
+					</xsl:choose>
+				</span>
 				<span class="not-italic text-slate-500 dark:text-slate-400">
 					<xsl:text> | </xsl:text>
 				</span>
@@ -416,9 +445,10 @@
 		</tr>
 	</xsl:template>
 
-	<xsl:template mode="table-row" match="@*[number(.)!=.]">
+	<xsl:template mode="table-row" match="@*[.!=''][number(.)!=.]">
 		<xsl:param name="ingreso" select="0"/>
 		<xsl:param name="concepto" select="../@concepto"/>
+		<xsl:param name="seccion" select="../@seccion"/>
 		<xsl:param name="precio" select="../@precio"/>
 		<xsl:param name="descripcion" select="normalize-space(..)"/>
 		<xsl:variable name="pct">
@@ -435,6 +465,7 @@
 				<xsl:with-param name="detalle">
 					<xsl:apply-templates mode="detalle_concepto" select="."/>
 				</xsl:with-param>
+				<xsl:with-param name="seccion" select="$seccion"/>
 				<xsl:with-param name="precio" select="."/>
 				<xsl:with-param name="descripcion" select="$descripcion"/>
 			</xsl:apply-templates>
@@ -480,6 +511,21 @@
 	<xsl:template mode="detalle_concepto" match="Condominio/*/@cuota_administracion">
 		<xsl:text> de </xsl:text>
 		<xsl:apply-templates select="../@cantidad"/>
-		<xsl:text> </xsl:text><xsl:value-of select="name(..)"/>
+		<xsl:text> </xsl:text>
+		<xsl:value-of select="name(..)"/>
 	</xsl:template>
+
+	<xsl:template match="Texto/*">
+		<xsl:element name="{name()}" namespace="http://www.w3.org/1999/xhtml">
+			<xsl:attribute name="xo-slot">text()</xsl:attribute>
+			<xsl:value-of select="normalize-space()"/>
+		</xsl:element>
+	</xsl:template>
+
+	<xsl:template match="Texto/text()">
+		<p xo-slot="text()">
+			<xsl:copy-of select="."/>
+		</p>
+	</xsl:template>
+
 </xsl:stylesheet>

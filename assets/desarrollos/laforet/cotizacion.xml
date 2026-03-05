@@ -1,44 +1,23 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Cotizacion
-  folio="NEI-LAF-2025-09"
-  lugar="San Luis Potosí, S.L.P"
-  fecha="28 de Febrero de 2026"
-  marca="Neibora"
-  sitio="www.neibora.com"
-  correo="contacto@neibora.com">
+﻿<Cotizacion folio="NEI-LAF-2025-09" lugar="San Luis Potosí, S.L.P" fecha="28 de Febrero de 2026" marca="Neibora" sitio="www.neibora.com" correo="contacto@neibora.com">
 
-	<Condominio
-    nombre="Edificio La Foret"
-    saludo="CONDOMINIO: ESTIMADOS RESIDENTES"
-    municipio="San Luis Potosí, S.L.P.">
+	<Condominio nombre="Edificio La Foret" saludo="CONDOMINIO: ESTIMADOS RESIDENTES" municipio="San Luis Potosí, S.L.P.">
 		<departamentos cantidad="32" cuota="1850" cuota_administracion="150"/>
 		<casas cantidad="2" cuota="1000" cuota_administracion="150"/>
-		<lotes cantidad="10" cuota="2000" cuota_administracion="100"/>		
+		<lotes cantidad="10" cuota="2000" cuota_administracion="100"/>
 	</Condominio>
 
 	<Tabla>
-		<Seccion titulo="SEGURIDAD, PERSONAL Y LIMPIEZA">
-			<Partida concepto="Conserje" cantidad="1" gravable="1" precio="17000">5 días.</Partida>
-			<Partida concepto="Guardia de seguridad 24×24" cantidad="2" gravable="1" precio="17000.00">Vigilante nocturno</Partida>
-			<Partida concepto="Gastos generales" cantidad="1" gravable="1" precio="2000.00">Productos de limpieza, garrafones, etc.</Partida>
-		</Seccion>
-
-		<Seccion titulo="RECOLECCIÓN E INSUMOS">
-			<Partida concepto="Servicio de recolección de basura (3 visitas por semana)" cantidad="1" gravable="1" precio="1000.00">Servicio de recolección de basura 3 visitas por semana.</Partida>
-		</Seccion>
-
-		<Seccion titulo="ADMINISTRACIÓN">
-			<Partida proveedor="Neibora" concepto="Administración" cantidad="1" gravable="1" precio="cuota_administracion">Ver anexo de descripción.</Partida>
-		</Seccion>
-
-		<Seccion titulo="SERVICIOS">
-			<Partida concepto="INTERAPAS" cantidad="1" gravable="0" precio="250.00">Estimación de otros servicios</Partida>
-			<Partida concepto="Servicio de mantenimiento Elevador (promedio mensual)" periodicidad="mensual" precio="4500"/>
-			<Partida concepto="Servicio de CFE (promedio mensual)" periodicidad="bimestral" precio="6000.00"/>
-		</Seccion>
+		<Partida seccion="SEGURIDAD Y LIMPIEZA" concepto="Conserje" cantidad="1" gravable="1" precio="17000">5 días.</Partida>
+		<Partida seccion="SEGURIDAD, PERSONAL Y LIMPIEZA" concepto="Guardia de seguridad 24×24" cantidad="1" gravable="1" precio="17000.00">Vigilante nocturno</Partida>
+		<Partida seccion="SEGURIDAD, PERSONAL Y LIMPIEZA" concepto="Gastos generales" cantidad="1" gravable="1" precio="2000.00">Productos de limpieza, garrafones, etc.</Partida>
+		<Partida seccion="RECOLECCIÓN E INSUMOS" concepto="Recolección de basura" cantidad="1" gravable="1" precio="1000.00">Servicio de recolección de basura 3 visitas por semana.</Partida>
+		<Partida seccion="ADMINISTRACIÓN" proveedor="Neibora" concepto="Administración" cantidad="1" gravable="1" precio="cuota_administracion">Ver anexo de descripción.</Partida>
+		<Partida seccion="SERVICIOS" concepto="INTERAPAS" cantidad="1" gravable="0" precio="250.00">Estimación de otros servicios</Partida>
+		<Partida seccion="SERVICIOS" concepto="Mantenimiento Elevador (promedio mensual)" periodicidad="mensual" precio="4500"/>
+		<Partida seccion="SERVICIOS" concepto="CFE (promedio mensual)" periodicidad="bimestral" precio="6000.00"/>
 	</Tabla>
 
-	<Texto>		
+	<Texto>
 	</Texto>
 
 	<Firmas>
