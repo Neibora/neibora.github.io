@@ -1,0 +1,58 @@
+<InstruccionPago
+	titulo="Gasto ordinario y extraordinario"
+	fecha_emision="27/03/2026"
+	periodo="MARZO 2026"
+	comite="COMITÉ CANTABRIA"
+	fraccionamiento="LA CANTERA RESIDENCIAL - COTO 2"
+	logo="/assets/img/logo-lacantera.png">
+
+	<Proveedores>
+		<Proveedor id="lacantera_ac" nombre="LA CANTERA RESIDENCIAL VILLA DE POZOS A.C.">
+			<cuenta_bancaria banco="BANCO SANTANDER" cuenta="65-50731046-8" clabe="014700655073104687" tarjeta="5579 0890 0083 3999"/>
+		</Proveedor>
+
+		<Proveedor id="miguel_esquivel" nombre="MIGUEL ANGEL ESQUIVEL CASAS">
+			<cuenta_bancaria banco="BANCO BBVA" tarjeta="4152314408191107"/>
+		</Proveedor>
+
+		<Proveedor id="judith_alvarez" nombre="JUDITH ELIZABETH ALVAREZ MEDINA">
+			<cuenta_bancaria banco="BANCO BBVA" clabe="012700028621016109"/>
+		</Proveedor>
+
+		<Proveedor id="ricardo_almendariz" nombre="RICARDO ALMENDARIZ GARCIA">
+			<cuenta_bancaria banco="BANCO BBVA" clabe="012180015344158304"/>
+		</Proveedor>
+
+		<Proveedor id="panax" nombre="PANAX INFORMATION TECHNOLOGIES SC">
+			<cuenta_bancaria banco="FONDEADORA" clabe="699180600006549827"/>
+		</Proveedor>
+
+		<Proveedor id="hema" nombre="HEMA, HERRAMIENTAS Y MAQUINARIA INDUSTRIAL S DE RL DE CV">
+			<cuenta_bancaria banco="BANCO SANTANDER" clabe="014700655066612429"/>
+		</Proveedor>
+
+		<Proveedor id="omar_morales" nombre="OMAR MORALES JALOMO">
+			<cuenta_bancaria banco="BANCO BBVA" clabe="012700026191035382"/>
+		</Proveedor>
+	</Proveedores>
+
+	<Secciones>
+		<Seccion nombre="GASTOS DE ÁREA EXTERNA">
+			<Partida concepto="ADMINISTRACIÓN EXTERNA (...)" proveedor="lacantera_ac" importe="33461.66"/>
+		</Seccion>
+
+		<Seccion nombre="GASTOS DE ÁREA INTERNA">
+			<Partida concepto="REPOSICIÓN DE CAJA CHICA" proveedor="miguel_esquivel" importe="4962.00"/>
+			<Partida concepto="MOZO" proveedor="miguel_esquivel" importe="4163.33"/>
+			<Partida concepto="JARDINERÍA" proveedor="judith_alvarez" importe="9000.00"/>
+			<Partida concepto="RECOLECCIÓN DE RESIDUOS DOMÉSTICOS" proveedor="ricardo_almendariz" importe="5178.24"/>
+			<Partida concepto="ADMINISTRACIÓN+SUPERVISIÓN" proveedor="panax" importe="16240.00"/>
+			<Partida concepto="TELMEX CASETA" proveedor="panax" importe="582.00"/>
+			<Partida concepto="REPOSICIÓN DE GASTOS (EMPAQUES PARA FILTRO)" proveedor="panax" importe="140.00"/>
+			<Partida concepto="PAQ. 10 TAGS" proveedor="panax" importe="410.00"/>
+			<Partida concepto="CALENTADORES SOLARES (3 DE 6)" proveedor="hema" importe="16000.00"/>
+			<Partida concepto="REPOSICIÓN DE GASTOS (ESTUCO Y SELLADOR)" proveedor="omar_morales" importe="240.00"/>
+			<Partida concepto="MOZO" proveedor="omar_morales" importe="7282.18"/>
+		</Seccion>
+	</Secciones>
+</InstruccionPago>

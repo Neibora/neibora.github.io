@@ -1,0 +1,339 @@
+﻿<!DOCTYPE html>
+
+<html class="light" lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+	<title>Neibora - Convenio de Pago</title>
+	<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;family=Inter:wght@300;400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet" />
+	<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+	<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error": "#ffffff",
+                        "on-surface": "#191c1b",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#d8dbd8",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed-variant": "#005048",
+                        "error-container": "#ffdad6",
+                        "tertiary": "#00332f",
+                        "primary-container": "#004d40",
+                        "surface-tint": "#29695b",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed-dim": "#66d9cc",
+                        "primary": "#00342b",
+                        "inverse-surface": "#2e3130",
+                        "secondary-fixed-dim": "#70d8c8",
+                        "outline-variant": "#bfc9c4",
+                        "surface-container": "#eceeec",
+                        "on-secondary-fixed": "#00201c",
+                        "on-tertiary-container": "#4cc2b5",
+                        "on-primary-container": "#7ebdac",
+                        "on-secondary": "#ffffff",
+                        "inverse-primary": "#94d3c1",
+                        "on-background": "#191c1b",
+                        "tertiary-fixed": "#84f5e8",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-highest": "#e1e3e0",
+                        "surface-bright": "#f8faf7",
+                        "surface": "#f8faf7",
+                        "primary-fixed-dim": "#94d3c1",
+                        "on-tertiary-fixed": "#00201d",
+                        "outline": "#707975",
+                        "on-tertiary-fixed-variant": "#005049",
+                        "inverse-on-surface": "#eff1ef",
+                        "tertiary-container": "#004c46",
+                        "secondary-container": "#8df5e4",
+                        "secondary": "#006b5f",
+                        "surface-variant": "#e1e3e0",
+                        "on-surface-variant": "#3f4945",
+                        "on-error-container": "#93000a",
+                        "primary-fixed": "#afefdd",
+                        "secondary-fixed": "#8df5e4",
+                        "on-primary-fixed": "#00201a",
+                        "surface-container-high": "#e7e9e6",
+                        "on-secondary-container": "#007165",
+                        "surface-container-low": "#f2f4f1",
+                        "on-primary-fixed-variant": "#065043",
+                        "background": "#f8faf7",
+                        "neibora-green": "#004d40",
+                        "neibora-light-green": "#edf6f4"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+	</script>
+	<style>
+		.material-symbols-outlined {
+			font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+			display: inline-block;
+			line-height: 1;
+			text-transform: none;
+			letter-spacing: normal;
+			word-wrap: normal;
+			white-space: nowrap;
+			direction: ltr;
+		}
+
+		@media print {
+			.no-print {
+				display: none;
+			}
+
+			body {
+				background: white;
+			}
+
+			.print-shadow-none {
+				box-shadow: none !important;
+			}
+
+			.document-card {
+				border: none !important;
+				box-shadow: none !important;
+			}
+		}
+	</style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased">
+	<div class="flex min-h-screen">
+		<!-- Sidebar Navigation -->
+		<aside class="hidden md:flex flex-col h-screen w-64 fixed left-0 border-r-0 bg-[#f2f4f1] dark:bg-emerald-950 py-6 no-print">
+			<div class="px-8 mb-8">
+				<span class="font-black text-[#00342b] text-xl">Ledger Admin</span>
+				<p class="font-manrope text-xs font-medium text-[#191c1b] opacity-60">Condo Management</p>
+			</div>
+			<nav class="flex-1 space-y-1">
+				<div class="text-[#191c1b] dark:text-emerald-100/70 px-8 py-3 hover:bg-[#e7e9e6] dark:hover:bg-emerald-800 transition-all font-manrope text-sm font-medium cursor-pointer flex items-center gap-3">
+					<span class="material-symbols-outlined">dashboard</span> Overview
+				</div>
+				<div class="bg-white dark:bg-emerald-900 text-[#00342b] dark:text-white rounded-l-full ml-4 pl-4 py-3 font-manrope text-sm font-medium flex items-center gap-3">
+					<span class="material-symbols-outlined">description</span> Payment Plans
+				</div>
+				<div class="text-[#191c1b] dark:text-emerald-100/70 px-8 py-3 hover:bg-[#e7e9e6] dark:hover:bg-emerald-800 transition-all font-manrope text-sm font-medium cursor-pointer flex items-center gap-3">
+					<span class="material-symbols-outlined">payments</span> Arrears Report
+				</div>
+				<div class="text-[#191c1b] dark:text-emerald-100/70 px-8 py-3 hover:bg-[#e7e9e6] dark:hover:bg-emerald-800 transition-all font-manrope text-sm font-medium cursor-pointer flex items-center gap-3">
+					<span class="material-symbols-outlined">gavel</span> Legal Folders
+				</div>
+				<div class="text-[#191c1b] dark:text-emerald-100/70 px-8 py-3 hover:bg-[#e7e9e6] dark:hover:bg-emerald-800 transition-all font-manrope text-sm font-medium cursor-pointer flex items-center gap-3">
+					<span class="material-symbols-outlined">inventory_2</span> Archive
+				</div>
+			</nav>
+			<div class="mt-auto px-8 pt-6 border-t border-outline-variant/10 space-y-4">
+				<button class="w-full bg-primary text-on-primary py-3 rounded-xl font-bold text-sm shadow-sm hover:opacity-90 transition-opacity">
+					New Convenio
+				</button>
+				<div class="flex items-center gap-2 text-xs opacity-50 uppercase tracking-widest pb-4">
+					<span class="material-symbols-outlined text-sm">help</span> Support
+				</div>
+			</div>
+		</aside>
+		<!-- Main Content Area -->
+		<main class="flex-1 md:ml-64 bg-surface min-h-screen pb-20">
+			<!-- Top App Bar -->
+			<header class="flex justify-between items-center w-full px-8 py-4 bg-[#f8faf7] dark:bg-emerald-950 sticky top-0 z-10 no-print">
+				<div class="text-2xl font-bold tracking-tighter text-[#00342b] dark:text-white font-headline">Neibora</div>
+				<div class="hidden lg:flex gap-8">
+					<a class="text-[#191c1b] dark:text-[#e1e3e0] opacity-70 hover:text-[#006b5f] font-manrope font-medium transition-colors" href="#">Dashboard</a>
+					<a class="text-[#191c1b] dark:text-[#e1e3e0] opacity-70 hover:text-[#006b5f] font-manrope font-medium transition-colors" href="#">Residents</a>
+					<a class="text-[#006b5f] dark:text-[#8df5e4] font-bold border-b-2 border-[#006b5f] font-manrope transition-colors" href="#">Financials</a>
+					<a class="text-[#191c1b] dark:text-[#e1e3e0] opacity-70 hover:text-[#006b5f] font-manrope font-medium transition-colors" href="#">Documents</a>
+				</div>
+				<div class="flex items-center gap-4">
+					<span class="material-symbols-outlined text-[#00342b] cursor-pointer">notifications</span>
+					<span class="material-symbols-outlined text-[#00342b] cursor-pointer">settings</span>
+					<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-container">
+						<img alt="User profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBLx6Z4RXbQoSupxeSDQaj83hjVXr8PDaQ5Qe5XJDpqQW4DbLoiwJHYLXAp3OcHqAVTgQWtAYQvbyigXEoMEYCVSVXkDHsP61-uXitdWxHwY5fWUSSTXqOi-T0Qh6y6TD1iQcKiJq2hqGzzWAMsR-EbhJgA1eLmJZcZqTbIrImUMa6HYfBmXyzfGPdrNoX-b0v7f5sWjvd5eBHtWtW2j8bP4ZQqCNW6P_k_0Oqsi1cxl2Fpbwk6OixSJnQDZXL6xKs78VNPV-9Bf_5E" />
+					</div>
+				</div>
+			</header>
+			<!-- Document Canvas -->
+			<div class="max-w-4xl mx-auto mt-8 px-4 sm:px-8">
+				<!-- Action Bar -->
+				<div class="flex justify-between items-center mb-6 no-print">
+					<nav class="flex items-center gap-2 text-sm text-on-surface-variant">
+						<span class="material-symbols-outlined text-sm">arrow_back</span>
+						<span>Back to Resident Ledger</span>
+					</nav>
+					<div class="flex gap-3">
+						<button class="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-container-high text-primary font-bold text-sm hover:bg-surface-container-highest transition-colors" onclick="window.print()">
+							<span class="material-symbols-outlined text-lg">print</span> Print
+						</button>
+						<button class="flex items-center gap-2 px-4 py-2 rounded-xl bg-secondary text-on-secondary font-bold text-sm shadow-md hover:opacity-90 transition-opacity">
+							<span class="material-symbols-outlined text-lg">download</span> Export PDF
+						</button>
+					</div>
+				</div>
+				<!-- The Actual Document Card (Visual Style matching IMAGE_13) -->
+				<div class="bg-white rounded-lg shadow-xl overflow-hidden document-card border-t-8 border-neibora-green relative">
+					<!-- Document Header Section -->
+					<div class="px-12 py-10">
+						<div class="flex justify-between items-start">
+							<div class="flex flex-col gap-2">
+								<div class="w-10 h-10 bg-neibora-green flex items-center justify-center rounded-sm">
+									<span class="material-symbols-outlined text-white text-3xl">apartment</span>
+								</div>
+								<span class="text-[10px] font-bold text-neibora-green uppercase tracking-widest leading-tight">ADMINISTRACIÓN DE CONDOMINIOS</span>
+							</div>
+							<div class="text-right text-xs text-on-surface-variant space-y-1">
+								<p>San Luis Potosí, S.L.P.</p>
+								<p class="font-bold">24 de Mayo de 2024</p>
+							</div>
+						</div>
+						<div class="mt-12">
+							<h1 class="text-2xl font-bold text-neibora-green tracking-tight font-headline">VILLA VENTURA</h1>
+							<p class="text-xs font-bold text-on-surface-variant mt-1 uppercase tracking-wider">CONVENIO DE RECONOCIMIENTO DE ADEUDO Y PAGO</p>
+						</div>
+						<!-- Intro Text -->
+						<div class="mt-8 text-xs text-on-surface-variant leading-relaxed">
+							<p>
+								Por medio de la presente, ponemos a su consideración la propuesta de regularización de adeudos para la propiedad ubicada en <strong>VILLA VENTURA, Número Oficial 4</strong>, perteneciente al residente <strong>MARCO ANTONIO RIVERA SILVA</strong>. Este convenio integra el desglose de saldos vencidos y el plan de pagos diferidos acordado para la liquidación total de la deuda.
+							</p>
+						</div>
+						<!-- Debt Table (Retained from SCREEN_14) -->
+						<div class="mt-10">
+							<h3 class="text-[10px] font-bold text-neibora-green uppercase tracking-widest mb-4">DESGLOSE DETALLADO DE DEUDA</h3>
+							<div class="overflow-hidden border border-outline-variant/10 rounded-lg">
+								<table class="w-full text-xs">
+									<thead>
+										<tr class="bg-surface-container-low text-left">
+											<th class="px-4 py-3 font-bold text-primary">CONCEPTO</th>
+											<th class="px-4 py-3 font-bold text-primary text-right">MONTO (MXN)</th>
+										</tr>
+									</thead>
+									<tbody class="divide-y divide-outline-variant/10">
+										<tr>
+											<td class="px-4 py-3">Multas</td>
+											<td class="px-4 py-3 text-right font-medium">$1,697.10</td>
+										</tr>
+										<tr class="bg-surface-container-lowest">
+											<td class="px-4 py-3">Recargos</td>
+											<td class="px-4 py-3 text-right font-medium">$400.00</td>
+										</tr>
+										<tr>
+											<td class="px-4 py-3">Cuota extraordinaria externa</td>
+											<td class="px-4 py-3 text-right font-medium">$1,000.00</td>
+										</tr>
+										<tr class="bg-surface-container-lowest">
+											<td class="px-4 py-3">Cuota extraordinaria interna</td>
+											<td class="px-4 py-3 text-right font-medium">$1,600.00</td>
+										</tr>
+										<tr>
+											<td class="px-4 py-3">Cuotas de mantenimiento y saldo previo</td>
+											<td class="px-4 py-3 text-right font-medium">$15,870.00</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<!-- Total Debt Row (Style from IMAGE_13 PROPUESTA) -->
+						<div class="mt-4 flex items-center justify-between p-4 bg-neibora-light-green rounded-lg">
+							<div>
+								<p class="text-xs font-bold text-neibora-green uppercase">TOTAL DEUDA PENDIENTE</p>
+							</div>
+							<div class="text-right">
+								<p class="text-lg font-black text-neibora-green">$20,567.10</p>
+							</div>
+						</div>
+						<!-- Payment Schedule (Style matching IMAGE_12 Valtus example) -->
+						<div class="mt-10 border-l-4 border-neibora-green pl-6">
+							<h3 class="text-[10px] font-bold text-neibora-green uppercase tracking-widest mb-4">CALENDARIO DE PAGOS COMPROMETIDO</h3>
+							<div class="space-y-4 text-xs text-on-surface-variant leading-relaxed">
+								<p>Se propone liquidar la deuda contraída en parcialidades mensuales, adicionando la cuota de mantenimiento vigente a cada abono:</p>
+								<div class="space-y-3">
+									<p><strong>1. Primera parcialidad:</strong> Pagando el día 15 de Abril de 2026 la cantidad de <strong>$5,000.00</strong> + cuota de mantenimiento de Abril 2026.</p>
+									<p><strong>2. Segunda parcialidad:</strong> Pagando el día 15 de Mayo de 2026 la cantidad de <strong>$5,000.00</strong> + cuota de mantenimiento de Mayo 2026.</p>
+									<p><strong>3. Tercera parcialidad:</strong> Pagando el día 15 de Junio de 2026 la cantidad de <strong>$5,000.00</strong> + cuota de mantenimiento de Junio 2026.</p>
+									<p><strong>4. Cuarta parcialidad:</strong> Pagando el día 15 de Julio de 2026 la cantidad de <strong>$5,567.10</strong> (Liquidación) + cuota de mantenimiento de Julio 2026.</p>
+								</div>
+								<p class="mt-6 italic text-[10px] bg-surface-container-low p-3 rounded-lg">
+									<strong>Nota:</strong> El incumplimiento de dos mensualidades consecutivas invalidará este convenio, haciendo exigible el total del saldo insoluto de forma inmediata más las acciones legales pertinentes.
+								</p>
+							</div>
+						</div>
+						<!-- Signature Section -->
+						<div class="mt-20 flex flex-col items-center">
+							<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-12">ATENTAMENTE</p>
+							<div class="grid grid-cols-2 gap-20 w-full max-w-2xl mx-auto">
+								<div class="text-center">
+									<div class="w-full border-t border-outline-variant mb-3"></div>
+									<p class="text-xs font-bold text-primary">MARCO ANTONIO RIVERA SILVA</p>
+									<p class="text-[9px] text-on-surface-variant uppercase tracking-widest">Residente / Deudor</p>
+								</div>
+								<div class="text-center">
+									<div class="w-full border-t border-outline-variant mb-3"></div>
+									<p class="text-xs font-bold text-primary">Administración Neibora</p>
+									<p class="text-[9px] text-on-surface-variant uppercase tracking-widest">Representante Legal</p>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- Document Footer (Style matching IMAGE_13) -->
+					<footer class="bg-surface-container-low border-t border-outline-variant/20 px-12 py-6">
+						<div class="flex flex-col md:flex-row justify-between items-center gap-4">
+							<div class="flex items-center gap-6 text-[9px] font-medium text-neibora-green tracking-wider">
+								<div class="flex items-center gap-1">
+									<span class="material-symbols-outlined text-xs">phone</span>
+									<span>444.844.1210</span>
+								</div>
+								<div class="flex items-center gap-1">
+									<span class="material-symbols-outlined text-xs">phone</span>
+									<span>444.844.4649</span>
+								</div>
+								<div class="flex items-center gap-1">
+									<span class="material-symbols-outlined text-xs">language</span>
+									<span>www.neibora.com</span>
+								</div>
+								<div class="flex items-center gap-1">
+									<span class="material-symbols-outlined text-xs">business_center</span>
+									<span>Neibora Administración</span>
+								</div>
+							</div>
+							<div class="flex items-center">
+								<div class="w-6 h-6 bg-neibora-green flex items-center justify-center rounded-sm">
+									<span class="material-symbols-outlined text-white text-base">apartment</span>
+								</div>
+							</div>
+						</div>
+					</footer>
+				</div>
+			</div>
+		</main>
+	</div>
+	<!-- Mobile Navigation Shell -->
+	<nav class="md:hidden fixed bottom-0 left-0 right-0 bg-[#f8faf7] dark:bg-emerald-950 flex justify-around py-3 px-2 z-50 border-t border-outline-variant/10 no-print">
+		<div class="flex flex-col items-center text-[#191c1b] opacity-50">
+			<span class="material-symbols-outlined">dashboard</span>
+			<span class="text-[10px] font-manrope">Dash</span>
+		</div>
+		<div class="flex flex-col items-center text-[#006b5f] font-bold">
+			<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">description</span>
+			<span class="text-[10px] font-manrope">Convenios</span>
+		</div>
+		<div class="flex flex-col items-center text-[#191c1b] opacity-50">
+			<span class="material-symbols-outlined">payments</span>
+			<span class="text-[10px] font-manrope">Payments</span>
+		</div>
+		<div class="flex flex-col items-center text-[#191c1b] opacity-50">
+			<span class="material-symbols-outlined">settings</span>
+			<span class="text-[10px] font-manrope">Settings</span>
+		</div>
+	</nav>
+</body>
+</html>

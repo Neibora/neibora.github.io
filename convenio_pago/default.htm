@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html>
+<html class="light" lang="es">
+<head>
+	<meta charset="utf-8" />
+	<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+	<meta name="debug" content="true">
+	<title>Neibora - Generador de Presupuestos</title>
+	<link rel="xover-manifest" href="/manifest.json?v=20250121_1904">
+	<link rel="xover-manifest" href="manifest.json?v=20250121_1904">
+	<script type="text/javascript" src="/xover/xo.js?v=20250121_1904"></script>
+	<script type="text/javascript" src="/socket.io.js?v=20250121_1904"></script>
+	<script type="text/javascript" src="/custom.js?v=20250121_1904"></script>
+	<script type="text/javascript" src="/cotizacion/cotizador.js?v=20250121_1904"></script>
+	<script type="text/javascript" src="/cotizacion/cotizador_draggable.js?v=20250121_1904"></script>
+	<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet" />
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+	<script>
+		tailwind.config = {
+			darkMode: "class",
+			theme: {
+				extend: {
+					colors: {
+						primary: "#004d40", // Dark Teal from Neibora logo
+						secondary: "#00796b",
+						accent: "#4caf50", // Green from Neibora logo
+						"background-light": "#f8fafc",
+						"background-dark": "#0f172a",
+					},
+					fontFamily: {
+						display: ["Inter", "sans-serif"],
+					},
+					borderRadius: {
+						DEFAULT: "0.5rem",
+					},
+				},
+			},
+		};
+	</script>
+	<style>
+		body {
+			font-family: 'Inter', sans-serif;
+		}
+
+		@media print {
+			.no-print {
+				display: none;
+			}
+
+			.print-shadow-none {
+				box-shadow: none !important;
+			}
+		}
+	</style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-200 min-h-screen transition-colors duration-200">
+	<nav class="no-print bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
+		<div class="flex items-center gap-3">
+			<img alt="Neibora Logo" class="h-10 w-auto" src="/assets/img/logo.png" />
+			<span class="text-xl font-bold text-primary dark:text-white">
+				<span class="text-accent">Convenio</span>
+			</span>
+		</div>
+		<div class="flex items-center gap-4">
+			<button class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" onclick="document.documentElement.classList.toggle('dark')">
+				<span class="material-icons text-slate-600 dark:text-slate-400">dark_mode</span>
+			</button>
+			<button class="bg-primary hover:bg-secondary text-white px-4 py-2 rounded flex items-center gap-2 transition-all" onclick="window.print()">
+				<span class="material-icons text-sm">print</span>
+				<span>Exportar PDF</span>
+			</button>
+			<xo-printer />
+		</div>
+	</nav>
+	<section xo-source="seed"
+					 xo-stylesheet="convenio.xslt">
+	</section>
+	<div class="no-print fixed bottom-6 right-6 flex flex-col gap-3">
+		<button class="bg-accent hover:bg-green-600 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110" title="Guardar Cambios" onclick="cotizador.save()">
+			<span class="material-icons">save</span>
+		</button>
+		<button class="bg-primary hover:bg-secondary text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110" title="Enviar por Email">
+			<span class="material-icons">send</span>
+		</button>
+	</div>
+
+</body>
+</html>
