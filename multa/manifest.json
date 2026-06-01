@@ -1,0 +1,8 @@
+{
+  "sources": {
+    "xo-printer": "/components/printer.xhtml",
+    "^#(.+)_(\\d{4}\\d{2}\\d{2})_(.*)$": "../assets/desarrollos/$1/multa_$2_$3.xml",
+    "#": "ejemplo.xml"
+  },
+  "start": ["xo-printer"]
+}

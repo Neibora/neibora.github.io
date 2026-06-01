@@ -1,0 +1,8 @@
+{
+  "sources": {
+    "xo-printer": "/components/printer.xhtml",
+    "^#convenio_(.+)_(.+)$": "../assets/desarrollos/$1/convenio_$1_$2.xml",
+    "#": null
+  },
+  "start": ["xo-printer"]
+}

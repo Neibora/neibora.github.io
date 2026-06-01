@@ -27,7 +27,7 @@
     }
   },
   "state": {
-    "desarrollo": "${(xover.site.seed || '').replace(/^#/,'') || xover.site.location.url.foldername}"
+    "desarrollo": "${(xover.site.seed || '').replace(/^#|(_\\d+)+$/g,'') || xover.site.location.url.foldername}"
   },
   "start": [ "#desarrollos", "#site", "/navbar.html", "/footer.html", "/iconos.xslt", "#ws" ],
   "settings": {

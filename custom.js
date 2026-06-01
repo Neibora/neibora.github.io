@@ -164,6 +164,10 @@ async function updateTunnel() {
 	 }
 }
 function image_manager() {
-  debugger
+  let new_src = `/assets/img/logo_vertical.png`;
+	let src = this.src || '';
+  if (src && new xover.URL(src).filename === "logo.png" && src != new_src) {
+    this.src = new_src;
+  }
 }
-xo.listener.on('error', image_manager)
+xo.listener.on('error::img', image_manager)
