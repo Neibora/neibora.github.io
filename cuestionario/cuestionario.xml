@@ -1,0 +1,257 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<ChecklistCotizacion marca="Neibora" titulo="Checklist para cotización de administración" subtitulo="Gestión Residencial Integral" lugar="San Luis Potosí, S.L.P." fecha="">
+	<Descripcion>
+		<p>Este checklist permite levantar la información mínima necesaria para preparar una propuesta de administración residencial.</p>
+		<p>El precio se determina principalmente por número de casas y terrenos, cuota actual, si existe pago diferenciado, nivel de cobranza, amenidades, servicios activos y grado de intervención requerido.</p>
+	</Descripcion>
+	<Grupo nombre="Datos generales">
+		<Campo tipo="texto" etiqueta="Nombre del fraccionamiento / condominio" name="fraccionamiento"/>
+		<Campo tipo="texto" etiqueta="Ubicación" name="ubicacion"/>
+		<Campo tipo="texto" etiqueta="Código postal" name="codigo_postal"/>
+		<Campo tipo="opcion" etiqueta="Tipo de desarrollo" name="tipo_desarrollo">
+			<Opcion>Horizontal</Opcion>
+			<Opcion>Vertical</Opcion>
+			<Opcion>Mixto</Opcion>
+		</Campo>
+		<Campo tipo="texto" etiqueta="Contacto principal / comité" name="contacto_principal"/>
+		<Campo tipo="texto" etiqueta="Teléfono / WhatsApp" name="telefono_whatsapp"/>
+	</Grupo>
+	<Grupo nombre="Dimensión, terrenos y cobranza">
+		<Campo tipo="checklist" etiqueta="Tipo de lotes" name="tipo_lotes">
+			<Opcion condicion_tipo_desarrollo="!Vertical">Casas</Opcion>
+			<Opcion condicion_tipo_desarrollo="Vertical|Mixto">Departamentos</Opcion>
+			<Opcion condicion_tipo_desarrollo="!Vertical">Terrenos</Opcion>
+			<Opcion>Negocios</Opcion>
+		</Campo>
+
+		<Grupo nombre="Casas" condicion_tipo_lotes="Casas">
+			<Campo tipo="numero" etiqueta="Número total de casas" name="numero_total_casas"/>
+			<Campo tipo="numero" etiqueta="Casas al corriente" name="casas_al_corriente"/>
+			<Campo tipo="numero" etiqueta="Casas no cobrables" name="casas_no_cobrables"/>
+			<Campo tipo="dinero" etiqueta="Cuota mensual de mantenimiento de casas" name="cuota_mensual_mantenimiento_casas"/>
+		</Grupo>
+
+		<Grupo nombre="Terrenos" condicion_tipo_lotes="Terrenos">
+			<Campo tipo="numero" etiqueta="Número total de terrenos / lotes sin construir" name="numero_total_terrenos"/>
+			<Campo tipo="numero" etiqueta="Terrenos al corriente" name="terrenos_al_corriente"/>
+			<Campo tipo="numero" etiqueta="Terrenos no cobrables" name="terrenos_no_cobrables"/>
+			<Campo tipo="dinero" etiqueta="Cuota mensual de mantenimiento de terrenos" name="cuota_mensual_mantenimiento_terrenos"/>
+		</Grupo>
+
+		<Grupo nombre="Departamentos" condicion_tipo_lotes="Departamentos">
+			<Campo tipo="numero" etiqueta="Número total de departamentos" name="numero_total_departamentos"/>
+			<Campo tipo="numero" etiqueta="Departamentos al corriente" name="departamentos_al_corriente"/>
+			<Campo tipo="numero" etiqueta="Departamentos no cobrables" name="departamentos_no_cobrables"/>
+			<Campo tipo="dinero" etiqueta="Cuota mensual de mantenimiento de departamentos" name="cuota_mensual_mantenimiento_departamentos"/>
+		</Grupo>
+
+		<Grupo nombre="Negocios" condicion_tipo_lotes="Negocios">
+			<Campo tipo="numero" etiqueta="Número total de negocios" name="numero_total_negocios"/>
+			<Campo tipo="numero" etiqueta="Negocios al corriente" name="negocios_al_corriente"/>
+			<Campo tipo="numero" etiqueta="Negocios no cobrables" name="negocios_no_cobrables"/>
+			<Campo tipo="dinero" etiqueta="Cuota mensual de mantenimiento de negocios" name="cuota_mensual_mantenimiento_negocios"/>
+		</Grupo>
+		<Campo tipo="si_no" etiqueta="¿La cuota actual incluye administración?" name="cuota_incluye_administracion" condicion_personal_proveedores_requeridos="Administración"/>
+		<Campo tipo="dinero" etiqueta="Cuota administrativa actual, si existe" name="cuota_administrativa_actual" condicion_cuota_incluye_administracion="Sí"/>
+		<Campo tipo="si_no" etiqueta="¿Existe cuota extraordinaria vigente?" name="cuota_extraordinaria_vigente"/>
+		<Campo tipo="dinero" etiqueta="Monto de cuota extraordinaria" name="monto_cuota_extraordinaria" condicion_cuota_extraordinaria_vigente="Sí"/>
+		<Campo tipo="texto" etiqueta="Uso de la cuota extraordinaria" name="monto_cuota_extraordinaria" condicion_cuota_extraordinaria_vigente="Sí"/>
+		<Campo tipo="texto" etiqueta="Comentarios sobre cuotas o incrementos recientes" name="comentarios_cuotas"/>
+	</Grupo>
+	<Grupo nombre="Amenidades">
+		<Campo
+			tipo="numero"
+			etiqueta="Cantidad de áreas verdes amplias"
+			name="amenidades_areas_verdes"/>
+
+		<Campo
+			tipo="numero"
+			etiqueta="Cantidad de salones de eventos"
+			name="amenidades_salones"/>
+
+		<Campo
+			tipo="numero"
+			etiqueta="Cantidad de albercas"
+			name="amenidades_albercas"/>
+
+		<Campo
+			tipo="numero"
+			etiqueta="Cantidad de gimnasios"
+			name="amenidades_gimnasios"/>
+
+		<Campo
+			tipo="numero"
+			etiqueta="Cantidad de ludotecas"
+			name="amenidades_ludotecas"/>
+
+		<Campo
+			tipo="numero"
+			etiqueta="Cantidad de elevadores"
+			name="amenidades_elevadores"
+			condicion_tipo_desarrollo="Vertical|Mixto"/>
+
+		<Campo
+			tipo="numero"
+			etiqueta="Cantidad de terrazas"
+			name="amenidades_terrazas"/>
+
+		<Campo
+			tipo="numero"
+			etiqueta="Cantidad de cajones de estacionamiento de visitas"
+			name="amenidades_cajones_estacionamiento_visitas"/>
+
+		<Campo
+			tipo="numero"
+			etiqueta="Cantidad de canchas deportivas"
+			name="amenidades_canchas"/>
+
+		<!--<Campo
+			tipo="numero"
+			etiqueta="Cantidad de asadores"
+			name="amenidades_asadores"/>-->
+
+		<Campo
+			tipo="numero"
+			etiqueta="Cantidad de oficinas administrativas"
+			name="amenidades_oficinas_administrativas"/>
+
+		<Campo
+			tipo="texto"
+			etiqueta="Otros"
+			name="amenidades_otros"/>
+	</Grupo>
+	<Grupo nombre="Personal operativo y proveedores privados que se requieren">
+		<Campo tipo="checklist" etiqueta="Personal o proveedores requeridos" name="personal_proveedores_requeridos">
+			<Opcion>Administración financiera</Opcion>
+			<Opcion>Administración operativa</Opcion>
+			<Opcion>Asesoría legal</Opcion>
+			<Opcion>Mantenimiento</Opcion>
+			<Opcion condicion_personal_proveedores_requeridos="Mantenimiento">Supervisión</Opcion>
+			<Opcion condicion_personal_proveedores_requeridos="Supervisión">Supervisión de obra</Opcion>
+			<Opcion condicion_personal_proveedores_requeridos="Administración operativa">Vigilancia</Opcion>
+			<Opcion condicion_personal_proveedores_requeridos="Administración operativa">Renta de amenidades</Opcion>
+			<Opcion condicion_personal_proveedores_requeridos="Mantenimiento">Limpieza</Opcion>
+			<Opcion condicion_personal_proveedores_requeridos="Mantenimiento">Jardinería</Opcion>
+			<Opcion condicion_personal_proveedores_requeridos="Mantenimiento" condicion_amenidades_albercas="[1-9]">Alberca</Opcion>
+			<Opcion condicion_personal_proveedores_requeridos="Mantenimiento" condicion_amenidades_elevadores="[1-9]">Elevadores</Opcion>
+			<Opcion condicion_personal_proveedores_requeridos="Administración financiera">Contabilidad</Opcion>
+			<Opcion condicion_personal_proveedores_requeridos="Mantenimiento">Recolección de basura</Opcion>
+			<Opcion condicion_personal_proveedores_requeridos="Mantenimiento">Fumigación, control de plagas y fauna feral.</Opcion>
+			<Opcion condicion_personal_proveedores_requeridos="Mantenimiento">Limpieza de lotes baldíos</Opcion>
+		</Campo>
+		<Campo tipo="opcion" etiqueta="Modalidad principal" name="modalidad_principal">
+			<Opcion>Empleados directos</Opcion>
+			<Opcion>Proveedores externos</Opcion>
+			<Opcion>Mixto</Opcion>
+		</Campo>
+		<Campo tipo="texto" etiqueta="Observaciones sobre proveedores actuales" name="observaciones_proveedores_actuales"/>
+	</Grupo>
+	<!--<Grupo nombre="Pago diferenciado por tipo de propiedad">
+		<Campo tipo="si_no" etiqueta="¿Existe pago diferenciado?" name="pago_diferenciado"/>
+		<Campo tipo="dinero" etiqueta="Cuota de mantenimiento" name="cuota_mantenimiento" condicion_pago_diferenciado="No"/>
+		<Campo tipo="dinero" etiqueta="Cuota de mantenimiento para casas" name="cuota_mantenimiento_casas" condicion_pago_diferenciado="Sí"/>
+		<Campo tipo="dinero" etiqueta="Cuota de mantenimiento para departamentos" name="cuota_mantenimiento_departamentos" condicion_pago_diferenciado="Sí" condicion_tipo_lotes="Departamentos"/>
+		<Campo tipo="dinero" etiqueta="Cuota de mantenimiento para terrenos" name="cuota_mantenimiento_terrenos" condicion_pago_diferenciado="Sí" condicion_tipo_lotes="Terrenos"/>
+		<Campo tipo="dinero" etiqueta="Cuota de mantenimiento para negocios" name="cuota_mantenimiento_negocios" condicion_pago_diferenciado="Sí" condicion_tipo_lotes="Negocios"/>
+		<Campo tipo="si_no" etiqueta="¿Los terrenos reciben los mismos servicios que las casas?" name="terrenos_mismos_servicios" condicion_tipo_lotes="Terrenos"/>
+		<Campo tipo="texto" etiqueta="Servicios que sí aplican a terrenos" name="servicios_aplican_terrenos" condicion_tipo_lotes="Terrenos"/>
+		<Campo tipo="texto" etiqueta="Comentarios sobre regularización de propiedades" name="comentarios_terrenos"/>
+	</Grupo>-->
+	<!--<Grupo nombre="Amenidades">
+			<Campo tipo="checklist" etiqueta="Amenidades disponibles" name="amenidades_disponibles">
+				<Opcion>Alberca</Opcion>
+				<Opcion>Casa club / salón de eventos</Opcion>
+				<Opcion>Canchas deportivas</Opcion>
+				<Opcion>Dog Park</Opcion>
+				<Opcion>Gimnasio</Opcion>
+				<Opcion>Ludoteca</Opcion>
+				<Opcion>Áreas verdes amplias</Opcion>
+				<Opcion>Juegos infantiles</Opcion>
+				<Opcion>Estacionamiento de visitas</Opcion>
+				<Opcion condicion_tipo_desarrollo="Vertical|Mixto">Elevadores</Opcion>
+				<Opcion>Terraza</Opcion>
+				<Opcion>Asadores</Opcion>
+			</Campo>
+			<Campo tipo="texto" etiqueta=" Reglas especiales de uso de amenidad" name="reglas_amenidad"/>
+		</Grupo>-->
+	<Grupo nombre="Seguridad y accesos requeridos">
+		<Campo tipo="opcion" etiqueta="Tipo de vigilancia" name="tipo_vigilancia" condicion_personal_proveedores_requeridos="Vigilancia">
+			<Opcion>24/7</Opcion>
+			<Opcion>Diurna</Opcion>
+			<Opcion>Nocturna</Opcion>
+		</Campo>
+		<Campo tipo="opcion" etiqueta="Tipo de vigilancia" name="tipo_turno_vigilancia" condicion_tipo_vigilancia="24/7" condicion_personal_proveedores_requeridos="Vigilancia">
+			<Opcion>24x24</Opcion>
+			<Opcion>12x12</Opcion>
+		</Campo>
+		<Campo tipo="si_no" etiqueta="¿Con cubreturnos?" name="cubreturnos" condicion_tipo_vigilancia="24/7" condicion_personal_proveedores_requeridos="Vigilancia"/>
+		<Campo tipo="numero" etiqueta="Elementos de seguridad por turno" name="elementos_seguridad_por_turno" condicion_tipo_vigilancia="24/7"/>
+		<Campo tipo="checklist" etiqueta="Sistema de control de acceso" name="sistema_control_acceso">
+			<Opcion>Plumas</Opcion>
+			<Opcion>Portón eléctrico</Opcion>
+			<Opcion>Tags de radiofrecuencia</Opcion>
+			<Opcion>QR</Opcion>
+			<Opcion>Registro manual</Opcion>
+			<Opcion>Biométrico facial</Opcion>
+			<Opcion>Biométrico dactilar</Opcion>
+			<Opcion>Cámaras</Opcion>
+		</Campo>
+		<Campo tipo="texto" etiqueta="Problemas actuales de acceso o vigilancia"/>
+	</Grupo>
+	<Grupo nombre="Servicios públicos actuales">
+		<Campo tipo="checklist" etiqueta="Servicios existentes" name="servicios_existentes">
+			<Opcion>CFE áreas comunes</Opcion>
+			<Opcion>Agua / INTERAPAS</Opcion>
+			<Opcion>Recolección de basura</Opcion>
+		</Campo>
+		<Campo tipo="texto" etiqueta="Servicios con adeudo o riesgo de suspensión" name="servicios_adeudo_riesgo"/>
+	</Grupo>
+	<Grupo nombre="Estado financiero">
+		<Campo tipo="dinero" etiqueta="Ingreso mensual estimado" name="ingreso_mensual_estimado"/>
+		<Campo tipo="dinero" etiqueta="Gasto mensual estimado" name="gasto_mensual_estimado"/>
+		<Campo tipo="si_no" etiqueta="¿Existe déficit operativo?" name="deficit_operativo"/>
+		<Campo tipo="si_no" etiqueta="¿Cuentan con estado financiero reciente?" name="estado_financiero_reciente"/>
+		<Campo tipo="si_no" etiqueta="¿Cuentan con cartera vencida actualizada?" name="cartera_vencida_actualizada"/>
+		<Campo tipo="si_no" etiqueta="¿Cuentan con bancos conciliados?" name="bancos_conciliados"/>
+	</Grupo>
+	<Grupo nombre="Problemas actuales">
+		<Campo tipo="checklist" etiqueta="Situaciones detectadas" name="situaciones_detectadas">
+			<Opcion>Falta de control financiero</Opcion>
+			<Opcion>Falta de transparencia</Opcion>
+			<Opcion>Quejas frecuentes de residentes</Opcion>
+			<Opcion>Falta de mantenimiento</Opcion>
+			<Opcion>Conflictos entre vecinos</Opcion>
+			<Opcion>Problemas con proveedores</Opcion>
+			<Opcion>Administración interna</Opcion>
+			<Opcion>Ausencia de reglamento o aplicación irregular</Opcion>
+		</Campo>
+		<Campo tipo="texto" etiqueta="Descripción breve de los principales problemas" name="descripcion_problemas"/>
+	</Grupo>
+	<Grupo nombre="Alcance esperado de Neibora">
+		<Campo tipo="checklist" etiqueta="Servicios esperados" name="servicios_esperados">
+			<Opcion>Administración</Opcion>
+			<Opcion>Cobranza</Opcion>
+			<Opcion>Operación</Opcion>
+			<Opcion>Supervisión de proveedores</Opcion>
+			<Opcion>Regularización de cartera</Opcion>
+			<Opcion>Comunicación con residentes</Opcion>
+			<Opcion>Reportes financieros</Opcion>
+			<Opcion>Apoyo en asambleas</Opcion>
+			<Opcion>Gestión legal o reglamentaria</Opcion>
+		</Campo>
+		<Campo tipo="opcion" etiqueta="Nivel de intervención requerido" name="nivel_intervencion">
+			<Opcion>Bajo - desarrollo ordenado</Opcion>
+			<Opcion>Medio - requiere control y seguimiento</Opcion>
+			<Opcion>Alto - requiere regularización y reorganización</Opcion>
+		</Campo>
+		<Campo tipo="texto" etiqueta="Comentarios finales para preparar la propuesta" name="comentarios_finales"/>
+	</Grupo>
+	<Criterios>
+		<Criterio>Mayor número de propiedades puede permitir una cuota administrativa menor por propiedad.</Criterio>
+		<Criterio>Cuando existen casas y terrenos, conviene validar si ambos pagan la misma cuota o si existe una cuota diferenciada.</Criterio>
+		<Criterio>Más amenidades incrementan la carga operativa y administrativa.</Criterio>
+		<Criterio>Una baja cobranza requiere mayor trabajo de seguimiento y regularización.</Criterio>
+		<Criterio>Los terrenos pueden generar menor carga operativa directa, pero normalmente requieren seguimiento administrativo, comunicación y control de cartera.</Criterio>
+		<Criterio>Cuando existe desorden financiero, conflicto o cambio de administración, el arranque requiere mayor intervención.</Criterio>
+	</Criterios>
+</ChecklistCotizacion>
