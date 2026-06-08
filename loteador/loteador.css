@@ -96,8 +96,8 @@ form:not([desarrollo*="$"]) #Mapa {
 */
 .card-flipper {
 	perspective: 1000px; /*For 3D effect */
-	height: 80vh;
-	width: 300px;
+	height: 90vh;
+	width: 330px;
 	padding-inline: 1.5rem;
 	top: 1rem;
 }
@@ -107,7 +107,7 @@ form:not([desarrollo*="$"]) #Mapa {
 		backface-visibility: hidden; /*Hides the back face when flipped */
 		transform-style: preserve-3d;
 		transition: transform 0.6s ease;
-		width: 270px;
+		width: 310px;
 		border-radius: 0 0 70px 0;
 	}
 

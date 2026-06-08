@@ -4,7 +4,8 @@
   xmlns="http://www.w3.org/1999/xhtml"
   xmlns:xo="http://panax.io/xover"
   xmlns:state="http://panax.io/state"
-  xmlns:js="http://panax.io/languages/javascript">
+  xmlns:js="http://panax.io/languages/javascript"
+>
 
 	<xsl:output method="html" indent="yes" encoding="utf-8"/>
 	<xsl:param name="state:desarrollo"/>

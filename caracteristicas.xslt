@@ -13,7 +13,7 @@
 			<div class="container-fluid">
 				<div class="row text-dark">
 					<xsl:apply-templates mode="caracteristicas-item" select="key('feature','')">
-						<xsl:sort select="@name"/>
+						<!--<xsl:sort select="@name" data-type="text"/>-->
 					</xsl:apply-templates>
 				</div>
 			</div>

@@ -354,12 +354,38 @@ cotizador.download = function () {
 	document.select(`//@xo:*`).remove();
 	document.download()
 }
-cotizador.save = function () {
-	let document = xo.sources["#cotizacion"];
-	document.select(`//@xo:*`).remove();
-	document.download()
-}
+//cotizador.save = function () {
+//	let document = xo.sources["#cotizacion"];
+//	document.select(`//@xo:*`).remove();
+//	document.download()
+//}
 
+cotizador.save = async function () {
+	let source_name = location.hash || "seed";
+	let original_document = xo.sources[source_name];
+	let document = original_document.cloneNode(true);
+	document.select(`//@xo:*`).remove();
+
+	let fraccionamiento = document.querySelector("[name=fraccionamiento]")?.getAttribute("value") || "";
+	let file_name = location.hash?.replace(/^#/, "") || fraccionamiento
+		.normalize("NFD")
+		.replace(/[\u0300-\u036f]/g, "")
+		.replace(/[^\w\s-]/g, "")
+		.replace(/\s+/g, "_")
+		.trim() || "cotizacion";
+	try {
+		xover.stores[`#${file_name}`] = document;
+		await xover.stores[`#${file_name}`].save();
+		await xover.server.uploadFile(new File([document], `${location.pathname}${file_name}.xml`, { type: "text/xml" }));
+		alert("Archivo guardado exitosamente en el servidor.")
+		xover.site.seed = `#${file_name}`;
+	} catch (e) {
+		console.error("Error al guardar el archivo:", e);
+		if (confirm("No se pudo guardar el archivo. ¿Desea descargarlo localmente?")) {
+			document.download(`${file_name}.xml.txt`)
+		}
+	}
+}
 
 cotizador.nuevaPartida = function () {
 	let new_node = this.duplicate({ seed: true });

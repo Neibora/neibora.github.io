@@ -2,48 +2,48 @@
 /*     General Styles     */
 /**************************/
 :root {
-    --brand-dark-color: #3f5c59;
-    --brand-light-color: #caa978;
-    --brand-river-red: #444C57;
-    --brand-creen-snow: #EDEDE3;
-    --main-color: var(--brand-dark-color);
-    --secondary-color: var(--brand-river-red);
-    --terciary-color: var(--brand-light-color);
-    --primary: #1c262f;
-    --primary-light: #212d37;
-    --secondary: var(--brand-river-red);
-    --tertiary: var(--brand-light-color);
-    --gradient: linear-gradient(to right, #0ee951, #00dabf);
-    --bg-main-color: rgb(35, 52, 155);
-    --bg-title-color: #000;
-    --bg-subtitle-color: #A0A7AC;
-    --bg-text-color: #697477;
-    --bg-body-color: #f7f7f7;
-    --bg-body-primary: #214252;
-    --bg-border: #e3e6ed;
-    --bg-card-lote: #e7e7ff;
-    --bg-nav: var(--brand-creen-snow);
-    --bg-nav-hover: white;
-    --bg-nav-active: var(--terciary-color);
-    --bg-section: #efeee9;
-    --bg-footer: var(--brand-dark-color);
-    --bg-line-card: #979797;
-    --bg-listgroup: var(--brand-creen-snow);
-    --bg-listgroup-content: #fff;
-    --z-index-footer: 1000;
-    --section-dark-bg-color: #efeee9;
-    --section-dark-color: black;
-    --main-bg-color: var(--main-color);
-    --title-bg-color: var(--main-color);
-    --bg-title-color: white;
-    --contactband-bg-color: var(--terciary-color);
-    --sitemap-scrollbar-color: var(--brand-creen-snow);
-    --sitemap-scrollbar-border: var(--main-color);
-    --sitemap-scrollbar-background: var(--main-color);
-    --color-nav-hover: var(--main-color);
-    --footer-height: 80px;
-    --polygon-bg-color-active: #00aa55;
-    --polygon-bg-color: var(--brand-light-color);
+  --brand-dark-color: #005357;
+  --brand-light-color: #f6b808;
+  --brand-river-red: #444C57;
+  --brand-creen-snow: #EDEDE3;
+  --main-color: var(--brand-dark-color);
+  --secondary-color: var(--brand-river-red);
+  --terciary-color: var(--brand-light-color);
+  --primary: #1c262f;
+  --primary-light: #212d37;
+  --secondary: var(--brand-river-red);
+  --tertiary: var(--brand-light-color);
+  --gradient: linear-gradient(to right, #0ee951, #00dabf);
+  --bg-main-color: rgb(35, 52, 155);
+  --bg-title-color: #000;
+  --bg-subtitle-color: #A0A7AC;
+  --bg-text-color: #697477;
+  --bg-body-color: #f7f7f7;
+  --bg-body-primary: #214252;
+  --bg-border: #e3e6ed;
+  --bg-card-lote: #e7e7ff;
+  --bg-nav: var(--brand-creen-snow);
+  --bg-nav-hover: white;
+  --bg-nav-active: var(--terciary-color);
+  --bg-section: #efeee9;
+  --bg-footer: var(--brand-dark-color);
+  --bg-line-card: #979797;
+  --bg-listgroup: var(--brand-creen-snow);
+  --bg-listgroup-content: #fff;
+  --z-index-footer: 1000;
+  --section-dark-bg-color: #efeee9;
+  --section-dark-color: black;
+  --main-bg-color: var(--main-color);
+  --title-bg-color: var(--main-color);
+  --bg-title-color: white;
+  --contactband-bg-color: var(--terciary-color);
+  --sitemap-scrollbar-color: var(--brand-creen-snow);
+  --sitemap-scrollbar-border: var(--main-color);
+  --sitemap-scrollbar-background: var(--main-color);
+  --color-nav-hover: var(--main-color);
+  --footer-height: 80px;
+  --polygon-bg-color-active: #00aa55;
+  --polygon-bg-color: var(--brand-light-color);
 }
 
 .two-columns {
@@ -66,9 +66,9 @@
 }
 
 @media (min-width: 800px) {
-    .home .logo {
-        max-width: 320px !important;
-    }
+  .home .logo {
+    max-width: 270px !important;
+  }
 }
 
 @font-face {
@@ -84,16 +84,20 @@ body {
 }
 
 .branded-message {
-    text-align: center;
-    background-color: rgb(108 129 122 / 60%);
-    padding: 1rem;
+  text-align: center;
+  background-color: rgb(108 129 122 / 60%);
+  padding: 1rem;
+  font-weight: bolder;
+  font-size: 1.5rem;
+  min-width: max-content;
+  max-width: max-content;
 }
 
 .branded-message {
-    background-color: var(--brand-dark-color);
-    border: 2pt solid var(--brand-light-color);
-    padding: 1rem 2rem 1rem 3rem;
-    white-space: nowrap;
+	background-color: var(--brand-dark-color);
+	border: 2pt solid var(--brand-light-color);
+	padding: 1rem 2rem 1rem 3rem;
+	white-space: nowrap;
 }
 
 main #header p strong {
@@ -163,6 +167,13 @@ body > footer {
 
 dialog.xover-component form > * {
     background-color: initial;
+}
+
+#general i {
+  color: var(--brand-light-color) !important;
+}
+#general h4 {
+  color: var(--main-color) !important;
 }
 
 dialog #content .content-container {
@@ -292,10 +303,9 @@ button {
 }
 
 section p {
-    font-size: 1.4rem;
-    min-width: 400px;
-    /*font-size: clamp(1rem, 1.2rem, 1rem);*/
-    margin: auto;
+	max-width: max-content;
+	width: 100%;
+	margin: auto;
 }
 
 p,
@@ -424,9 +434,13 @@ li {
     padding-bottom: 0.25rem;
 }
 
-.navbar .navbar-brand img {
+  .navbar .navbar-brand-inverted img {
     filter: brightness(0) invert(1);
-}
+  }
+
+  .navbar .navbar-brand img {
+    filter: drop-shadow(0 1px 1px rgba(0,0,0,.3)) drop-shadow(0 0 2px rgba(255,255,255,.4));
+  }
 
 .navbar .logo-image img {
     width: 108px;
@@ -909,12 +923,13 @@ li {
 }
 
 #scrollUp {
-    cursor: pointer;
-    display: none;
-    right: 20px;
-    bottom: 20px;
-    background-color: var(--brand-river-red);
-    border-radius: 50%;
+  cursor: pointer;
+  display: none;
+  right: 20px;
+  bottom: 20px;
+  background-color: var(--brand-light-color);
+  color: var(--main-color);
+  border-radius: 50%;
 }
 
 #scrollUp:hover {

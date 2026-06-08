@@ -2,7 +2,7 @@
   "sources": {
     "xo-printer": "/components/printer.xhtml",
     "^#(.+)$": "../assets/desarrollos/$1/cotizacion.xml",
-    "^#(arboledas2|fresnos)$": "$1.xml"
+    "^#(arboledas2|fresnos|vittanova)$": "$1.xml"
   },
   "start": ["xo-printer"]
 }

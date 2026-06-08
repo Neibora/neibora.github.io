@@ -320,7 +320,7 @@
 			h4.appendChild(label);
 			div.appendChild(h4);
 			if (!firstRadio) firstRadio = radio;
-
+			if (filter.attributes.selected) radio.checked = true;
 			radio.addEventListener('change', () => {
 				const map = document.querySelector('map');
 				if (map && typeof map.dispatch === 'function') map.dispatch('loteador:colorea');
@@ -428,8 +428,10 @@
 
 		await xover.dom.combine(this, root)
 
-		for (let radio of this.querySelectorAll(`div.filter[xo-source="${xo.site.active}"] input[type=radio]`)) {
-			radio.checked = true
+		const selected_radio = this.querySelector(`#Filtros:not(:has(:checked)) div.filter[xo-source="${xo.site.active}"] input[type="radio"]`);
+
+		if (selected_radio) {
+			selected_radio.checked = true;
 		}
 	});
 
