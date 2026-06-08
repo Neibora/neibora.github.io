@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
+	<!-- 
     Microsoft ResX Schema 
     
     Version 2.0
@@ -59,77 +59,125 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
-    <xsd:element name="root" msdata:IsDataSet="true">
-      <xsd:complexType>
-        <xsd:choice maxOccurs="unbounded">
-          <xsd:element name="metadata">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" />
-              </xsd:sequence>
-              <xsd:attribute name="name" use="required" type="xsd:string" />
-              <xsd:attribute name="type" type="xsd:string" />
-              <xsd:attribute name="mimetype" type="xsd:string" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="assembly">
-            <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string" />
-              <xsd:attribute name="name" type="xsd:string" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="data">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
-              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
-              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="resheader">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" />
-            </xsd:complexType>
-          </xsd:element>
-        </xsd:choice>
-      </xsd:complexType>
-    </xsd:element>
-  </xsd:schema>
-  <resheader name="resmimetype">
-    <value>text/microsoft-resx</value>
-  </resheader>
-  <resheader name="version">
-    <value>2.0</value>
-  </resheader>
-  <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-  <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-  <data name="title" xml:space="preserve">
-    <value>Adquiere nuestros servicios con</value>
-  </data>
-  <data name="item_2" xml:space="preserve">
-    <value>Tecnología: Automatizamos tus procesos administrativos para que te enfoques en lo que realmente importa: tu comunidad.</value>
-    <comment>fa-solid fa-microchip</comment>
-  </data>
-  <data name="item_3" xml:space="preserve">
-    <value>Tranquilidad: Vive despreocupado. Nosotros nos encargamos de la administración, mantenimiento y comunicación.</value>
-    <comment>fa-solid fa-face-smile-beam</comment>
-  </data>
-  <data name="item_1" xml:space="preserve">
-    <value>Valor: Hacemos que tu patrimonio crezca y tu condominio se convierta en una inversión con plusvalía.</value>
-    <comment>fa-solid fa-chart-line</comment>
-  </data>
+	<xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+		<xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+		<xsd:element name="root" msdata:IsDataSet="true">
+			<xsd:complexType>
+				<xsd:choice maxOccurs="unbounded">
+					<xsd:element name="metadata">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" />
+							</xsd:sequence>
+							<xsd:attribute name="name" use="required" type="xsd:string" />
+							<xsd:attribute name="type" type="xsd:string" />
+							<xsd:attribute name="mimetype" type="xsd:string" />
+							<xsd:attribute ref="xml:space" />
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="assembly">
+						<xsd:complexType>
+							<xsd:attribute name="alias" type="xsd:string" />
+							<xsd:attribute name="name" type="xsd:string" />
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="data">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+								<xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+							<xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+							<xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+							<xsd:attribute ref="xml:space" />
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="resheader">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" use="required" />
+						</xsd:complexType>
+					</xsd:element>
+				</xsd:choice>
+			</xsd:complexType>
+		</xsd:element>
+	</xsd:schema>
+	<resheader name="resmimetype">
+		<value>text/microsoft-resx</value>
+	</resheader>
+	<resheader name="version">
+		<value>2.0</value>
+	</resheader>
+	<resheader name="reader">
+		<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<resheader name="writer">
+		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<data name="title" xml:space="preserve">
+  <value>Transformamos la administración residencial con tecnología y transparencia</value>
+</data>
+
+	<data name="item_1" xml:space="preserve">
+  <value>Gestión financiera: Cuotas ordinarias y extraordinarias, conciliación bancaria, comprobantes y trazabilidad financiera.</value>
+  <comment>fa-solid fa-calculator</comment>
+</data>
+
+	<data name="item_2" xml:space="preserve">
+  <value>Gestión de cobranza: Estados de cuenta por propiedad, multas, recargos, convenios y recuperación de cartera.</value>
+  <comment>fa-solid fa-file-invoice-dollar</comment>
+</data>
+
+	<data name="item_3" xml:space="preserve">
+  <value>Gestión de proveedores: Cotizaciones, contratación, facturación, pagos, complementos y evaluación de servicios.</value>
+  <comment>fa-solid fa-handshake</comment>
+</data>
+
+	<data name="item_4" xml:space="preserve">
+  <value>Supervisión operativa: Inspecciones, recorridos, seguimiento de incidencias, evidencia fotográfica y bitácoras.</value>
+  <comment>fa-solid fa-clipboard-check</comment>
+</data>
+
+	<data name="item_5" xml:space="preserve">
+  <value>Infraestructura tecnológica: Accesos digitales, biométricos, CCTV, automatización, respaldos y continuidad operativa.</value>
+  <comment>fa-solid fa-microchip</comment>
+</data>
+
+	<data name="item_6" xml:space="preserve">
+  <value>Renta y uso de amenidades: Reservaciones digitales, validación de adeudos, contratos y reglamentos de uso.</value>
+  <comment>fa-solid fa-calendar-check</comment>
+</data>
+
+	<data name="item_7" xml:space="preserve">
+  <value>Gestión documental: Reglamentos, contratos, formatos digitales, oficios, minutas y cartas de no adeudo.</value>
+  <comment>fa-solid fa-file-signature</comment>
+</data>
+
+	<data name="item_8" xml:space="preserve">
+  <value>Limpieza y conservación: Mantenimiento de áreas comunes, imagen urbana, jardinería, plagas y campañas de conservación.</value>
+  <comment>fa-solid fa-broom</comment>
+</data>
+
+	<data name="item_9" xml:space="preserve">
+  <value>Control de accesos: Residentes, visitas y proveedores mediante tags, biométricos, QR y trazabilidad de ingresos.</value>
+  <comment>fa-solid fa-door-open</comment>
+</data>
+
+	<data name="item_10" xml:space="preserve">
+  <value>Comunicación oficial: Avisos, comunicados, chatbot, notificaciones y seguimiento digital a solicitudes.</value>
+  <comment>fa-solid fa-bullhorn</comment>
+</data>
+
+	<data name="item_11" xml:space="preserve">
+  <value>Gestión de comunidad: Asambleas, comités, mediación, convivencia, campañas y eventos comunitarios.</value>
+  <comment>fa-solid fa-users</comment>
+</data>
+
+	<data name="item_12" xml:space="preserve">
+  <value>Información, satisfacción y reportes: Dashboards financieros y operativos, historial por propiedad, encuestas y base de datos.</value>
+  <comment>fa-solid fa-chart-line</comment>
+</data>
 </root>
