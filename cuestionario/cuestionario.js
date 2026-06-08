@@ -430,12 +430,37 @@ xo.listener.on("change::Convenio//@*[starts-with('=')]", formula_handler)
 
 cuestionario = {}
 cuestionario.download = function () {
-	let document = xo.sources["seed"];
+	let document = xo.sources["seed"].cloneNode(true);
 	document.select(`//@xo:*`).remove();
 	document.download()
 }
-cuestionario.save = function () {
-	let document = xo.sources["seed"];
+cuestionario.save = async function () {
+	let source_name = location.hash || "seed";
+	let original_document = xo.sources[source_name];
+	let document = original_document.cloneNode(true);
 	document.select(`//@xo:*`).remove();
-	document.download("cuestionario.xml.txt")
+
+	let fraccionamiento = document.querySelector("[name=fraccionamiento]")?.getAttribute("value") || "";
+	let file_name = location.hash?.replace(/^#/, "") || fraccionamiento
+		.normalize("NFD")
+		.replace(/[\u0300-\u036f]/g, "")
+		.replace(/[^\w\s-]/g, "")
+		.replace(/\s+/g, "_")
+		.trim() || "cuestionario";
+	try {
+		xover.stores[`#${file_name}`] = document;
+		await xover.stores[`#${file_name}`].save();
+		await xover.server.uploadFile(new File([document], `${file_name}.xml`, { type: "text/xml" }));
+		alert("Archivo guardado exitosamente en el servidor.")
+		xover.site.seed = `#${file_name}`;
+	} catch (e) {
+		if (confirm("No se pudo guardar el archivo. ¿Desea descargarlo localmente?")) {
+			document.download(`${file_name}.xml.txt`)
+		}
+	}
 }
+//click_checked_handler = function ({  }) {
+// se está ejecutando muchas veces al hacer click en un checkbox, incluso en otros cuestionarios, y no logro entender por qué. Por ahora lo comento para evitar problemas de performance.
+//	console.log(`Checked`, this)
+//}
+//xo.listener.on("focusin::*:checked", click_checked_handler)

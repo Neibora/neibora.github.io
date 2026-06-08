@@ -137,7 +137,8 @@
 
 					<div class="mb-8">
 						<h1 class="text-2xl font-bold text-primary dark:text-white border-b-2 border-accent inline-block pb-1 mb-4">
-							<xsl:value-of select="Condominio/@nombre"/>
+							<xsl:apply-templates select="Condominio/@nombre"/>
+							<xsl:apply-templates select="Condominio/@desarrollo"/>
 						</h1>
 						<p class="text-lg font-medium text-slate-700 dark:text-slate-300">
 							<xsl:value-of select="Condominio/@saludo"/>
@@ -146,11 +147,11 @@
 						<div class="mt-4 text-slate-600 dark:text-slate-400 leading-relaxed max-w-none space-y-2">
 							<p>
 								Por medio de la presente se pone a su consideración la propuesta de costos de
-								<span class="font-medium">Administración y Mantenimiento mensual</span>
+								<span class="font-medium">Administración y gestión de la operación mensual</span>
 								para el condominio denominado
 								<xsl:apply-templates select="Condominio/@nombre">
 									<xsl:with-param name="class">font-bold</xsl:with-param>
-								</xsl:apply-templates>
+								</xsl:apply-templates> <xsl:apply-templates select="Condominio/@desarrollo"/>
 								<xsl:text>, </xsl:text>
 								ubicado en el Municipio de <xsl:apply-templates select="Condominio/@municipio"/>,
 								<xsl:text>y conformado por </xsl:text>
@@ -335,6 +336,13 @@
 
 	<xsl:template match="@*">
 		<xsl:param name="class">font-medium text-slate-800 dark:text-slate-200</xsl:param>
+		<span class="{$class}">
+			<xsl:value-of select="."/>
+		</span>
+	</xsl:template>
+
+	<xsl:template match="@desarrollo">
+		<xsl:param name="class">font-medium text-slate-800 dark:text-slate-200</xsl:param><xsl:text>, </xsl:text>
 		<span class="{$class}">
 			<xsl:value-of select="."/>
 		</span>

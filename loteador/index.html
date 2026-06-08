@@ -4,7 +4,7 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <meta name="debug" content="true">
-  <meta name="google-signin-client_id" content="702910492615-1j349kcolfamd93ovgt1jog7c28kur2m.apps.googleusercontent.com" />
+  <meta name="google-signin-client_id" content="404284872899-0v45nr9hvue5p0ubnr5hu9ca7dqdc94s.apps.googleusercontent.com" />
   <title>Lotificador</title>
   <!--<meta http-equiv="refresh" content="30">-->
   <link href="../css/style.css" rel="stylesheet" type="text/css" />
@@ -13,9 +13,9 @@
   <link rel="xover-manifest" href="manifest.json?v=20250121_1904">
   <link rel="xover-manifest" href=".manifest?v=20250121_1904">
   <script type="text/javascript" src="../xover/xo.js?v=20250121_1904"></script>
-  <script type="text/javascript" src="../custom.js?v=20250121_1904"></script>
-  <script type="text/javascript" src="../loteador.js?v=20250121_1904"></script>
+  <script type="text/javascript" src="loteador.js?v=20250121_1904"></script>
   <script type="text/javascript" src="../socket.io.js?v=20250121_1904"></script>
+  <script type="text/javascript" src="../custom.js?v=20250121_1904"></script>
   <script type="text/javascript" src="jquery.min.js"></script>
   <link rel="icon" href="../assets/img/icon.png" type="image/x-icon" />
 
@@ -184,7 +184,7 @@
     });
   </script>
 </head>
-<body style="height: 100vh; background-color: #688356; padding-left: 20rem;">
+<body style="height: 100vh; background-color: #3f4b38; padding-left: 20rem;">
     <div class="toast-container position-fixed bottom-0 end-0 p-3"></div>
 
     <form name="form" class="row" target="_self" method="post" style="height:100vh" desarrollo="{$state:desarrollo}">
@@ -200,7 +200,7 @@
             
         <a href="../#{$state:desarrollo}">
             <div style="margin:1.5rem;">
-                <img src="../assets/desarrollos/{$state:desarrollo}/logo.jpg" style="width: 150px; align-self: center; filter: drop-shadow(5px 5px 5px black);">
+                <img src="../assets/desarrollos/{$state:desarrollo}/logo.jpg" style="width: 150px; align-self: center; filter: drop-shadow(5px 5px 5px black);" onerror="default_image.call(this)">
             </div>
         </a>
             <div id="Filtros" class="row gy-1 card front">

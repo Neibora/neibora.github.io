@@ -350,16 +350,15 @@ xo.listener.on("change::Convenio//@*[starts-with('=')]", formula_handler)
 
 cotizador = {}
 cotizador.download = function () {
-	let document = xo.sources["#Convenio"];
+	let document = xo.sources["seed"];
 	document.select(`//@xo:*`).remove();
 	document.download()
 }
 cotizador.save = function () {
-	let document = xo.sources["#Convenio"];
+	let document = xo.sources["seed"];
 	document.select(`//@xo:*`).remove();
 	document.download()
 }
-
 
 cotizador.nuevaPartida = function () {
 	let new_node = this.duplicate({ seed: true });

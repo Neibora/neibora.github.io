@@ -1,4 +1,13 @@
 {
+  "server": {
+    "login": null,
+    "upload": {
+      "POST server:uploadFile": {}
+    }
+  },
+  "session": {
+    "server": "https://server.neibora.com"
+  },
   "sources": {
     "^#(.+)$": "/assets/desarrollos/$1/info.resx",
     "^#(.+):loteador$": "/assets/desarrollos/$1/loteador.map",

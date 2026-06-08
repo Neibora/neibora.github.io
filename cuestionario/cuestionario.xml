@@ -5,9 +5,9 @@
 		<p>El precio se determina principalmente por número de casas y terrenos, cuota actual, si existe pago diferenciado, nivel de cobranza, amenidades, servicios activos y grado de intervención requerido.</p>
 	</Descripcion>
 	<Grupo nombre="Datos generales">
-		<Campo tipo="texto" etiqueta="Nombre del fraccionamiento / condominio" name="fraccionamiento"/>
-		<Campo tipo="texto" etiqueta="Ubicación" name="ubicacion"/>
-		<Campo tipo="texto" etiqueta="Código postal" name="codigo_postal"/>
+		<Campo tipo="texto" etiqueta="Nombre del fraccionamiento" name="fraccionamiento"/>
+		<Campo tipo="texto" etiqueta="Nombre del coto" name="coto"/>
+		<Campo tipo="texto" etiqueta="Ubicación o código postal" name="ubicacion"/>
 		<Campo tipo="opcion" etiqueta="Tipo de desarrollo" name="tipo_desarrollo">
 			<Opcion>Horizontal</Opcion>
 			<Opcion>Vertical</Opcion>
@@ -15,6 +15,17 @@
 		</Campo>
 		<Campo tipo="texto" etiqueta="Contacto principal / comité" name="contacto_principal"/>
 		<Campo tipo="texto" etiqueta="Teléfono / WhatsApp" name="telefono_whatsapp"/>
+		<Campo tipo="si_no" etiqueta="¿Cuentan con Asociación Civil constituida?" name="asociacion_civil"/>
+		<Campo tipo="texto" etiqueta="Nombre de la Asociación Civil" name="nombre_asociacion_civil" condicion_asociacion_civil="Sí"/>
+		<Campo tipo="si_no" etiqueta="¿Desean constituir Asociación Civil?" name="desean_constituir_asociacion_civil" condicion_asociacion_civil="No"/>
+		<Campo tipo="checklist" etiqueta="¿Actualmente cómo reciben pagos?" name="como_reciben_pagos">
+			<Opcion>Efectivo</Opcion>
+			<Opcion condicion_asociacion_civil="Sí">Depósito en cuenta de A.C.</Opcion>
+			<Opcion>Depósito en cuenta de persona física</Opcion>
+			<Opcion>Otro</Opcion>
+		</Campo>
+		<Campo tipo="texto" etiqueta="¿Qué otra forma de pago?" name="como_reciben_pagos_otro" condicion_como_reciben_pagos="Otro"/>
+		<Campo tipo="texto" etiqueta="Comentarios sobre recepción de pagos" name="comentarios_como_reciben_pagos"/>
 	</Grupo>
 	<Grupo nombre="Dimensión, terrenos y cobranza">
 		<Campo tipo="checklist" etiqueta="Tipo de lotes" name="tipo_lotes">
@@ -125,10 +136,10 @@
 			<Opcion>Administración financiera</Opcion>
 			<Opcion>Administración operativa</Opcion>
 			<Opcion>Asesoría legal</Opcion>
+			<Opcion>Vigilancia</Opcion>
 			<Opcion>Mantenimiento</Opcion>
 			<Opcion condicion_personal_proveedores_requeridos="Mantenimiento">Supervisión</Opcion>
 			<Opcion condicion_personal_proveedores_requeridos="Supervisión">Supervisión de obra</Opcion>
-			<Opcion condicion_personal_proveedores_requeridos="Administración operativa">Vigilancia</Opcion>
 			<Opcion condicion_personal_proveedores_requeridos="Administración operativa">Renta de amenidades</Opcion>
 			<Opcion condicion_personal_proveedores_requeridos="Mantenimiento">Limpieza</Opcion>
 			<Opcion condicion_personal_proveedores_requeridos="Mantenimiento">Jardinería</Opcion>
