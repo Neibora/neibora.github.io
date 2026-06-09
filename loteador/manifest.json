@@ -5,10 +5,10 @@
     "download": "https://server.panax.io/download.asp"
   },
   "state": { "desarrollo": "${xo.site.seed.replace(/^#/,'')}" },
-   "session": {
-      "gist": "https://gist.githubusercontent.com/uriel-online/800af4cecfa9471b81712394e5aff147/raw/panax-server",
-      "referer_id": "${location.host + location.pathname.split('/',2).join('/')}"
-   },
+  "session": {
+    "gist": "https://gist.githubusercontent.com/uriel-online/672d8d6e6e2898136ae3e84d9b54443b/raw/neibora-server",
+    "referer_id": "${location.host + location.pathname.split('/',2).join('/')}"
+  },
   "sources": {
     "^#(.+)$": "${xover.session.server}/repository/$1/lotes.xml",
     "^#(.+)_(.+)$": "${xover.session.server}/repository/$1/$2.xml",
