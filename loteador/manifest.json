@@ -1,8 +1,8 @@
 {
   "server": {
-    "request": "https://server.panax.io/request.asp",
-    "login": "",
-    "download": "https://server.panax.io/download.asp"
+    "request": "${xover.session.server}/request.asp",
+    "login": "${xover.session.server}/login.asp",
+    "download": "${xover.session.server}/download.asp"
   },
   "state": { "desarrollo": "${xo.site.seed.replace(/^#/,'')}" },
   "session": {
@@ -15,7 +15,7 @@
         "FROM": "Fraccionamientos.loteador",
         "@coto": "$1",
         "^authorization": "${xover.session.encodeCredential(xover.session.user_login, xover.session.id_token) || ''}",
-				"^x-debugging": "${xo.session.debug}"
+        "^x-debugging": "${xo.session.debug}"
       }
     },
     "^#(.+)_(.+)$": "${xover.session.server}/repository/$1/$2.xml",
@@ -34,14 +34,13 @@
     "^#(.+)_estacionamiento:settings$": "../assets/desarrollos/$1/estacionamiento_settings.xml",
     "^#(.+)_extraordinarias:settings$": "../assets/desarrollos/$1/loteador_settings.xml",
     "^#(.+)_extraordinarias_externas:settings$": "../assets/desarrollos/$1/loteador_settings.xml",
-    "^px-(.+)": "../components/$1.xhtml",
     "#login": "/login.xml",
     "prompt.xslt": "../prompt.xslt"
   },
-   "start": [
-      "#ws",
-      { "updateTunnel": [] }
-   ],
+  "start": [
+    "#ws",
+    { "updateTunnel": [] }
+  ],
   "settings": {
     "^#(.+)$": {
       "headers": {

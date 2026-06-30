@@ -1,6 +1,5 @@
 {
   "server": {
-    "login": null,
     "upload": {
       "POST server:uploadFile": {}
     }
@@ -15,6 +14,7 @@
     "^#(.+):polygon$": "https://neibora.com/assets/desarrollos/$1/polygon.kml",
     "#": "#desarrollos",
     "^#(.+):info$": "#$1",
+    "#login": "/login.xml",
     "#cotizacion": "/assets/desarrollos/${xo.state.desarrollo}/cotizacion.xml",
     "#desarrollos": "/assets/desarrollos.resx",
     "#iconos": "/assets/iconos.resx",
@@ -23,6 +23,8 @@
     "#caracteristicas": "/assets/caracteristicas.resx",
     "#codigo_etica": "/assets/codigo_etica.resx",
     "#terminos_condiciones": "/assets/terminos_condiciones.resx",
+    "^px-(.+)": "/widgets/$1.xhtml",
+    "^xo-(.+)": "/components/$1.xhtml",
     "^#(.+)~edit$": "#$1",
     "#ws": {
       "xover.socket.connect": [
@@ -38,7 +40,7 @@
   "state": {
     "desarrollo": "${(xover.site.seed || '').replace(/^#|(_\\d+)+$/g,'') || xover.site.location.url.foldername}"
   },
-  "start": [ "#desarrollos", "#site", "/navbar.html", "/footer.html", "/iconos.xslt", "#ws" ],
+  "start": [ "#desarrollos", "#site", "/navbar.html", "/footer.html", "/iconos.xslt", "#ws", "px-loader", "px-printer" ],
   "settings": {
     "~.asp": {
       "headers": {

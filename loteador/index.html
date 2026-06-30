@@ -9,6 +9,7 @@
   <link rel="icon" href="/assets/img/favicon.png" type="image/x-icon" />
   <!--<meta http-equiv="refresh" content="30">-->
   <link href="../css/style.css" rel="stylesheet" type="text/css" />
+  <link href="../css/print_styles.css" rel="stylesheet" type="text/css" />
   <link href="loteador.css" rel="stylesheet" type="text/css" />
   <link rel="xover-manifest" href="../manifest.json?v=260609_0202">
   <link rel="xover-manifest" href="manifest.json?v=260609_0202">
@@ -78,48 +79,48 @@
       let kmlContent = `<?xml version="1.0" encoding="UTF-8"?>\n`;
       kmlContent += `<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">\n`;
       kmlContent += `<Document><StyleMap id="msn_ylw-pushpin">
-                  <Pair>
-                      <key>normal</key>
-                      <styleUrl>#sn_ylw-pushpin</styleUrl>
-                  </Pair>
-                  <Pair>
-                      <key>highlight</key>
-                      <styleUrl>#sh_ylw-pushpin</styleUrl>
-                  </Pair>
+                        <Pair>
+                            <key>normal</key>
+                            <styleUrl>#sn_ylw-pushpin</styleUrl>
+                        </Pair>
+                        <Pair>
+                            <key>highlight</key>
+                            <styleUrl>#sh_ylw-pushpin</styleUrl>
+                        </Pair>
 </StyleMap>
 <Style id="sh_ylw-pushpin">
-                  <IconStyle>
-                      <scale>1.3</scale>
-                      <Icon>
-                          <href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
-                      </Icon>
-                      <hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
-                  </IconStyle>
-                  <BalloonStyle>
-                  </BalloonStyle>
-                  <LineStyle>
-                      <width>4</width>
-                  </LineStyle>
-                  <PolyStyle>
-                      <color>00ffffff</color>
-                  </PolyStyle>
+                        <IconStyle>
+                            <scale>1.3</scale>
+                            <Icon>
+                                <href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+                            </Icon>
+                            <hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
+                        </IconStyle>
+                        <BalloonStyle>
+                        </BalloonStyle>
+                        <LineStyle>
+                            <width>4</width>
+                        </LineStyle>
+                        <PolyStyle>
+                            <color>00ffffff</color>
+                        </PolyStyle>
 </Style>
 <Style id="sn_ylw-pushpin">
-                  <IconStyle>
-                      <scale>1.1</scale>
-                      <Icon>
-                          <href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
-                      </Icon>
-                      <hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
-                  </IconStyle>
-                  <BalloonStyle>
-                  </BalloonStyle>
-                  <LineStyle>
-                      <width>4</width>
-                  </LineStyle>
-                  <PolyStyle>
-                      <color>00ffffff</color>
-                  </PolyStyle>
+                        <IconStyle>
+                            <scale>1.1</scale>
+                            <Icon>
+                                <href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+                            </Icon>
+                            <hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
+                        </IconStyle>
+                        <BalloonStyle>
+                        </BalloonStyle>
+                        <LineStyle>
+                            <width>4</width>
+                        </LineStyle>
+                        <PolyStyle>
+                            <color>00ffffff</color>
+                        </PolyStyle>
 </Style>\n`;
 
       // Iterate through areas and convert to KML format
@@ -197,22 +198,24 @@
                 <div id="loteador" class="loteador" xo-source="active" xo-stylesheet="../assets/desarrollos/{$state:desarrollo}/loteador.xslt" />
             </div>
         </div>
-        <div class="branded-message card-flipper">
-            
-        <a href="../#{$state:desarrollo}">
+        <div class="card-flipper">
+
+          <a href="../#{$state:desarrollo}">
             <div style="margin:1.5rem;">
-                <img src="../assets/desarrollos/{$state:desarrollo}/logo.jpg" style="width: 150px; align-self: center; filter: drop-shadow(5px 5px 5px black);" onerror="default_image.call(this)">
+              <img src="../assets/desarrollos/{$state:desarrollo}/logo.jpg" style="width: 90%; align-self: center; filter: drop-shadow(5px 5px 5px black);" onerror="default_image.call(this)">
             </div>
-        </a>
-            <div id="Filtros" class="row gy-1 card front">
-            </div>
-            <div id="Detalles" class="row gy-1 card back">
-            </div>
-            <div id="settings">
-                <input type="checkbox" onclick="mostrarNumerosDeCasa"/>Mostrar números de casas
-            </div>
+          </a>
+          <div id="Filtros" class="row gy-1 card front">
+          </div>
+          <div id="Detalles" class="row gy-1 card back">
+          </div>
+          <div id="Actions" class="row gy-1 card back">
+          </div>
+          <div id="settings">
+            <input type="checkbox" onclick="mostrarNumerosDeCasa" />Mostrar números de casas
+          </div>
         </div>
-        <div class="login" xo-stylesheet="login.xslt"></div>
+        <div class="login" xo-source="#login" xo-stylesheet="login.xslt"></div>
         <div class="d-flex justify-content-around zoom-controls" style="position: fixed; top: 20px; right: 20px; z-index: 1000; gap: 20px; padding: 10px 20px; flex-direction: column;">
             <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-zoom-out" viewBox="0 0 16 16" onclick="for (let target of this.closest('form').querySelectorAll('.zoomable')) { target.style.transform = `scale(${Math.abs(+target.style.transform.replace(/[^\d\.]/g, '') - .18)})`; target.style.translate = target.style.translate.split(/\s+/).map(percent => `${parseFloat(percent) / 2}%`).join(' ') }" style="cursor: pointer; user-select: none;">
                 <path fill-rule="evenodd" d="M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11zM13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z"></path>
