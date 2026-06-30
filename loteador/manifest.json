@@ -10,7 +10,14 @@
     "referer_id": "${location.host + location.pathname.split('/',2).join('/')}"
   },
   "sources": {
-    "^#(.+)$": "${xover.session.server}/repository/$1/lotes.xml",
+    "^#(.+)$": {
+      "server:request": {
+        "FROM": "Fraccionamientos.loteador",
+        "@coto": "$1",
+        "^authorization": "${xover.session.encodeCredential(xover.session.user_login, xover.session.id_token) || ''}",
+				"^x-debugging": "${xo.session.debug}"
+      }
+    },
     "^#(.+)_(.+)$": "${xover.session.server}/repository/$1/$2.xml",
     "^#(.+)_extraordinarias$": "${xover.session.server}/repository/$1/extraordinarias_internas.xml",
     "^#(.+)_extraordinarias_externas$": "${xover.session.server}/repository/$1/extraordinarias_externas.xml",
@@ -28,11 +35,11 @@
     "^#(.+)_extraordinarias:settings$": "../assets/desarrollos/$1/loteador_settings.xml",
     "^#(.+)_extraordinarias_externas:settings$": "../assets/desarrollos/$1/loteador_settings.xml",
     "^px-(.+)": "../components/$1.xhtml",
-    "#login": "login.xml"
+    "#login": "/login.xml",
+    "prompt.xslt": "../prompt.xslt"
   },
    "start": [
       "#ws",
-      "px-loteador",
       { "updateTunnel": [] }
    ],
   "settings": {

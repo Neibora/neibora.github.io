@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/instruccion_pago/instruccion_pago.xml
+/carta_no_adeudo/carta_no_adeudo.xml
+/recibo_pago/recibo_pago.xml

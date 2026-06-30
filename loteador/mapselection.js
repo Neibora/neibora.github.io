@@ -223,6 +223,7 @@
 		}
 
 		// 4) Pintar y numerar
+		this.dispatch('loteador:init-scopes')
 		this.dispatch('loteador:colorea')
 		this.dispatch('loteador:init-draggable')
 		this.dispatch('loteador:mostrarNumerosDeCasa')
@@ -435,6 +436,25 @@
 		}
 	});
 
+	// Scopes
+	xo.listener.on(['loteador:init-scopes'], async function () {
+		const { dataDoc, settingsDoc } = await getActiveDocs();
+		const desarrollo_id = getDesarrolloId();
+		const map = this;
+		const { bindPath = '', idAttr = 'id' } = getSettingsPaths(settingsDoc);
+		const items = dataDoc.querySelectorAll(`${bindPath.split('/').join('>')}`);
+
+		for (const item of items) {
+			const id = item.getAttribute(idAttr);
+			if (!id) continue;
+
+			const area_selector = `area[target="${desarrollo_id}_${id}"], area[target="${id}"]`;
+			const area = map.querySelector(area_selector) || document.querySelector(area_selector);
+			if (!area) continue;
+			Object.defineProperty(area, "scope", {value: item, writable: true, configurable: true, enumerable: true})
+		}
+	});
+
 	// Colorear (recorrer ÁREAS)
 	xo.listener.on(['loteador:colorea::map'], async function () {
 		const { dataDoc, settingsDoc } = await getActiveDocs();
@@ -512,8 +532,8 @@
 			const id = item.getAttribute(idAttr), numero = item.getAttribute('Numero');
 			if (!id || !numero) continue;
 
-			const selector = `area[target="${desarrollo_id}_${id}"], area[target="${id}"]`;
-			const area = map.querySelector(selector) || document.querySelector(selector);
+			const area_selector = `area[target="${desarrollo_id}_${id}"], area[target="${id}"]`;
+			const area = map.querySelector(area_selector) || document.querySelector(area_selector);
 			if (!area) continue;
 
 			const coords = (area.coords || '').split(',').map(Number);
@@ -628,35 +648,75 @@
 			if (newMap && typeof newMap.dispatch === 'function') newMap.dispatch('loteador:init')
 		})
 	})
-
-	xover.listener.on('click::area', async function (e) {
+	async function click_area (e) {
 		const area = this;
 		const map = area.closest('map');
 		const desarrollo_id = getDesarrolloId();
 		const raw = area.getAttribute('id') || area.getAttribute('target') || '';
 		const id = raw.replace(new RegExp(`^${desarrollo_id}_`, 'i'), '');
 
-		map.ubicacion_seleccionada = (map.ubicacion_seleccionada === id) ? undefined : id;
+		map.selectedAreas ??= new Set();
+
+		const multi = e.ctrlKey || e.metaKey;
+
+		if (map.selectedAreas.has(id))
+			map.selectedAreas.delete(id);
+		else {
+			if (!multi) {
+				map.selectedAreas.clear();
+			}
+			map.selectedAreas.add(id);
+		}
 
 		const { dataDoc, settingsDoc } = await getActiveDocs();
 		const { bindPath, idAttr } = getSettingsPaths(settingsDoc);
 
-		let template = settingsDoc.querySelector('template.details');
-		if (!template) return false;
-		template = template.content.cloneNode(true);
+		// Restaurar colores normales
+		if (typeof map.dispatch === 'function')
+			map.dispatch('loteador:colorea');
 
-		if (map.ubicacion_seleccionada) {
-			const node = dataDoc.single(`${bindPath}[@${idAttr}="${map.ubicacion_seleccionada}"]`);
+		// Pintar selección
+		const cond = {};
+		cond[`@${idAttr}`] = {};
+
+		const area_selector = `area[target="${desarrollo_id}_${id}"], area[target="${id}"]`;
+		for (const selectedId of map.selectedAreas) {
+			const selectedArea = map.querySelector(area_selector);
+			if (selectedArea) {
+				setAreaColor(selectedArea, '#80FF00');
+				cond[`@${idAttr}`][selectedId] = { color: 'blue' };
+			}
+		}
+
+		if (typeof map.dispatch === 'function')
+			map.dispatch('loteador:iluminar', cond);
+
+		// Panel lateral
+		const flipper = document.querySelector('.card-flipper');
+
+		e.preventDefault();
+		e.stopImmediatePropagation();
+		let template = map.selectedAreas.size == 1 ? settingsDoc.querySelector('template.details') : settingsDoc.querySelector('template.multiselection');
+		if (map.selectedAreas.size === 1 && template) {
+			const selectedId = [...map.selectedAreas][0];
+
+			template = template.content.cloneNode(true);
+
+			const node = dataDoc.single(`${bindPath}[@${idAttr}="${selectedId}"]`);
 			if (!node) return false;
+
 			for (let input of template.querySelectorAll('[id]:not([name])')) {
 				const k = input.id;
 				const attr = node.attributes[k] || [...node.attributes].find(a => a.localName.toLowerCase() === k.toLowerCase()) || { value: '' };
 				if (input instanceof HTMLInputElement) input.value = attr.value;
 				else input.textContent = attr.value;
 			}
-			const svg = areaToSvg(area);
+
+			const selectedArea = map.querySelector(area_selector);
+			const svg = areaToSvg(selectedArea);
 			const img = template.querySelector('img');
 			if (img) img.replaceWith(svg);
+
 			const detalles = document.querySelector('#Detalles');
 			if (detalles) {
 				detalles.setAttribute('xo-source', 'active');
@@ -664,26 +724,15 @@
 				if (xoId) detalles.setAttribute('xo-scope', xoId);
 				detalles.replaceChildren(...template.childNodes);
 			}
-			const flipper = document.querySelector('.card-flipper');
-			if (flipper) flipper.classList.add('toggled');
-		} else {
-			const flipper = document.querySelector('.card-flipper');
-			if (flipper) flipper.classList.remove('toggled');
-		}
 
-		if (map.ubicacion_seleccionada) {
-			setAreaColor(area, '#80FF00');
-			const cond = {};
-			cond[`@${idAttr}`] = {};
-			cond[`@${idAttr}`][map.ubicacion_seleccionada] = { color: 'blue' };
-			if (map && typeof map.dispatch === 'function') map.dispatch('loteador:iluminar', cond);
-		} else {
-			if (map && typeof map.dispatch === 'function') map.dispatch('loteador:colorea');
+			flipper?.classList.add('toggled');
 		}
-		e.preventDefault();
-		e.stopImmediatePropagation();
+		else {
+			flipper?.classList.remove('toggled');
+		}
 		return false;
-	});
+	}
+	xover.listener.on('click::area', click_area);
 
 	// Resize global → cada <map> reescala y repinta (debounce interno del navegador)
 	window.addEventListener('resize', function () {

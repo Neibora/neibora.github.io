@@ -29,7 +29,10 @@ function default_image(event) {
     console.warn('Placeholder sin resolver:', src)
     return
   }
-  img.closest("a").href = `javascript:void(0); loteador.randomize();`
+  let anchor = img.closest("a");
+  if (anchor) {
+    img.closest("a").href = `javascript:void(0); loteador.randomize();`
+  }
   img.onerror = null
   img.src = DEFAULT_IMAGE
 }
