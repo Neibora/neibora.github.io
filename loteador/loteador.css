@@ -111,13 +111,13 @@ form:not([desarrollo*="$"]) #Mapa {
 		border-radius: 0 0 70px 0;
 	}
 
-		.card-flipper .card > * {
-			border-radius: 0 0 70px 0;
-		}
+	.card-flipper .card > * {
+		border-radius: 0 0 70px 0;
+	}
 
-		.card-flipper .card.back {
-			transform: rotateY(180deg);
-		}
+	.card-flipper .card.back {
+		transform: rotateY(180deg);
+	}
 
 	.card-flipper.toggled .card.front {
 		transform: rotateY(180deg);
@@ -232,6 +232,10 @@ dialog.xover-component form > * {
 	margin-right: .5rem;
 }
 
+#Filtros h4 {
+	white-space: nowrap;
+}
+
 .filter {
 	text-align: left;
 }
@@ -268,6 +272,15 @@ dialog.xover-component form > * {
 
 #fotos, #detalles {
 	padding: 10px;
+}
+
+.card-flipper #Actions {
+	bottom: 0;
+	margin-bottom: 1rem;
+}
+
+.money.negative {
+	color: red
 }
 
 #Titulo {

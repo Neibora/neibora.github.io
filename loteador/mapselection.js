@@ -25,7 +25,7 @@
 		const settings = xover.sources[`#${desarrollo_id}:settings`];
 		await settings.ready;
 		const settingsDoc = settings;
-		return { dataDoc, settingsDoc };
+		return { dataDoc, settingsDoc, settings };
 	}
 
 	function getSettingsPaths(settingsDoc) {
@@ -66,6 +66,7 @@
 	}
 
 	function buildXPathPredicate(conditions) {
+		if (conditions === false) return false;
 		const andParts = [];
 		for (const prop in conditions) {
 			const map = conditions[prop];
@@ -86,6 +87,7 @@
 	}
 
 	function testItemWithPredicate(itemNode, predicate) {
+		if (!itemNode || predicate === false) return false;
 		if (!predicate) return true;
 		return !!itemNode.selectFirst(`self::*${predicate}`);
 	}
@@ -155,6 +157,12 @@
 	}
 
 	function destroyMaphilight(img) {
+		let map = this
+		const areas = map.querySelectorAll('area[data-maphilight]');
+		for (const area of areas) {
+			area.removeAttribute('data-maphilight')
+			$(area).removeData('maphilight')
+		}
 		if (!img) return
 		const wrapper = img.parentElement
 		const hasCanvas = wrapper && wrapper.querySelector && wrapper.querySelector('canvas, var')
@@ -198,7 +206,7 @@
 			}
 
 			// Destruir wrapper/canvas anterior si existe
-			destroyMaphilight(img)
+			destroyMaphilight.call(this, img)
 
 			// Inicializar de nuevo
 			$(img).maphilight()
@@ -442,16 +450,20 @@
 		const desarrollo_id = getDesarrolloId();
 		const map = this;
 		const { bindPath = '', idAttr = 'id' } = getSettingsPaths(settingsDoc);
-		const items = dataDoc.querySelectorAll(`${bindPath.split('/').join('>')}`);
 
-		for (const item of items) {
-			const id = item.getAttribute(idAttr);
-			if (!id) continue;
+		for (const area of map.querySelectorAll('area')) {
+			const id = extractAreaId(area, desarrollo_id);
 
-			const area_selector = `area[target="${desarrollo_id}_${id}"], area[target="${id}"]`;
-			const area = map.querySelector(area_selector) || document.querySelector(area_selector);
-			if (!area) continue;
-			Object.defineProperty(area, "scope", {value: item, writable: true, configurable: true, enumerable: true})
+			const scope = id
+				? dataDoc.single(`${bindPath}[@${idAttr}="${id}"]`)
+				: null;
+
+			Object.defineProperty(area, "scope", {
+				value: scope,
+				writable: true,
+				configurable: true,
+				enumerable: true
+			});
 		}
 	});
 
@@ -562,6 +574,13 @@
 		}
 	});
 
+	xo.listener.on(['loteador:iluminar::area'], async function (enable = true) {
+		const area = this;
+		const map = this.closest("map");
+		let data = $(area).mouseout().data('maphilight') || {};
+		data.alwaysOn = !!enable;
+		$(map).trigger('alwaysOn.maphilight');
+	})
 
 	// Iluminar (toggle only)
 	xo.listener.on(['loteador:iluminar::map'], async function (conditions) {
@@ -575,7 +594,6 @@
 			const lotId = extractAreaId(area, desarrollo_id);
 			if (!lotId) continue;
 			const item = dataDoc.single(`${bindPath}[@${idAttr}="${lotId}"]`);
-			if (!item) continue;
 			let data = $(area).mouseout().data('maphilight') || {};
 			data.alwaysOn = !!testItemWithPredicate(item, predicate);
 			$(area).data('maphilight', data);
@@ -648,89 +666,95 @@
 			if (newMap && typeof newMap.dispatch === 'function') newMap.dispatch('loteador:init')
 		})
 	})
-	async function click_area (e) {
+	async function click_area(e) {
 		const area = this;
 		const map = area.closest('map');
-		const desarrollo_id = getDesarrolloId();
-		const raw = area.getAttribute('id') || area.getAttribute('target') || '';
-		const id = raw.replace(new RegExp(`^${desarrollo_id}_`, 'i'), '');
+		map.selectedAreas ??= new Map();
+		try {
+			const desarrollo_id = getDesarrolloId();
+			const raw = area.getAttribute('id') || area.getAttribute('target') || '';
+			const id = raw.replace(new RegExp(`^${desarrollo_id}_`, 'i'), '');
 
-		map.selectedAreas ??= new Set();
+			const selection = map.selectedAreas;
 
-		const multi = e.ctrlKey || e.metaKey;
+			const multi = e.ctrlKey || e.metaKey;
 
-		if (map.selectedAreas.has(id))
-			map.selectedAreas.delete(id);
-		else {
-			if (!multi) {
-				map.selectedAreas.clear();
-			}
-			map.selectedAreas.add(id);
-		}
-
-		const { dataDoc, settingsDoc } = await getActiveDocs();
-		const { bindPath, idAttr } = getSettingsPaths(settingsDoc);
-
-		// Restaurar colores normales
-		if (typeof map.dispatch === 'function')
-			map.dispatch('loteador:colorea');
-
-		// Pintar selección
-		const cond = {};
-		cond[`@${idAttr}`] = {};
-
-		const area_selector = `area[target="${desarrollo_id}_${id}"], area[target="${id}"]`;
-		for (const selectedId of map.selectedAreas) {
-			const selectedArea = map.querySelector(area_selector);
-			if (selectedArea) {
-				setAreaColor(selectedArea, '#80FF00');
-				cond[`@${idAttr}`][selectedId] = { color: 'blue' };
-			}
-		}
-
-		if (typeof map.dispatch === 'function')
-			map.dispatch('loteador:iluminar', cond);
-
-		// Panel lateral
-		const flipper = document.querySelector('.card-flipper');
-
-		e.preventDefault();
-		e.stopImmediatePropagation();
-		let template = map.selectedAreas.size == 1 ? settingsDoc.querySelector('template.details') : settingsDoc.querySelector('template.multiselection');
-		if (map.selectedAreas.size === 1 && template) {
-			const selectedId = [...map.selectedAreas][0];
-
-			template = template.content.cloneNode(true);
-
-			const node = dataDoc.single(`${bindPath}[@${idAttr}="${selectedId}"]`);
-			if (!node) return false;
-
-			for (let input of template.querySelectorAll('[id]:not([name])')) {
-				const k = input.id;
-				const attr = node.attributes[k] || [...node.attributes].find(a => a.localName.toLowerCase() === k.toLowerCase()) || { value: '' };
-				if (input instanceof HTMLInputElement) input.value = attr.value;
-				else input.textContent = attr.value;
+			if (selection.has(id))
+				selection.delete(id);
+			else {
+				if (!multi) {
+					selection.clear();
+				}
+				selection.set(id, area);
 			}
 
-			const selectedArea = map.querySelector(area_selector);
-			const svg = areaToSvg(selectedArea);
-			const img = template.querySelector('img');
-			if (img) img.replaceWith(svg);
+			const { dataDoc, settings } = await getActiveDocs();
+			const { bindPath, idAttr } = getSettingsPaths(settings);
 
+			// Restaurar colores normales
+			if (typeof map.dispatch === 'function')
+				map.dispatch('loteador:colorea');
+
+			// Pintar selección
+			//const cond = {};
+			//cond[`@${idAttr}`] = {};
+
+			await map.dispatch('loteador:iluminar', false);
+
+			const area_selector = `area[target="${desarrollo_id}_${id}"], area[target="${id}"]`;
+			for (const [selectedId, selectedArea] of [...selection]) {
+				if (selectedArea) {
+					//setAreaColor(selectedArea, '#80FF00');
+					await selectedArea.dispatch('loteador:iluminar');
+				}
+			}
+
+			// Panel lateral
+			const flipper = document.querySelector('.card-flipper');
+
+			let template = selection.size == 1 ? settings.querySelector('template#details') : settings.querySelector('template#multiselection');
 			const detalles = document.querySelector('#Detalles');
-			if (detalles) {
-				detalles.setAttribute('xo-source', 'active');
-				const xoId = node.getAttribute('xo:id') || '';
-				if (xoId) detalles.setAttribute('xo-scope', xoId);
-				detalles.replaceChildren(...template.childNodes);
-			}
+			if (selection.size === 1 && template) {
+				const [selectedId, area] = [...selection][0];
+				const scope = area.scope;
 
-			flipper?.classList.add('toggled');
+				if (![Node.ELEMENT_NODE].includes(scope && scope.nodeType)) return false;
+				template = template.dispatch("loteador:fillCard", { scope, settings }) || template;
+
+				const selectedArea = map.querySelector(area_selector);
+				const svg = areaToSvg(selectedArea);
+				const img = template.querySelector('img');
+				if (img) img.replaceWith(svg);
+
+				if (detalles) {
+					detalles.setAttribute('xo-source', 'active');
+					const xoId = scope.getAttribute('xo:id') || '';
+					if (xoId) detalles.setAttribute('xo-scope', xoId);
+					detalles.replaceChildren(...template.childNodes);
+				}
+				flipper?.classList.add('toggled');
+			} else if (selection.size > 1 && template) {
+				template = template.dispatch("loteador:fillCard", { selection, settings }) || template;
+				if (detalles) {
+					//detalles.setAttribute('xo-source', 'active');
+					//const xoId = scope.getAttribute('xo:id') || '';
+					//if (xoId) detalles.setAttribute('xo-scope', xoId);
+					detalles.replaceChildren(...template.childNodes);
+				}
+				flipper?.classList.add('toggled');
+			} else {
+				flipper?.classList.remove('toggled');
+			}
+			return false;
+		} catch (e) {
+			return Promise.reject(e)
+		} finally {
+			if (!map.selectedAreas.size) {
+				map.dispatch("loteador:colorea")
+			}
+			e.preventDefault();
+			e.stopImmediatePropagation();
 		}
-		else {
-			flipper?.classList.remove('toggled');
-		}
-		return false;
 	}
 	xover.listener.on('click::area', click_area);
 
@@ -740,5 +764,53 @@
 			if (typeof map.dispatch === 'function') map.dispatch('loteador:resize');
 		});
 	}, { passive: true });
-
 })();
+
+xo.listener.on(['loteador:fillCard::.money'], function ({ value }) {
+	const n = Number(
+		String(value ?? '')
+			.replace(/[$,\s]/g, '')
+	);
+
+	if (!isNaN(n)) {
+		this.textContent = n.toLocaleString('es-MX', {
+			style: 'currency',
+			currency: 'MXN'
+		});
+
+		this.classList.toggle('negative', n < 0);
+	}
+})
+
+xo.listener.on(['loteador:fillCard'], function ({ value }) {
+	let self = this;
+	if (self instanceof HTMLInputElement) self.value = value;
+	else self.textContent = value;
+})
+
+xo.listener.on(['loteador:fillCard::#cantidad'], function ({ selection }) {
+	this.textContent = selection.size
+	event.stopImmediatePropagation()
+})
+
+xo.listener.on(['loteador:fillCard::#selection-list'], function ({ selection }) {
+	for (let item of selection.values()) {
+		const scope = item.scope;
+		const li = document.createElement('li');
+		li.textContent = `${scope.getAttribute("Calle")} ${scope.getAttribute("Numero")}`;
+		this.appendChild(li)
+	}
+	event.stopImmediatePropagation()
+})
+
+xo.listener.on(['loteador:fillCard::template'], function (args) {
+	template = this.content.cloneNode(true);
+	for (let input of template.querySelectorAll('[id]:not([name])')) {
+		const k = input.id;
+		const { scope = {}, selection, settings, template } = args;
+		const attr = scope.nodeType ? (scope.attributes[k] || [...scope.attributes].find(a => a.localName.toLowerCase() === k.toLowerCase()) || { value: '' }) : null;
+		input.dispatch("loteador:fillCard", { selection, settings, template, attr, value: (attr || {}).value })
+	}
+	event.stopImmediatePropagation()
+	return template
+})
