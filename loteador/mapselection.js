@@ -847,10 +847,23 @@ xo.listener.on(['loteador:fillCard::#cantidad'], function ({ selection }) {
 })
 
 xo.listener.on(['loteador:fillCard::#selection-list'], function ({ selection }) {
+	Object.defineProperty(this, "scope", {
+		value: selection,
+		writable: true,
+		configurable: true,
+		enumerable: true
+	});
 	for (const [index, item] of [...selection.values()].entries()) {
 		const scope = item.scope || document.createElement('p');
 		const li = document.createElement('li');
+		li.setAttribute("id", scope.getAttribute("Id"));
 		li.textContent = `${scope.getAttribute("Calle") || item.id || 'Elemento'} ${scope.getAttribute("Numero") || index + 1}`;
+		Object.defineProperty(li, "scope", {
+			value: item,
+			writable: true,
+			configurable: true,
+			enumerable: true
+		});
 		this.appendChild(li)
 	}
 	event.stopImmediatePropagation()
@@ -860,10 +873,57 @@ xo.listener.on(['loteador:fillCard::template'], function (args) {
 	template = this.content.cloneNode(true);
 	for (let input of template.querySelectorAll('[id]:not([name])')) {
 		const k = input.id;
-		const { scope = {}, selection, settings, template } = args;
+		const { scope = document.createElement('p'), selection, settings, template } = args;
 		const attr = scope.nodeType ? (scope.attributes[k] || [...scope.attributes].find(a => a.localName.toLowerCase() === k.toLowerCase()) || { value: '' }) : null;
 		input.dispatch("loteador:fillCard", { selection, settings, template, attr, value: (attr || {}).value })
 	}
 	event.stopImmediatePropagation()
 	return template
 })
+
+class SortableList extends HTMLUListElement {
+	connectedCallback() {
+		this.init();
+	}
+
+	init() {
+		let ul = this;
+		let dragged;
+		let selection = ul.scope || ul.closest(":has(map)")?.querySelector("map")?.selectedAreas;
+
+		for (const li of ul.children) {
+			li.draggable = true;
+
+			li.addEventListener('dragstart', () => {
+				dragged = li;
+				li.classList.add('dragging');
+			});
+
+			li.addEventListener('dragend', () => {
+				li.classList.remove('dragging');
+				dragged = null;
+
+				let ordered = [...ul.children].map(li => [li.id, selection.get(li.id)]);
+
+				selection.clear();
+				for (const [id, area] of ordered) {
+					selection.set(id, area);
+				}
+			});
+
+			li.addEventListener('dragover', e => {
+				e.preventDefault();
+
+				const rect = li.getBoundingClientRect();
+				const before = e.clientY < rect.top + rect.height / 2;
+
+				if (before)
+					ul.insertBefore(dragged, li);
+				else
+					ul.insertBefore(dragged, li.nextSibling);
+			});
+		}
+	}
+}
+
+customElements.define('sortable-list', SortableList, { extends: 'ul' });
