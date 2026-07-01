@@ -114,15 +114,39 @@
 		return `#${r}${g}${b}`;
 	}
 
-	function setAreaColor(area, hex) {
-		const data = $(area).data('maphilight') || {};
-		const clean = (hex || '').replace(/^0x|^#/ig, '');
-		data.fillColor = clean || '000000';
-		data.fillOpacity = hex ? 0.5 : 0.2;
-		data.strokeColor = 'ffffff';
-		$(area).data('maphilight', data).trigger('alwaysOn.maphilight');
-		$(area).data('maphilight', data).trigger('fillColor.maphilight');
-		if (hex) area.setAttribute('data-maphilight', `{"fillColor":"${clean}","fillOpacity":0.5,"strokeColor":"ffffff"}`);
+	function setAreaColor(area, options) {
+		if (typeof options === 'string') {
+			options = { fillColor: options };
+		}
+
+		options ??= {};
+
+		const defaults = $(area).data('maphilight') || {};
+
+		const {
+			fillColor = '97d933',
+			fillOpacity = 0.5,
+			strokeColor = 'ffffff',
+			alwaysOn = false
+		} = {
+			...defaults,
+			...options
+		};
+
+		const data = {
+			...defaults,
+			fillColor,
+			fillOpacity,
+			strokeColor,
+			alwaysOn
+		};
+		data.fillColor = data.fillColor.replace(/^0x|^#/i, '');
+		$(area)
+			.data('maphilight', data)
+			.trigger('alwaysOn.maphilight')
+			.trigger('fillColor.maphilight');
+
+		area.setAttribute('data-maphilight', JSON.stringify(data));
 	}
 
 	function extractAreaId(area, desarrollo_id) {
@@ -223,6 +247,7 @@
 
 		// 2) Asegurar escala correcta antes del primer pintado
 		this.dispatch('loteador:resize')
+		await this.dispatch('loteador:mostrarNumerosDeCasa')
 
 		// 3) Construir filtros en #Filtros
 		const filtros = document.querySelector('#Filtros')
@@ -231,10 +256,10 @@
 		}
 
 		// 4) Pintar y numerar
-		this.dispatch('loteador:init-scopes')
-		this.dispatch('loteador:colorea')
-		this.dispatch('loteador:init-draggable')
-		this.dispatch('loteador:mostrarNumerosDeCasa')
+		await this.dispatch('loteador:init-scopes')
+		await this.dispatch('loteador:colorea')
+		await this.dispatch('loteador:init-draggable')
+		await this.dispatch('loteador:iluminar')
 	})
 
 	xo.listener.on(['loteador:init-draggable::map'], function () {
@@ -467,47 +492,66 @@
 		}
 	});
 
-	// Colorear (recorrer ÁREAS)
+	async function colorea_area({
+		scope = this.scope,
+		predicate,
+		active = getActiveFilterAndPalette(),
+		fillColor,
+		fillOpacity,
+		strokeColor,
+		alwaysOn
+	} = {}) {
+
+		const area = this;
+
+		const match = testItemWithPredicate(scope, predicate);
+
+		const defaults = {};
+
+		if (!scope) {
+			defaults.fillColor = '000000'
+			defaults.fillOpacity = 0.5
+			defaults.strokeColor = 'ff0000'
+		} else if (active) {
+			const value = getValueFromBinding(scope, active.bind);
+			const css = active.palette.get(value) || '';
+			defaults.fillColor = match ? cssColorToHex(css) : '';
+			defaults.fillOpacity = 0.5
+		}
+
+		const data = {
+			...defaults
+		};
+
+		if (fillColor !== undefined) data.fillColor = fillColor;
+		if (fillOpacity !== undefined) data.fillOpacity = fillOpacity;
+		if (strokeColor !== undefined) data.strokeColor = strokeColor;
+		if (alwaysOn !== undefined) data.alwaysOn = alwaysOn;
+
+		setAreaColor(area, data);
+	}
+	xo.listener.on(['loteador:colorea::area'], colorea_area);
+
 	xo.listener.on(['loteador:colorea::map'], async function () {
-		const { dataDoc, settingsDoc } = await getActiveDocs();
-		const map = this;
-		const loteador = map.closest("#loteador");
+		const { dataDoc } = await getActiveDocs();
+
+		const loteador = this.closest("#loteador");
 		if (!loteador) return;
+
 		loteador.tag = dataDoc.store.tag;
 
-
-		const { bindPath, idAttr } = getSettingsPaths(settingsDoc);
 		const conditions = buildConditionsFromUI();
 		const predicate = buildXPathPredicate(conditions);
 		const active = getActiveFilterAndPalette();
-		const desarrollo_id = getDesarrolloId();
 
-		const areas = map.querySelectorAll('area');
-		for (const area of areas) {
-			const lotId = extractAreaId(area, desarrollo_id);
-			if (!lotId) {
-				setAreaColor(area, '');
-				continue;
-			}
-			const item = dataDoc.single(`${bindPath}[@${idAttr}="${lotId}"]`);
-			if (!item) {
-				const d = $(area).data('maphilight') || {};
-				d.alwaysOn = false;
-				$(area).data('maphilight', d);
-				continue;
-			}
-			const match = testItemWithPredicate(item, predicate);
-			const d = $(area).data('maphilight') || {};
-			d.alwaysOn = !!match;
-			$(area).data('maphilight', d);
-			if (active) {
-				const value = getValueFromBinding(item, active.bind);
-				const css = active.palette.get(value) || '';
-				const hex = cssColorToHex(css);
-				setAreaColor(area, match ? hex : '');
-			}
+		for (const area of this.querySelectorAll('area')) {
+			area.dispatch('loteador:colorea', {
+				predicate,
+				active
+			});
 		}
-		$(map).trigger('alwaysOn.maphilight');
+
+		$(this).trigger('alwaysOn.maphilight');
 	});
 
 	// Mostrar/actualizar números (@Numero)
@@ -602,7 +646,7 @@
 	});
 
 	// Resize (reescala desde coord originales y recolorea + relabel)
-	xo.listener.on(['loteador:resize::map'], function () {
+	xo.listener.on(['loteador:resize::map'], async function () {
 		const map = this;
 		const img = map.parentElement && map.parentElement.querySelector('img[usemap]');
 		if (!img) return;
@@ -620,8 +664,9 @@
 			area.coords = scaled.join(',');
 		}
 		// tras reescalar, recolorea y reubica números
-		map.dispatch('loteador:colorea');
-		map.dispatch('loteador:mostrarNumerosDeCasa');
+		await map.dispatch('loteador:init-scopes')
+		await map.dispatch('loteador:colorea');
+		await map.dispatch('loteador:mostrarNumerosDeCasa');
 	});
 
 	xo.listener.on(['click::#Filtros input[type="radio"]'], function () {
@@ -669,6 +714,7 @@
 	async function click_area(e) {
 		const area = this;
 		const map = area.closest('map');
+		const scope = area.scope;
 		map.selectedAreas ??= new Map();
 		try {
 			const desarrollo_id = getDesarrolloId();
@@ -678,41 +724,45 @@
 			const selection = map.selectedAreas;
 
 			const multi = e.ctrlKey || e.metaKey;
-
-			if (selection.has(id))
+			//await map.dispatch('loteador:colorea');
+			if (selection.has(id)) {
 				selection.delete(id);
-			else {
+				area.dispatch('loteador:colorea'); //restaurar colores
+				area.dispatch('loteador:iluminar', false);
+			} else {
+				const selected = [...map.querySelectorAll('area')].filter(area => $(area).data('maphilight')?.alwaysOn);
 				if (!multi) {
 					selection.clear();
 				}
+				if (!selection.size) {
+					for (let area of selected) {
+						area.dispatch('loteador:colorea'); //restaurar colores
+						area.dispatch('loteador:iluminar', false);
+					}
+				}
 				selection.set(id, area);
+				area.dispatch('loteador:colorea', { fillOpacity: scope ? .7 : undefined });
+				area.dispatch('loteador:iluminar');
 			}
 
 			const { dataDoc, settings } = await getActiveDocs();
 			const { bindPath, idAttr } = getSettingsPaths(settings);
 
-			// Restaurar colores normales
-			if (typeof map.dispatch === 'function')
-				map.dispatch('loteador:colorea');
-
-			// Pintar selección
-			//const cond = {};
-			//cond[`@${idAttr}`] = {};
-
-			await map.dispatch('loteador:iluminar', false);
-
-			const area_selector = `area[target="${desarrollo_id}_${id}"], area[target="${id}"]`;
-			for (const [selectedId, selectedArea] of [...selection]) {
-				if (selectedArea) {
-					//setAreaColor(selectedArea, '#80FF00');
-					await selectedArea.dispatch('loteador:iluminar');
-				}
-			}
+			//for (const [selectedId, selectedArea] of [...selection]) {
+			//	await selectedArea.dispatch('loteador:colorea', {fillOpacity: .7});
+			//	await selectedArea.dispatch('loteador:iluminar');
+			//}
 
 			// Panel lateral
 			const flipper = document.querySelector('.card-flipper');
+			let templates = new Map()
+			let sections = flipper.queryChildrenAll("[id]");
+			for (let section of sections) {
+				let template = settings.querySelector(`template#${section.id}`) || settings.querySelector(`template#${section.id.toLowerCase()}`);
+				template && templates.set(section, template)
 
-			let template = selection.size == 1 ? settings.querySelector('template#details') : settings.querySelector('template#multiselection');
+			}
+			let template = selection.size == 1 ? settings.querySelector('template#detalles') : settings.querySelector('template#multiselection');
 			const detalles = document.querySelector('#Detalles');
 			if (selection.size === 1 && template) {
 				const [selectedId, area] = [...selection][0];
@@ -721,6 +771,7 @@
 				if (![Node.ELEMENT_NODE].includes(scope && scope.nodeType)) return false;
 				template = template.dispatch("loteador:fillCard", { scope, settings }) || template;
 
+				const area_selector = `area[target="${desarrollo_id}_${id}"], area[target="${id}"]`;
 				const selectedArea = map.querySelector(area_selector);
 				const svg = areaToSvg(selectedArea);
 				const img = template.querySelector('img');
@@ -750,7 +801,8 @@
 			return Promise.reject(e)
 		} finally {
 			if (!map.selectedAreas.size) {
-				map.dispatch("loteador:colorea")
+				await map.dispatch("loteador:colorea")
+				await map.dispatch('loteador:iluminar');
 			}
 			e.preventDefault();
 			e.stopImmediatePropagation();
@@ -767,6 +819,7 @@
 })();
 
 xo.listener.on(['loteador:fillCard::.money'], function ({ value }) {
+	if (value === "") return;
 	const n = Number(
 		String(value ?? '')
 			.replace(/[$,\s]/g, '')
@@ -794,10 +847,10 @@ xo.listener.on(['loteador:fillCard::#cantidad'], function ({ selection }) {
 })
 
 xo.listener.on(['loteador:fillCard::#selection-list'], function ({ selection }) {
-	for (let item of selection.values()) {
-		const scope = item.scope;
+	for (const [index, item] of [...selection.values()].entries()) {
+		const scope = item.scope || document.createElement('p');
 		const li = document.createElement('li');
-		li.textContent = `${scope.getAttribute("Calle")} ${scope.getAttribute("Numero")}`;
+		li.textContent = `${scope.getAttribute("Calle") || item.id || 'Elemento'} ${scope.getAttribute("Numero") || index + 1}`;
 		this.appendChild(li)
 	}
 	event.stopImmediatePropagation()
