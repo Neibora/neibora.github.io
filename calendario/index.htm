@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html class="light" lang="es">
+<head>
+	<meta charset="utf-8" />
+	<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+	<meta name="debug" content="true">
+	<meta name="xo-mode" content="modern">
+	<title>Neibora - Calendario de servicios y rentas</title>
+	<link rel="icon" href="/assets/img/favicon.png" type="image/x-icon" />
+	<link rel="xover-manifest" href="/server/.manifest?v=260725_2330">
+	<link rel="xover-manifest" href="/manifest.json?v=260725_2330">
+	<script type="text/javascript" src="/xover/xo.js?v=260725_2330&amp;mode=legacy"></script>
+	<script type="text/javascript" src="/socket.io.js?v=260725_2330"></script>
+	<script type="text/javascript" src="/custom.js?v=260725_2330"></script>
+	<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet" />
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+	<link href="/css/formatos.css" rel="stylesheet" type="text/css" />
+	<script>
+		tailwind.config = {
+			darkMode: "class",
+			theme: {
+				extend: {
+					colors: {
+						primary: "#004d40",
+						secondary: "#00796b",
+						accent: "#4caf50",
+						"background-light": "#f8fafc",
+						"background-dark": "#0f172a"
+					},
+					fontFamily: { display: ["Inter", "sans-serif"] }
+				}
+			}
+		};
+	</script>
+	<style>
+		body { font-family: "Inter", sans-serif; }
+		.calendar-loading {
+			min-height: 65vh;
+			display: grid;
+			place-items: center;
+			color: #64748b;
+			text-align: center;
+		}
+		.calendar-loading .material-icons {
+			display: block;
+			margin-bottom: .75rem;
+			color: #00796b;
+			font-size: 2rem;
+			animation: spin 1.1s linear infinite;
+		}
+		.calendar-loading.error .material-icons { color: #b91c1c; animation: none; }
+		@keyframes spin { to { transform: rotate(360deg); } }
+		@media print { .no-print { display: none !important; } }
+	</style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-200 min-h-screen transition-colors duration-200">
+	<nav class="no-print bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
+		<div class="flex items-center gap-3">
+			<img alt="Neibora Logo" class="h-10 w-auto" src="/assets/img/logo.png" />
+			<span class="text-xl font-bold text-primary dark:text-white">
+				<span class="text-accent">Calendario de servicios y rentas</span>
+			</span>
+		</div>
+		<div class="flex items-center gap-4">
+			<button class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" type="button" title="Cambiar tema" aria-label="Cambiar tema" onclick="document.documentElement.classList.toggle('dark')">
+				<span class="material-icons text-slate-600 dark:text-slate-400">dark_mode</span>
+			</button>
+			<button class="bg-primary hover:bg-secondary text-white px-4 py-2 rounded flex items-center gap-2 transition-all" type="button">
+				<px-printer />
+			</button>
+		</div>
+	</nav>
+	<main id="calendar-host" aria-live="polite">
+		<div class="calendar-loading" id="calendar-status">
+			<div><span class="material-icons">progress_activity</span>Preparando calendario…</div>
+		</div>
+	</main>
+	<script src="calendario.js?v=260725_2330"></script>
+</body>
+</html>

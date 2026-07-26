@@ -1,0 +1,20 @@
+<Cotizacion folio="NEI-LAF-2025-09" lugar="San Luis Potosí, S.L.P" fecha="28 de Abril de 2026" marca="Neibora" sitio="www.neibora.com" correo="contacto@neibora.com">
+
+	<Condominio nombre="Los Fresnos" saludo="CONDOMINIO: ESTIMADOS RESIDENTES" municipio="Soledad de Graciano Sánchez, S.L.P.">
+		<casas cantidad="91" cuota="" cuota_administracion="150"/>
+	</Condominio>
+
+	<Tabla>
+		<Partida seccion="ADMINISTRACIÓN" proveedor="Neibora" concepto="Administración y supervisión" cantidad="1" gravable="1" precio="cuota_administracion">La cantidad de ubicaciones es la que se nos indicó al solicitar la información.</Partida>
+	</Tabla>
+
+	<Texto>
+	</Texto>
+
+	<Firmas>
+		<Firma nombre="Arq. Sergio A. Ortiz W." cargo="Asociado Comercial Neibora" telefono="444.844.1210"/>
+		<Firma nombre="Uriel Gómez R." cargo="Director General Neibora" telefono="444.844.4649"/>
+	</Firmas>
+
+	<AvisoBorrador>Este es un borrador generado por el sistema Neibora. Los precios están sujetos a cambios según acuerdos de comité y/o asamblea.</AvisoBorrador>
+</Cotizacion>

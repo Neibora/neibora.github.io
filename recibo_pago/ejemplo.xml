@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReciboPago lugar="San Luis Potosí, S.L.P." fecha="04-05-2026" titulo="RECIBO DE PAGO" marca="Neibora" sitio="www.neibora.com" correo="contacto@neibora.com" folio="RECIBO-DEMO-001">
+  <Propietario nombre="Residente de Ejemplo" domicilio="Circuito Demostracion UNIDAD-001" />
+  <Pago metodo="Transferencia SPEI" fechaOperacion="04/05/2026 21:54:50" fechaAplicacion="04/05/2026" referenciaOperacion="REFERENCIA-DEMO" referenciaAplicacion="APLICACION-DEMO" banco="BANCO DEMO" beneficiario="RESIDENCIAL EJEMPLO" monto="1000.00" montoLetra="Mil pesos 00/100 M.N.">
+    <Aplicacion>
+      <Cuota periodo="MAY 2026" concepto="Cuota de mantenimiento" importe="1000.00" cubierto="1000.00" estado="Liquidado" />
+    </Aplicacion>
+  </Pago>
+  <Observaciones></Observaciones>
+  <Firmas>
+    <Firma nombre="Administrador de Ejemplo" cargo="Administrador" />
+    <!--<Firma nombre="" cargo="Tesorero"/>-->
+  </Firmas>
+</ReciboPago>

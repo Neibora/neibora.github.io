@@ -6,14 +6,14 @@
 	<meta name="debug" content="true">
 	<title>Neibora - Generador de Presupuestos</title>
 	<link rel="icon" href="/assets/img/favicon.png" type="image/x-icon" />
-	<link rel="xover-manifest" href="/server/.manifest?v=260609_0202">
-	<link rel="xover-manifest" href="/manifest.json?v=260609_0202">
-	<link rel="xover-manifest" href="manifest.json?v=260609_0202">
-	<script type="text/javascript" src="/xover/xo.js?v=260609_0202"></script>
-	<script type="text/javascript" src="/socket.io.js?v=260609_0202"></script>
-	<script type="text/javascript" src="/custom.js?v=260609_0202"></script>
-	<script type="text/javascript" src="cotizador.js?v=260609_0202"></script>
-	<script type="text/javascript" src="cotizador_draggable.js?v=260609_0202"></script>
+	<link rel="xover-manifest" href="/server/.manifest?v=260726_1027">
+	<link rel="xover-manifest" href="/manifest.json?v=260726_1027">
+	<link rel="xover-manifest" href="manifest.json?v=260726_1027">
+	<script type="text/javascript" src="/xover/xo.js?v=260726_1027"></script>
+	<script type="text/javascript" src="/socket.io.js?v=260726_1027"></script>
+	<script type="text/javascript" src="/custom.js?v=260726_1027"></script>
+	<script type="text/javascript" src="cotizador.js?v=260726_1027"></script>
+	<script type="text/javascript" src="cotizador_draggable.js?v=260726_1027"></script>
 	<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet" />
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
@@ -23,9 +23,9 @@
 			theme: {
 				extend: {
 					colors: {
-						primary: "#004d40", // Dark Teal from Neibora logo
+						primary: "#004d40", 
 						secondary: "#00796b",
-						accent: "#4caf50", // Green from Neibora logo
+						accent: "#4caf50", 
 						"background-light": "#f8fafc",
 						"background-dark": "#0f172a",
 					},
@@ -67,24 +67,24 @@
 			<button class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" onclick="document.documentElement.classList.toggle('dark')">
 				<span class="material-icons text-slate-600 dark:text-slate-400">dark_mode</span>
 			</button>
-			<button class="bg-primary hover:bg-secondary text-white px-4 py-2 rounded flex items-center gap-2 transition-all" onclick="window.print()">
-				<span class="material-icons text-sm">print</span>
-				<span>Exportar PDF</span>
+			<button class="bg-primary hover:bg-secondary text-white px-4 py-2 rounded flex items-center gap-2 transition-all">
+				<px-printer />
 			</button>
-			<xo-printer />
 		</div>
 	</nav>
-	<section xo-source="seed"
-					 xo-stylesheet="cotizacion.xslt">
-	</section>
-	<div class="no-print fixed bottom-6 right-6 flex flex-col gap-3">
+
+	<main>
+		<section xo-store="seed" xo-source="${xo.site.location.url.foldername}.xslt">
+		</section>
+	</main>
+	<!--<div class="no-print fixed bottom-6 right-6 flex flex-col gap-3">
 		<button class="bg-accent hover:bg-green-600 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110" title="Guardar Cambios" onclick="cotizador.save()">
 			<span class="material-icons">save</span>
 		</button>
 		<button class="bg-primary hover:bg-secondary text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110" title="Enviar por Email">
 			<span class="material-icons">send</span>
 		</button>
-	</div>
+	</div>-->
 
 </body>
 </html>

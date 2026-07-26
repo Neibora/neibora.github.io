@@ -35,6 +35,7 @@ function default_image(event) {
   }
   img.onerror = null
   img.src = DEFAULT_IMAGE
+  img.style.maxHeight = '100px'
 }
 
 document.addEventListener('error', default_image, true)

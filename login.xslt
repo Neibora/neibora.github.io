@@ -26,6 +26,7 @@ xmlns:login="http://widgets.panaxbi.com/login"
 	<xsl:param name="site:location-host"/>
 	<xsl:param name="site:location-pathname"/>
 	<xsl:param name="meta:google-signin-client_id"/>
+	<xsl:param name="meta:microsoft-signin-client_id"/>
 
 	<xsl:template match="/" priority="-1">
 		<xsl:apply-templates mode="login:widget"/>
@@ -49,13 +50,20 @@ xmlns:login="http://widgets.panaxbi.com/login"
 						<xsl:apply-templates mode="login:button" select="."/>
 					</div>
 					<div xo-static="">
+						<xsl:variable name="show_prompt">
+							<xsl:choose>
+								<xsl:when test="$session:status='authorized' or $session:status='authorizing'">false</xsl:when>
+								<xsl:otherwise>true</xsl:otherwise>
+							</xsl:choose>
+						</xsl:variable>
 						<xsl:if test="$js:secure='true'">
 							<xsl:if test="$meta:google-signin-client_id!='' and $js:secure='true' and $session:status!='authorizing'">
 								<!--<div class="g-signin2" data-onsuccess="onGoogleLogin" ></div>-->
 								<div id="g_id_onload"
 								data-client_id="{$meta:google-signin-client_id}"
 								data-callback="onGoogleLogin"
-								data-auto_prompt="true"
+								data-auto_prompt="{$show_prompt}"
+								data-cancel_on_tap_outside="false"
 								xo-scope=""
 								>
 								</div>
@@ -66,8 +74,13 @@ xmlns:login="http://widgets.panaxbi.com/login"
 			</form>
 		</div>
 	</xsl:template>
-
+	
 	<xsl:template mode="login:button" match="*|@*">
+		Login no configurado para este sitio.
+	</xsl:template>
+
+	<xsl:key name="login-button" match="*[/*/@meta:google-signin-client_id]" use="'google'"/>
+	<xsl:template mode="login:button" match="key('login-button','google')">
 		<button class="p-3" type="submit">
 			<xsl:choose>
 				<xsl:when test="$session:status='authorized'">
@@ -86,7 +99,7 @@ xmlns:login="http://widgets.panaxbi.com/login"
 			</xsl:choose>
 		</button>
 		<xsl:if test="$js:secure='true'">
-			<div class="g_id_signin signup_button" 
+			<div class="g_id_signin signup_button"
 				 data-type="standard"
 				 data-size="large"
 				 data-theme="outline"

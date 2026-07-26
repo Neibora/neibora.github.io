@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Cotizacion xmlns:xo="http://panax.io/xover"
+            xmlns:state="http://panax.io/state"
+            folio="NEI-VIT-2026-07"
+            lugar="San Luis Potosí, S.L.P."
+            fecha="13 de Julio de 2026"
+            marca="Neibora"
+            sitio="www.neibora.com"
+            correo="contacto@neibora.com">
+
+	<Condominio nombre="Vittanova Residencial"
+							desarrollo="Vittanova"
+							saludo="ESTIMADO COMITÉ DE ADMINISTRACIÓN"
+							municipio="Soledad de Graciano Sánchez, S.L.P.">
+		<casas cantidad="530" cuota="340" cuota_administracion="25000"/>
+	</Condominio>
+
+	<Gastos>
+		<Partida seccion="ADMINISTRACIÓN Y GESTIÓN"
+						 proveedor="Neibora"
+						 concepto="Administración externa integral Neibora"
+						 cantidad="1"
+						 gravable="1"
+						 precio="25000">
+			IVA incluido. Honorarios mensuales de administración. Comprende gestión financiera y de cobranza; conciliación bancaria; estados de cuenta; control de ingresos, egresos y proveedores; reportes mensuales; atención a residentes; supervisión operativa; apoyo en asambleas; ejecución de acuerdos; gestión reglamentaria; gestiones con autoridades, coordinación de mantenimiento; plataforma tecnológica Neibora y atención digital.
+		</Partida>
+
+		<Partida seccion="ADMINISTRACIÓN Y GESTIÓN"
+						 proveedor="Neibora"
+						 concepto="Plataforma de administración y reservas"
+						 cantidad="1"
+						 gravable=""
+						 precio="0">
+			Incluida sin costo adicional. La plataforma Neibora es propia y puede ajustarse a la operación del condominio sin costo extra: estados de cuenta, control de cobranza, documentación, comunicados, reportes, reservas de áreas comunes, bitácoras, evidencias, atención digital, base de datos, tablero financiero y trazabilidad operativa.
+		</Partida>
+
+		<Partida seccion="ADMINISTRACIÓN Y GESTIÓN"
+						 proveedor="Neibora"
+						 concepto="Gestiones gubernamentales, INTERAPAS y autoridad ambiental"
+						 cantidad="1"
+						 gravable=""
+						 precio="0">
+			Incluye elaboración y seguimiento administrativo de solicitudes, reportes y gestiones ordinarias ante autoridades municipales, INTERAPAS y dependencias ambientales. Derechos, estudios, peritajes, honorarios legales o gastos oficiales no están incluidos.
+		</Partida>
+
+		<Partida seccion="ADMINISTRACIÓN Y GESTIÓN"
+						 proveedor="Neibora"
+						 concepto="Administración y seguimiento del Fondo de Mejoras"
+						 cantidad="1"
+						 gravable=""
+						 precio="0">
+			Incluye control contable, trazabilidad, propuestas, comparativos de proveedores, seguimiento de autorizaciones y reportes del fondo. Las aportaciones al fondo y la ejecución de proyectos se determinarán por el Comité o la Asamblea.
+		</Partida>
+
+		<Partida seccion="OPERACIÓN DE CASETA"
+						 proveedor="Pilatus"
+						 concepto="Vigilancia 24/7"
+						 cantidad="1"
+						 gravable=""
+						 precio="88160">
+			IVA incluido. Presupuesto mensual de referencia para 4 guardias en esquema 24 x 24 horas de servicio. Incluye coordinación, supervisión del servicio, revisión de bitácoras, protocolos de acceso, incidencias y seguimiento con la empresa de seguridad. El importe definitivo queda sujeto al contrato y cotización del proveedor seleccionado.
+		</Partida>
+
+		<Partida seccion="JARDINERÍA Y LIMPIEZA"
+						 proveedor="Prado's"
+						 concepto="Mantenimiento de áreas verdes, camellones y riego"
+						 cantidad="1"
+						 gravable=""
+						 precio="15000">
+			IVA incluido. Servicio de jardinería y conservación de áreas verdes; poda, deshierbe, retiro de residuos vegetales, revisión básica de riego y atención de camellones. La administración dará seguimiento mediante recorridos, checklist y evidencia.
+		</Partida>
+
+		<Partida seccion="JARDINERÍA Y LIMPIEZA"
+						 proveedor="Prado's"
+						 concepto="Limpieza de áreas comunes, vialidades y banquetas"
+						 cantidad="1"
+						 gravable=""
+						 precio="9000">
+			IVA incluido. Servicio de limpieza de vialidades, banquetas y espacios comunes, con seguimiento operativo mediante recorridos, checklist y evidencia.
+		</Partida>
+
+		<Partida seccion="ALBERCA"
+						 proveedor="Aqua Vitae"
+						 concepto="Mantenimiento mensual de alberca"
+						 cantidad="1"
+						 gravable="1"
+						 precio="6264.00">
+			IVA incluido. Incluye limpieza, aspirado, cepillado, revisión de filtración, control básico de parámetros, programación de tratamientos y reporte de incidencias.
+		</Partida>
+
+		<Partida seccion="ALBERCA"
+						 proveedor="Variable"
+						 concepto="Insumos y químicos para alberca"
+						 cantidad="1"
+						 gravable=""
+						 precio="1200">
+			IVA incluido. Provisión mensual para cloro, reguladores, alguicida, pruebas y consumibles básicos. Los consumos extraordinarios, reparaciones y refacciones se cotizarán por separado.
+		</Partida>
+
+		<Partida seccion="SERVICIOS PÚBLICOS"
+						 proveedor="CFE"
+						 concepto="Provisión mensual de energía eléctrica"
+						 cantidad="1"
+						 gravable=""
+						 precio="12000">
+			IVA incluido. Promedio mensual estimado. El pago se realizará conforme al consumo y facturación real bimestral de cada medidor.
+		</Partida>
+
+		<Partida seccion="OPERACIÓN DE CASETA"
+						 proveedor="Proveedor actual"
+						 concepto="Internet de caseta y telefonía celular"
+						 cantidad="1"
+						 gravable=""
+						 precio="1000">
+			IVA incluido. Servicio de conectividad para caseta, controles de acceso, comunicación y operación administrativa.
+		</Partida>
+
+		<Partida seccion="OPERACIÓN DE CASETA"
+						 proveedor="Variable"
+						 concepto="Agua y consumibles básicos de caseta"
+						 cantidad="1"
+						 gravable=""
+						 precio="400">
+			IVA incluido. Provisión mensual para agua de consumo y artículos operativos básicos de caseta y vigilancia.
+		</Partida>
+
+		<Partida seccion="MANTENIMIENTO PREVENTIVO Y CORRECTIVO"
+						 proveedor="Variable"
+						 concepto="Provisión para infraestructura y equipos"
+						 cantidad="1"
+						 gravable=""
+						 precio="5000">
+			IVA incluido. Provisión mensual tope para mantenimiento preventivo y correctivo menor de plumas, accesos, bombas, iluminación, mobiliario, señalética y equipos comunes, hasta por $5,000.00 mensuales. Los importes se ejercerán conforme a necesidades reales y comprobación correspondiente. Reparaciones mayores se someterán a cotización y autorización.
+		</Partida>
+	</Gastos>
+
+	<Texto>
+		<p>La presente propuesta atiende la convocatoria para la contratación de una administración externa para Vittanova Residencial e incorpora los servicios solicitados de operación, conservación, seguridad, mantenimiento, transparencia, rendición de cuentas y atención a residentes.</p>
+
+		<p><strong>El presupuesto mensual estimado es de $163,024.00 IVA incluido</strong>, frente a un <strong>ingreso potencial mensual de $180,200.00 calculado con 530 viviendas</strong> y una cuota externa vigente de <strong>$340.00</strong>. Bajo este escenario existiría un margen potencial de $17,176.00 mensuales antes de considerar morosidad, reparaciones mayores, contingencias o aportaciones adicionales al Fondo de Mejoras.</p>
+
+		<p>La propuesta contempla administración financiera, cobranza, conciliación bancaria, estados de cuenta, reportes mensuales, comunicación con residentes, supervisión operativa, seguimiento de proveedores, apoyo en asambleas, gestión reglamentaria, control documental y atención digital. También considera seguimiento a la operación de caseta, vigilancia, accesos, jardinería, limpieza, alberca, servicios públicos, mantenimiento preventivo y correctivo, así como coordinación de decoración para fechas festivas.</p>
+
+		<p><strong>Neibora no sólo presta el servicio de administración; opera con una plataforma tecnológica propia de gestión residencial.</strong> Esta plataforma puede configurarse y ajustarse a la operación específica de Vittanova Residencial sin costo adicional, para facilitar cobranza, estados de cuenta, reportes, bitácoras, documentos, reservas, comunicación digital, seguimiento de incidencias, control de proveedores y trazabilidad de la información.</p>
+
+		<p>
+			<strong>La propuesta no implica sustituir necesariamente a los proveedores actuales</strong>. Neibora podría trabajar con los proveedores que actualmente prestan servicio al condominio, siempre que mantengan condiciones adecuadas de precio, calidad, cumplimiento, documentación y disponibilidad, y que su continuidad sea aprobada por el Comité o la Asamblea, según corresponda.
+		</p>
+
+		<p>Durante la entrega-recepción <strong>se realizará un diagnóstico administrativo, financiero, documental, operativo y de infraestructura</strong>. Se elaborará un inventario de bienes y equipos comunes, padrón de proveedores, relación de contratos, cartera de adeudos, cuentas bancarias, pasivos, accesos, bitácoras y asuntos pendientes.</p>
+
+		<p>La administración también podrá coordinar la decoración de áreas comunes para fechas festivas y temporadas especiales. La mano de obra de gestión y supervisión se considera dentro del servicio administrativo; materiales, adornos, instalaciones especiales o proveedores externos se cotizarán y autorizarán por separado cuando correspondan.</p>
+
+		<p>
+			<strong>La administración podrá apoyar, sin costo adicional, en la gestión de la constitución de la A.C.</strong> y en la apertura de las cuentas bancarias necesarias para su operación. El costo de referencia para la constitución ante notario es de aproximadamente $16,000.00 más impuestos.</p>
+
+		<p>No se incluyen reparaciones mayores, sustitución de equipos, obras, litigios, honorarios notariales, derechos gubernamentales, multas, impuestos distintos al IVA indicado ni gastos extraordinarios. Estos conceptos deberán cotizarse y autorizarse por separado por el Comité o la Asamblea, según corresponda.</p>
+	</Texto>
+
+	<Firmas>
+		<Firma nombre="Uriel Gómez R."
+					 cargo="Director General Neibora"
+					 telefono="444.844.4649"/>
+	</Firmas>
+
+	<AvisoBorrador>Propuesta económica con IVA incluido. Los importes de proveedores y servicios variables están sujetos a validación documental, cotizaciones vigentes, consumos reales y acuerdos del Comité de Administración y/o Asamblea.</AvisoBorrador>
+
+</Cotizacion>

@@ -1,7 +1,7 @@
 {
   "sources": {
-    "xo-printer": "/components/printer.xhtml",
-    "^#(.+)_(\\d+\\d+_\\d)$": "../assets/desarrollos/$1/instruccion_pago_$2.xml",
-    "#": ""
+    "#ejemplo": "ejemplo.xml",
+    "^#([^_]+)_(.+?)$": "../assets/desarrollos/$1/${xover.site.location.url.foldername}_$2.xml",
+    "#": "ejemplo.xml"
   }
 }

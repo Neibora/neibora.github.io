@@ -19,6 +19,7 @@
     "#desarrollos": "/assets/desarrollos.resx",
     "#iconos": "/assets/iconos.resx",
     "#site": "/assets/site.resx",
+    "#ejemplo": "ejemplo.xml",
     "#aviso_privacidad": "/assets/aviso_privacidad.resx",
     "#caracteristicas": "/assets/caracteristicas.resx",
     "#codigo_etica": "/assets/codigo_etica.resx",

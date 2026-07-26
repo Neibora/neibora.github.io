@@ -1,3 +1,6 @@
 [submodule "xover"]
 	path = xover
 	url = https://github.com/panaxit/xover.git
+[submodule "widgets"]
+	path = widgets
+	url = https://github.com/panaxbi/widgets

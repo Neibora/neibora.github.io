@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Multa titulo="NOTIFICACIÓN DE MULTA POR INCUMPLIMIENTO DE REGLAMENTO INTERNO" fraccionamiento="RESIDENCIAL EJEMPLO" coto="PRIVADA DEMOSTRACION" domicilio="Circuito Demostracion UNIDAD-001" fecha="17/04/2026" asunto="Notificación de multa por consumo de bebidas en alberca y uso de envases de vidrio">
+  <Hechos>
+    Se informa que, derivado de reporte recibido con evidencia, se detectó el consumo de bebidas dentro de la alberca, así como el uso de envases de vidrio en el área común.
+  </Hechos>
+  <Fundamento>
+    Dichas conductas constituyen incumplimiento al Reglamento Interno del Coto Cantabria, en donde se establece que queda prohibido introducir bebidas o alimentos dentro de la alberca, así como el uso de envases de vidrio en sus inmediaciones por motivos de seguridad.
+  </Fundamento>
+  <Antecedente>
+    Cabe señalar que estas disposiciones fueron recordadas previamente en el grupo general, explicando su finalidad para preservar la seguridad e higiene de las instalaciones.
+  </Antecedente>
+  <Sancion conducta="Consumo de bebidas alcohólicas en áreas donde no está permitido" umas="10" valorUma="117.31" importe="1173.10" importeTexto="mil ciento setenta y tres pesos 10/100 M.N." reincidencia="Incremento de 50%" />
+  <Pago plazo="30 días naturales" telefono="SIN-DATO" />
+  <DerechoReplica>
+    Para ejercer su derecho de réplica, se solicita comunicarse con la administración en un plazo no mayor a 3 días hábiles contados a partir de la recepción de esta notificación.
+  </DerechoReplica>
+  <Firma nombre="Administracion Residencial Demo" />
+</Multa>

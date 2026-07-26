@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Cotizacion folio="COTIZACION-DEMO-001" lugar="San Luis Potosí, S.L.P" fecha="28 de Abril de 2026" marca="Neibora" sitio="www.neibora.com" correo="contacto@neibora.com">
+  <Condominio nombre="Residencial Ejemplo" saludo="CONDOMINIO: ESTIMADOS RESIDENTES" municipio="Municipio de Ejemplo">
+    <casas cantidad="91" cuota="" cuota_administracion="150" />
+  </Condominio>
+  <Tabla>
+    <Partida seccion="ADMINISTRACIÓN" proveedor="Neibora" concepto="Administración y supervisión" cantidad="1" gravable="1" precio="cuota_administracion">La cantidad de ubicaciones es la que se nos indicó al solicitar la información.</Partida>
+  </Tabla>
+  <Texto></Texto>
+  <Firmas>
+    <Firma nombre="Representante Demo 01" cargo="Asociado Comercial Neibora" telefono="SIN-DATO" />
+    <Firma nombre="Representante Demo 02" cargo="Director General Neibora" telefono="SIN-DATO" />
+  </Firmas>
+  <AvisoBorrador>Este es un borrador generado por el sistema Neibora. Los precios están sujetos a cambios según acuerdos de comité y/o asamblea.</AvisoBorrador>
+</Cotizacion>

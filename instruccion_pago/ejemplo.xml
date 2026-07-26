@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<InstruccionPago titulo="Gasto ordinario y extraordinario" fecha_emision="25/07/2026" periodo="JULIO 2026 (2a parte)" comite="COMITE DE DEMOSTRACION" fraccionamiento="RESIDENCIAL EJEMPLO">
+  <Proveedores>
+    <Proveedor id="proveedor_demo_01" nombre="Proveedor de Ejemplo 01">
+      <cuenta_bancaria banco="BANCO DEMO" cuenta="CUENTA-DEMO" clabe="CLABE-DEMO" tarjeta="TARJETA-DEMO" />
+    </Proveedor>
+    <Proveedor id="proveedor_demo_02" nombre="Proveedor de Ejemplo 02">
+      <cuenta_bancaria banco="BANCO DEMO" clabe="CLABE-DEMO" />
+    </Proveedor>
+    <Proveedor id="proveedor_demo_03" nombre="Proveedor de Ejemplo 03">
+      <cuenta_bancaria banco="BANCO DEMO" clabe="CLABE-DEMO" />
+    </Proveedor>
+    <Proveedor id="proveedor_demo_04" nombre="Proveedor de Ejemplo 04">
+      <cuenta_bancaria banco="BANCO DEMO" clabe="CLABE-DEMO" />
+    </Proveedor>
+    <Proveedor id="proveedor_demo_05" nombre="Proveedor de Ejemplo 05">
+      <cuenta_bancaria banco="BANCO DEMO" clabe="CLABE-DEMO" />
+    </Proveedor>
+    <Proveedor id="proveedor_demo_06" nombre="Proveedor de Ejemplo 06">
+      <cuenta_bancaria banco="BANCO DEMO" clabe="CLABE-DEMO" />
+    </Proveedor>
+    <Proveedor id="proveedor_demo_07" nombre="Proveedor de Ejemplo 07">
+      <cuenta_bancaria banco="BANCO DEMO" tarjeta="TARJETA-DEMO" />
+    </Proveedor>
+    <Proveedor id="proveedor_demo_08" nombre="Proveedor de Ejemplo 08"></Proveedor>
+    <Proveedor id="proveedor_demo_09" nombre="Proveedor de Ejemplo 09"></Proveedor>
+    <Proveedor id="proveedor_demo_10" nombre="Proveedor de Ejemplo 10">
+      <cuenta_bancaria banco="BANCO DEMO" clabe="CLABE-DEMO" />
+    </Proveedor>
+    <Proveedor id="proveedor_demo_11" nombre="Proveedor de Ejemplo 11">
+      <cuenta_bancaria banco="BANCO DEMO" clabe="CLABE-DEMO" />
+    </Proveedor>
+    <Proveedor id="proveedor_demo_12" nombre="Proveedor de Ejemplo 12">
+      <cuenta_bancaria banco="BANCO DEMO" tarjeta="TARJETA-DEMO" />
+    </Proveedor>
+    <Proveedor id="proveedor_demo_13" nombre="Proveedor de Ejemplo 13">
+      <cuenta_bancaria banco="BANCO DEMO" clabe="CLABE-DEMO" />
+    </Proveedor>
+    <Proveedor id="proveedor_demo_14" nombre="Proveedor de Ejemplo 14">
+      <cuenta_bancaria banco="BANCO DEMO" clabe="CLABE-DEMO" />
+    </Proveedor>
+  </Proveedores>
+  <Secciones>
+    <Seccion nombre="GASTOS DE ÁREA EXTERNA">
+      <Partida concepto="LIMPIEZA, INSUMOS, SEGURIDAD PRIVADA, TELMEX, LUMINARIAS, RECARGAS CEL., HONORARIOS ADMINISTRACIÓN EXTERNA, AGUA, SERVICIOS CONTABLES Y BANCARIOS" proveedor="proveedor_demo_01" importe="32164.07" />
+    </Seccion>
+    <Seccion nombre="GASTOS DE ÁREA INTERNA">
+      <Partida concepto="PAQ. DE 3 TAGS" proveedor="proveedor_demo_13" importe="150.00" />
+      <Partida concepto="LIMPIEZA (15 DÍAS)" proveedor="proveedor_demo_07" importe="6000.00" />
+      <Partida concepto="JARDINERÍA" proveedor="proveedor_demo_03" importe="9000.00" />
+      <Partida concepto="RECOLECCIÓN DE RESIDUOS DOMÉSTICOS" proveedor="proveedor_demo_04" importe=" 5178.24" />
+      <Partida concepto="TRABAJOS DE MANTENIMIENTO" proveedor="proveedor_demo_12" importe="2000.00" />
+      <Partida concepto="CONTROL ACCESOS (1 DE 5)" proveedor="proveedor_demo_14" importe="6217.60" />
+      <Partida concepto="ADMINISTRACIÓN+SUPERVISIÓN" proveedor="proveedor_demo_05" importe="16240.00" />
+      <Partida concepto="REPOSICIÓN DE GASTOS: TELMEX CASETA" proveedor="proveedor_demo_05" importe="582.00" />
+      <Partida concepto="REPOSICIÓN DE GASTOS: CIERRAPUERTAS" proveedor="proveedor_demo_05" importe="219.00" />
+      <Partida concepto="MANTENIMIENTO DE ALBERCA" proveedor="proveedor_demo_02" importe="4934.24" />
+      <Partida concepto="CALENTADORES SOLARES (4 DE 6)" proveedor="proveedor_demo_06" importe="16000.00" />
+      <!--<Partida concepto="MANO DE OBRA PARA MANTENIMIENTO" proveedor="hema" importe="1160.00"/>-->
+      <!--<Partida concepto="LONA PARA JUEGOS" proveedor="lonas_independientes" importe="3132.00"/>-->
+    </Seccion>
+  </Secciones>
+  <Firmas>
+    <Firma rol="Solicita" nombre="Representante Demo 01" cargo="Administrador" />
+    <Firma rol="Autoriza" nombre="Representante Demo 02" cargo="Tesorera del Fraccionamiento" />
+  </Firmas>
+</InstruccionPago>
