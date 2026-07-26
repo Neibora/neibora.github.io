@@ -1,6 +1,14 @@
 {
-   "session": {
-      "gist": "",
-      "server": ""
-   }
+	"session": {
+		"gist": ""
+	},
+	"sources": {
+		"^#(peninsula)$": {
+			"server:download": {
+				"file": "${xover.session.server}/repository/$1/lotes.xml",
+				"^authorization": "${xover.session.encodeCredential(xover.session.user_login, xover.session.id_token) || ''}",
+				"^x-referer-id": "${xover.session.referer_id || ''}"
+			}
+		}
+	}
 }

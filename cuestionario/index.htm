@@ -4,53 +4,56 @@
 	<meta charset="utf-8" />
 	<meta content="width=device-width, initial-scale=1.0" name="viewport" />
 	<meta name="debug" content="true">
+	<meta name="xo-mode" content="modern">
 	<title>Neibora - Cuestionario de entrada</title>
 	<link rel="icon" href="/assets/img/favicon.png" type="image/x-icon" />
-	<link rel="xover-manifest" href="/server/.manifest?v=260609_0202">
-	<link rel="xover-manifest" href="/manifest.json?v=260609_0202">
-	<link rel="xover-manifest" href="manifest.json?v=260609_0202">
-	<script type="text/javascript" src="/xover/xo.js?v=260609_0202"></script>
-	<script type="text/javascript" src="/socket.io.js?v=260609_0202"></script>
-	<script type="text/javascript" src="/custom.js?v=260609_0202"></script>
-	<script type="text/javascript" src="cuestionario.js?v=260609_0202"></script>
+	<link rel="xover-manifest" href="/server/.manifest?v=260726_1027">
+	<link rel="xover-manifest" href="/manifest.json?v=260726_1027">
+	<link rel="xover-manifest" href="manifest.json?v=260726_1027">
+	<link rel="xover-manifest" href=".manifest?v=260726_1027">
+	<script type="text/javascript" src="/xover/xo.js?v=260726_1027&mode=legacy"></script>
+	<script type="text/javascript" src="/socket.io.js?v=260726_1027"></script>
+	<script type="text/javascript" src="/custom.js?v=260726_1027"></script>
+	<script type="text/javascript" src="cuestionario.js?v=260726_1027"></script>
 	<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet" />
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+	<link href="/css/formatos.css" rel="stylesheet" type="text/css" />
 	<script>
 		tailwind.config = {
-		darkMode: "class",
-		theme: {
-		extend: {
-		colors: {
-		primary: "#004d40", // Dark Teal from Neibora logo
-		secondary: "#00796b",
-		accent: "#4caf50", // Green from Neibora logo
-		"background-light": "#f8fafc",
-		"background-dark": "#0f172a",
-		},
-		fontFamily: {
-		display: ["Inter", "sans-serif"],
-		},
-		borderRadius: {
-		DEFAULT: "0.5rem",
-		},
-		},
-		},
+			darkMode: "class",
+			theme: {
+				extend: {
+					colors: {
+						primary: "#004d40", 
+						secondary: "#00796b",
+						accent: "#4caf50", 
+						"background-light": "#f8fafc",
+						"background-dark": "#0f172a",
+					},
+					fontFamily: {
+						display: ["Inter", "sans-serif"],
+					},
+					borderRadius: {
+						DEFAULT: "0.5rem",
+					},
+				},
+			},
 		};
 	</script>
 	<style>
 		body {
-		font-family: 'Inter', sans-serif;
+			font-family: 'Inter', sans-serif;
 		}
 
 		@media print {
-		.no-print {
-		display: none;
-		}
+			.no-print {
+				display: none;
+			}
 
-		.print-shadow-none {
-		box-shadow: none !important;
-		}
+			.print-shadow-none {
+				box-shadow: none !important;
+			}
 		}
 	</style>
 </head>
@@ -59,7 +62,7 @@
 		<div class="flex items-center gap-3">
 			<img alt="Neibora Logo" class="h-10 w-auto" src="/assets/img/logo.png" />
 			<span class="text-xl font-bold text-primary dark:text-white">
-				<span class="text-accent">{{window.document.title}}</span>
+				<span class="text-accent"><slot>{{window.document.title}}</slot></span>
 			</span>
 		</div>
 		<div class="flex items-center gap-4">
@@ -67,12 +70,12 @@
 				<span class="material-icons text-slate-600 dark:text-slate-400">dark_mode</span>
 			</button>
 			<button class="bg-primary hover:bg-secondary text-white px-4 py-2 rounded flex items-center gap-2 transition-all">
-				<xo-printer />
+				<px-printer />
 			</button>
 		</div>
 	</nav>
 	<main>
-		<section xo-source="seed" xo-stylesheet="${xo.site.location.url.foldername}.xslt">
+		<section xo-store="seed" xo-source="${xo.site.location.url.foldername}.xslt">
 		</section>
 	</main>
 	<div class="no-print fixed bottom-6 right-6 flex flex-col gap-3">

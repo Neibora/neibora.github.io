@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Convenio lugar="San Luis Potosí, S.L.P." fecha="03 de Abril de 2026" marca="Neibora" sitio="www.neibora.com" correo="contacto@neibora.com" titulo="CONVENIO DE RECONOCIMIENTO DE ADEUDO Y PLAN DE PAGOS">
+  <Condominio nombre="Residencial Ejemplo" />
+  <Propietario nombre="Residente de Ejemplo" domicilio="Circuito Demostracion UNIDAD-001" titulo="propietario" />
+  <Intro>
+    <p>
+			Por medio de la presente, ponemos a su consideración la propuesta de regularización de convenios
+			para la propiedad ubicada en <strong>Circuito Demostracion UNIDAD-001</strong>, perteneciente al
+			residente <strong>Residente de Ejemplo</strong>. Este convenio integra el desglose de saldos
+			vencidos y el plan de pagos diferidos acordado para la liquidación total de la deuda.
+		</p>
+  </Intro>
+  <Deuda>
+    <Concepto nombre="Multa" monto="1131.40" convenio="565.7" />
+    <Concepto nombre="Multa" monto="2262.8" convenio="1131.40" />
+    <Concepto nombre="Recargos" monto="900.00" convenio="400.00" />
+    <Concepto nombre="Cuota extraordinaria externa" monto="1000.00" convenio="1000.00" />
+    <Concepto nombre="Cuota extraordinaria interna" monto="1600.00" convenio="1600.00" />
+    <Concepto nombre="Cuotas de mantenimiento y saldo previo" monto="15870.00" convenio="15870.00" />
+  </Deuda>
+  <Pagos>
+    <Titulo>CALENDARIO DE PAGOS COMPROMETIDO</Titulo>
+    <Texto>
+      <p>
+				Se propone liquidar la deuda contraída en parcialidades mensuales, adicionando la cuota
+				de mantenimiento vigente a cada abono:
+			</p>
+    </Texto>
+    <Pago titulo="Primera parcialidad" fecha="10 de Abril de 2026" convenio="5000.00" detalle="+ cuota de mantenimiento de Abril 2026." />
+    <Pago titulo="Segunda parcialidad" fecha="10 de Mayo de 2026" convenio="5000.00" detalle="+ cuota de mantenimiento de Mayo 2026." />
+    <Pago titulo="Tercera parcialidad" fecha="10 de Junio de 2026" convenio="5000.00" detalle="+ cuota de mantenimiento de Junio 2026." />
+    <Pago titulo="Cuarta parcialidad" fecha="10 de Julio de 2026" convenio="5000.00" detalle="+ cuota de mantenimiento de Julio 2026." />
+    <Pago titulo="Liquidación" fecha="10 de Agosto de 2026" convenio="567.10" detalle="+ cuota de mantenimiento de Agosto 2026." />
+  </Pagos>
+  <Clausulas>
+    <Incumplimiento>
+			Nota: El incumplimiento de dos mensualidades consecutivas invalidará este convenio,
+			haciendo exigible el total del saldo insoluto de forma inmediata más las acciones legales pertinentes.
+		</Incumplimiento>
+  </Clausulas>
+  <Firmas>
+    <Firma nombre="Firmante Demo 01" cargo="PROPIETARIO" />
+    <Firma nombre="Firmante Demo 02" cargo="Neibora, Administrador de Cantabria" />
+  </Firmas>
+  <AvisoBorrador>
+		Documento generado como referencia. Sujeto a validación y firma de las partes.
+	</AvisoBorrador>
+</Convenio>

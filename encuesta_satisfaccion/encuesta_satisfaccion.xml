@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ChecklistCotizacion
+	marca="Neibora"
+	titulo="Encuesta de satisfacción"
+	subtitulo="Tu experiencia nos ayuda a mejorar"
+	lugar="San Luis Potosí, S.L.P."
+	fecha="">
+	<Descripcion>
+		<p>Queremos conocer tu experiencia con la administración y los servicios de tu desarrollo residencial.</p>
+		<p>Responder toma aproximadamente tres minutos. Tus comentarios serán utilizados para identificar mejoras y dar seguimiento a los temas más importantes para la comunidad.</p>
+	</Descripcion>
+
+	<Grupo nombre="Datos de la encuesta">
+		<Campo tipo="texto" etiqueta="Desarrollo o fraccionamiento" name="desarrollo"/>
+		<Campo tipo="texto" etiqueta="Calle y número de unidad" name="unidad"/>
+		<Campo tipo="texto" etiqueta="Nombre (opcional)" name="nombre"/>
+		<Campo tipo="texto" etiqueta="Correo o teléfono (opcional)" name="contacto"/>
+		<Campo tipo="opcion" etiqueta="¿Cuánto tiempo llevas viviendo en el desarrollo?" name="antiguedad">
+			<Opcion>Menos de 6 meses</Opcion>
+			<Opcion>De 6 meses a 1 año</Opcion>
+			<Opcion>De 1 a 3 años</Opcion>
+			<Opcion>Más de 3 años</Opcion>
+		</Campo>
+	</Grupo>
+
+	<Grupo nombre="Experiencia general">
+		<Campo tipo="opcion" etiqueta="¿Qué tan satisfecho estás con la administración en general?" name="satisfaccion_general">
+			<Opcion>1 · Muy insatisfecho</Opcion>
+			<Opcion>2 · Insatisfecho</Opcion>
+			<Opcion>3 · Neutral</Opcion>
+			<Opcion>4 · Satisfecho</Opcion>
+			<Opcion>5 · Muy satisfecho</Opcion>
+		</Campo>
+		<Campo tipo="opcion" etiqueta="¿Cómo calificas la relación entre la cuota y los servicios recibidos?" name="valor_cuota">
+			<Opcion>1 · Muy mala</Opcion>
+			<Opcion>2 · Mala</Opcion>
+			<Opcion>3 · Regular</Opcion>
+			<Opcion>4 · Buena</Opcion>
+			<Opcion>5 · Excelente</Opcion>
+		</Campo>
+		<Campo tipo="si_no" etiqueta="¿Has tenido algún problema que requiriera atención de la administración?" name="tuvo_problema"/>
+		<Campo tipo="textarea" etiqueta="Describe brevemente el problema" name="descripcion_problema" condicion_tuvo_problema="Sí"/>
+		<Campo tipo="opcion" etiqueta="¿Qué tan satisfecho quedaste con la solución?" name="satisfaccion_solucion" condicion_tuvo_problema="Sí">
+			<Opcion>1 · Muy insatisfecho</Opcion>
+			<Opcion>2 · Insatisfecho</Opcion>
+			<Opcion>3 · Neutral</Opcion>
+			<Opcion>4 · Satisfecho</Opcion>
+			<Opcion>5 · Muy satisfecho</Opcion>
+		</Campo>
+	</Grupo>
+
+	<Grupo nombre="Administración y atención">
+		<Campo tipo="opcion" etiqueta="Claridad de la información financiera" name="claridad_financiera">
+			<Opcion>1 · Muy mala</Opcion><Opcion>2 · Mala</Opcion><Opcion>3 · Regular</Opcion><Opcion>4 · Buena</Opcion><Opcion>5 · Excelente</Opcion>
+		</Campo>
+		<Campo tipo="opcion" etiqueta="Transparencia en el uso de las cuotas" name="transparencia_cuotas">
+			<Opcion>1 · Muy mala</Opcion><Opcion>2 · Mala</Opcion><Opcion>3 · Regular</Opcion><Opcion>4 · Buena</Opcion><Opcion>5 · Excelente</Opcion>
+		</Campo>
+		<Campo tipo="opcion" etiqueta="Amabilidad y disposición del personal" name="amabilidad_personal">
+			<Opcion>1 · Muy mala</Opcion><Opcion>2 · Mala</Opcion><Opcion>3 · Regular</Opcion><Opcion>4 · Buena</Opcion><Opcion>5 · Excelente</Opcion>
+		</Campo>
+		<Campo tipo="opcion" etiqueta="Rapidez de respuesta a solicitudes" name="rapidez_respuesta">
+			<Opcion>1 · Muy mala</Opcion><Opcion>2 · Mala</Opcion><Opcion>3 · Regular</Opcion><Opcion>4 · Buena</Opcion><Opcion>5 · Excelente</Opcion>
+		</Campo>
+	</Grupo>
+
+	<Grupo nombre="Operación y mantenimiento">
+		<Campo tipo="opcion" etiqueta="Limpieza de áreas comunes" name="limpieza_areas">
+			<Opcion>No aplica</Opcion><Opcion>1 · Muy mala</Opcion><Opcion>2 · Mala</Opcion><Opcion>3 · Regular</Opcion><Opcion>4 · Buena</Opcion><Opcion>5 · Excelente</Opcion>
+		</Campo>
+		<Campo tipo="opcion" etiqueta="Jardinería y áreas verdes" name="jardineria">
+			<Opcion>No aplica</Opcion><Opcion>1 · Muy mala</Opcion><Opcion>2 · Mala</Opcion><Opcion>3 · Regular</Opcion><Opcion>4 · Buena</Opcion><Opcion>5 · Excelente</Opcion>
+		</Campo>
+		<Campo tipo="opcion" etiqueta="Mantenimiento de instalaciones" name="mantenimiento">
+			<Opcion>No aplica</Opcion><Opcion>1 · Muy mala</Opcion><Opcion>2 · Mala</Opcion><Opcion>3 · Regular</Opcion><Opcion>4 · Buena</Opcion><Opcion>5 · Excelente</Opcion>
+		</Campo>
+		<Campo tipo="opcion" etiqueta="Seguridad y control de acceso" name="seguridad">
+			<Opcion>No aplica</Opcion><Opcion>1 · Muy mala</Opcion><Opcion>2 · Mala</Opcion><Opcion>3 · Regular</Opcion><Opcion>4 · Buena</Opcion><Opcion>5 · Excelente</Opcion>
+		</Campo>
+		<Campo tipo="checklist" etiqueta="¿Qué aspectos deberían mejorar primero?" name="prioridades_mejora">
+			<Opcion>Comunicación</Opcion>
+			<Opcion>Transparencia financiera</Opcion>
+			<Opcion>Cobranza</Opcion>
+			<Opcion>Seguridad</Opcion>
+			<Opcion>Limpieza</Opcion>
+			<Opcion>Jardinería</Opcion>
+			<Opcion>Mantenimiento</Opcion>
+			<Opcion>Administración de amenidades</Opcion>
+			<Opcion>Convivencia y reglamento</Opcion>
+		</Campo>
+	</Grupo>
+
+	<Grupo nombre="Comunicación y herramientas digitales">
+		<Campo tipo="opcion" etiqueta="Calidad y oportunidad de los comunicados" name="calidad_comunicados">
+			<Opcion>1 · Muy mala</Opcion><Opcion>2 · Mala</Opcion><Opcion>3 · Regular</Opcion><Opcion>4 · Buena</Opcion><Opcion>5 · Excelente</Opcion>
+		</Campo>
+		<Campo tipo="opcion" etiqueta="Facilidad para consultar pagos y estados de cuenta" name="facilidad_consulta">
+			<Opcion>No lo he utilizado</Opcion><Opcion>1 · Muy difícil</Opcion><Opcion>2 · Difícil</Opcion><Opcion>3 · Regular</Opcion><Opcion>4 · Fácil</Opcion><Opcion>5 · Muy fácil</Opcion>
+		</Campo>
+		<Campo tipo="checklist" etiqueta="¿Por qué medios prefieres recibir información?" name="medios_preferidos">
+			<Opcion>WhatsApp</Opcion>
+			<Opcion>Correo electrónico</Opcion>
+			<Opcion>Aplicación o portal web</Opcion>
+			<Opcion>Avisos impresos</Opcion>
+			<Opcion>Reuniones o asambleas</Opcion>
+		</Campo>
+	</Grupo>
+
+	<Grupo nombre="Recomendación y comentarios">
+		<Campo tipo="opcion" etiqueta="Del 0 al 10, ¿qué tan probable es que recomiendes la administración de Neibora?" name="recomendacion">
+			<Opcion>0</Opcion><Opcion>1</Opcion><Opcion>2</Opcion><Opcion>3</Opcion><Opcion>4</Opcion><Opcion>5</Opcion>
+			<Opcion>6</Opcion><Opcion>7</Opcion><Opcion>8</Opcion><Opcion>9</Opcion><Opcion>10</Opcion>
+		</Campo>
+		<Campo tipo="textarea" etiqueta="¿Qué es lo que más valoras del servicio?" name="mayor_valor"/>
+		<Campo tipo="textarea" etiqueta="¿Qué deberíamos mejorar?" name="comentarios_mejora"/>
+		<Campo tipo="textarea" etiqueta="Comentarios adicionales" name="comentarios_adicionales"/>
+		<Campo tipo="si_no" etiqueta="¿Podemos contactarte para dar seguimiento a tus comentarios?" name="autoriza_contacto"/>
+	</Grupo>
+</ChecklistCotizacion>

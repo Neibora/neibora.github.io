@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ActualizacionDomicilio desarrollo="Residencial Ejemplo" actualizado="2026-07-26">
+	<Domicilio id="UNIDAD-001" calle="Circuito Demostración" numero="001" interior="" codigoPostal="00000" tipo="Casa" estatus="Habitada"/>
+	<Contacto nombre="Residente de Ejemplo" relacion="Propietario" telefono="" correo="" medioPreferido="WhatsApp"/>
+	<Residentes adultos="2" menores="1" adultosMayores="0" personasConDiscapacidad="0">
+		<Residente id="RES-001" nombre="Residente de Ejemplo" rol="Propietario" telefono="" correo="" recibeAvisos="Sí"/>
+		<Residente id="RES-002" nombre="Residente Secundario" rol="Familiar" telefono="" correo="" recibeAvisos="No"/>
+		<Residente id="RES-003" nombre="Menor de Edad" rol="Hijo/a" telefono="" correo="" recibeAvisos="No"/>
+	</Residentes>
+	<Mascotas cantidad="1">
+		<Mascota id="MAS-001" nombre="Mascota de Ejemplo" especie="Perro" raza="Mestizo" responsable="RES-001" identificacion="" observaciones=""/>
+	</Mascotas>
+	<Acceso vehiculos="2" tags="2" cajones="2" requiereApoyo="No"/>
+	<Servicios jardineria="Sí" recoleccion="Sí" agua="Red general" observaciones=""/>
+	<Emergencia nombre="" telefono="" relacion=""/>
+	<Preferencias avisosAdministrativos="Sí" avisosServicios="Sí" avisosSeguridad="Sí" canal="WhatsApp"/>
+	<Notas></Notas>
+</ActualizacionDomicilio>

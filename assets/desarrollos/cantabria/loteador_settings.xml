@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <settings>
-	<template class="details" xmlns="http://www.w3.org/1999/xhtml">
+	<template id="detalles" xmlns="http://www.w3.org/1999/xhtml">
 		<div class="col-12 image">
 			<img class="img-fluid" src="" />
 		</div>
@@ -12,19 +12,187 @@
 					<label> #</label>
 					<label id="numero"></label>
 				</div>
-				<!--<div class="col-sm-12">
-					<label for="lote" class="form-label">Lote: </label>
-					<label id="lote"></label>
-				</div>-->
-				<!--<div class="col-sm-12">
+				<div class="col-sm-12">
+					<label for="saldo" class="form-label">Saldo: </label>
+					<label id="saldo" class="money"></label>
+				</div>
+				<div class="col-sm-12">
 					<label for="status" class="form-label">Status: </label>
 					<label id="status"></label>
+				</div>
+				<div class="col-sm-12">
+					<label for="telefono" class="form-label">Teléfono: </label>
+					<label id="telefono"></label>
+				</div>
+				<!--<div class="col-sm-12">
+					<a href="wa:4442864242" class="btn btn-success">
+						📞 Llamar ahora
+					</a>
 				</div>-->
 			</div>
 		</div>
 	</template>
+
+	<template id="detalles:multiselection" xmlns="http://www.w3.org/1999/xhtml">
+		<div class="selection-summary">
+			<h5>
+				<span id="cantidad"></span>
+				propiedades seleccionadas
+			</h5>
+			<ul id="selection-list" is="sortable-list"></ul>
+			<div id="selection-actions"></div>
+		</div>
+	</template>
+
+	<template id="settings" xmlns="http://www.w3.org/1999/xhtml">
+		<input type="checkbox" onclick="mostrarMisPropiedades" />Ver solo mis propiedades
+	</template>
+
+	<template id="actions" xmlns="http://www.w3.org/1999/xhtml">
+		<details name="options">
+			<summary>Notificar</summary>
+			<div>
+				<details name="corte_servicio">
+					<summary>Corte de servicio de proveedor</summary>
+					<div></div>
+				</details>
+			</div>
+		</details>
+		<details name="options">
+			<summary>Administrar</summary>
+			<div>
+				<details name="actions">
+					<summary>Propiedad</summary>
+					<div>
+						<button dispatch="selection:reclamarPropiedad">
+							Esta es mi casa/yo vivo aquí
+						</button>
+						<button dispatch="selection:denuncia">
+							Poner queja sobre esta propiedad
+						</button>
+					</div>
+				</details>
+				<details name="actions">
+					<summary>Amenidades</summary>
+					<div>
+						<button dispatch="selection:denuncia">
+							Usar alberca
+						</button>
+						<button dispatch="selection:reclamarPropiedad">
+							Rentar casa club
+						</button>
+					</div>
+				</details>
+				<details name="actions">
+					<summary>Contacto</summary>
+					<div>
+						<button dispatch="selection:llamarResidente">
+							Llamar al residente
+						</button>
+						<button dispatch="selection:llamarPropietario">
+							Llamar al propietario
+							<!--nombre, apellido, telefono, correo_electronico, mes y año de nacimiento idioma, rol, foto-->
+						</button>
+						<button dispatch="selection:actualizarResidentes">
+							Actualizar información de residentes
+							<!--nombre, apellido, telefono, correo_electronico, mes y año de nacimiento idioma, rol, foto-->
+						</button>
+						<button dispatch="selection:actualizarMascotas">
+							Actualizar mascotas de esta propiedad
+							<!--nombre, tipo, raza, foto, cartilla-->
+						</button>
+						<button dispatch="selection:actualizarTags">
+							Actualizar información de mis tags
+						</button>
+					</div>
+				</details>
+				<details name="actions">
+					<summary>Accesos</summary>
+					<div>
+						<button dispatch="selection:generarQR">
+							Generar QR
+						</button>
+						<button dispatch="selection:generarQR">
+							Peatonal
+						</button>
+					</div>
+				</details>
+				<details name="actions">
+					<summary>Administrativos</summary>
+					<div>
+						<button dispatch="selection:mostrarHistorial">
+							Ver historial de pago
+						</button>
+						<button dispatch="selection:requestInvoice">
+							Solicitar factura
+						</button>
+					</div>
+				</details>
+				<details name="actions">
+					<summary>Notificaciones</summary>
+					<div>
+						<button dispatch="selection:mostrarHistorial">
+							Entrada de proveedor Ciel
+						</button>
+						<button dispatch="selection:mostrarHistorial">
+							Entrada de proveedor Epura
+						</button>
+						<button dispatch="selection:mostrarHistorial">
+							Entada de proveedor de basura
+						</button>
+					</div>
+				</details>
+				<details name="actions">
+					<summary>Servicios</summary>
+					<div>
+						<button dispatch="selection:requestWaterTruck">
+							Solicitar pipa
+						</button>
+
+						<button dispatch="selection:requestWaterTruck">
+							Solicitar limpieza doméstica
+						</button>
+
+						<button dispatch="selection:requestWaterTruck">
+							Solicitar arreglo de pasto
+						</button>
+						<button dispatch="selection:requestWaterTruck">
+							Crear grupo
+						</button>
+					</div>
+				</details>
+				<details name="actions">
+					<summary>Estilo</summary>
+					<div>
+						<button dispatch="selection:paint">
+							Colorear
+						</button>
+						<button dispatch="selection:status">
+							Cambiar status
+						</button>
+					</div>
+				</details>
+			</div>
+		</details>
+	</template>
+
+	<actions>
+		<action
+        id="requestWaterTruck"
+        title="Solicitar pipa"
+        icon="truck"/>
+		<action
+        id="paint"
+        title="Colorear"
+        icon="palette"/>
+		<action
+        id="whatsapp"
+        title="Enviar WhatsApp"
+        icon="whatsapp"/>
+	</actions>
+
 	<filters bind="data/item" id="Id">
-		<filter id="mantenimiento" title="Cuota Feb. 2026" bind="@Status" xo-source="#cantabria">
+		<filter id="mantenimiento" title="Cuota Jun. 2026" bind="@Status" xo-source="#cantabria">
 			<option value="Anticipado" color="#4caf50"/>
 			<option value="Pagado" color="#97d933"/>
 			<option value="Incompleto" color="#ffeb3b">Parcialmente pagado</option>

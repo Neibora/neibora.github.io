@@ -1,0 +1,85 @@
+@media print {
+  @page {
+    size: letter;
+    margin: 8mm;
+  }
+
+  html,
+  body {
+    background: white !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .no-print,
+  nav,
+  header.app-header,
+  .floating-button,
+  button {
+    display: none !important;
+  }
+
+  .shadow-2xl,
+  .print-shadow-none {
+    box-shadow: none !important;
+  }
+
+  section.mx-auto {
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .bg-white {
+    background: white !important;
+  }
+
+  .bg-slate-50,
+  .dark\:bg-slate-800\/50 {
+    background: #f8fafc !important;
+  }
+
+  .bg-green-50 {
+    background: #ecfdf5 !important;
+  }
+
+  .text-primary {
+    color: #005c53 !important;
+  }
+
+  .text-accent {
+    color: #2eaf4a !important;
+  }
+
+  .bg-gradient-to-r {
+    background: linear-gradient(to right, #005c53, #0f766e, #2eaf4a) !important;
+  }
+
+  .material-icons {
+    font-family: "Material Icons" !important;
+    font-weight: normal !important;
+    font-style: normal !important;
+    font-size: 16px !important;
+    line-height: 1 !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    word-wrap: normal !important;
+    white-space: nowrap !important;
+    direction: ltr !important;
+    -webkit-font-feature-settings: "liga";
+    -webkit-font-smoothing: antialiased;
+  }
+
+  footer .material-icons {
+    display: none !important;
+  }
+
+  table {
+    page-break-inside: avoid;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+}

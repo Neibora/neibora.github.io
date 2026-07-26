@@ -1,0 +1,8 @@
+{
+	"server": { "login": null },
+	"sources": {
+		"#ejemplo": "ejemplo.xml",
+		"^#([^_]+)_(.+?)$": "../assets/desarrollos/$1/${xover.site.location.url.foldername}_$2.xml",
+		"#": null
+	}
+}

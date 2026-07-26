@@ -25,7 +25,7 @@
 		const settings = xover.sources[`#${desarrollo_id}:settings`];
 		await settings.ready;
 		const settingsDoc = settings;
-		return { dataDoc, settingsDoc };
+		return { dataDoc, settingsDoc, settings };
 	}
 
 	function getSettingsPaths(settingsDoc) {
@@ -66,6 +66,7 @@
 	}
 
 	function buildXPathPredicate(conditions) {
+		if (conditions === false) return false;
 		const andParts = [];
 		for (const prop in conditions) {
 			const map = conditions[prop];
@@ -86,6 +87,7 @@
 	}
 
 	function testItemWithPredicate(itemNode, predicate) {
+		if (!itemNode || predicate === false) return false;
 		if (!predicate) return true;
 		return !!itemNode.selectFirst(`self::*${predicate}`);
 	}
@@ -93,14 +95,15 @@
 	function getActiveFilterAndPalette() {
 		const chosen = document.querySelector('[name="filter_headers"]:checked');
 		const container = chosen ? chosen.closest('.filter[bind]') : null;
-		if (!container) return null;
+		if (!container) return { scope: new Document(), palette: new Map() };
+		const scope = container.scope;
 		const bind = container.getAttribute('bind');
 		const palette = new Map(
 			container.querySelectorAll('.filter [type="checkbox"]').toArray()
 				.filter(cb => cb.previousElementSibling)
 				.map(cb => [cb.getAttribute('filtervalue') || cb.getAttribute('value'), cb.previousElementSibling.style.backgroundColor])
 		);
-		return { bind, palette };
+		return { scope, bind, palette };
 	}
 
 	function cssColorToHex(s) {
@@ -112,15 +115,39 @@
 		return `#${r}${g}${b}`;
 	}
 
-	function setAreaColor(area, hex) {
-		const data = $(area).data('maphilight') || {};
-		const clean = (hex || '').replace(/^0x|^#/ig, '');
-		data.fillColor = clean || '000000';
-		data.fillOpacity = hex ? 0.5 : 0.2;
-		data.strokeColor = 'ffffff';
-		$(area).data('maphilight', data).trigger('alwaysOn.maphilight');
-		$(area).data('maphilight', data).trigger('fillColor.maphilight');
-		if (hex) area.setAttribute('data-maphilight', `{"fillColor":"${clean}","fillOpacity":0.5,"strokeColor":"ffffff"}`);
+	function setAreaColor(area, options) {
+		if (typeof options === 'string') {
+			options = { fillColor: options };
+		}
+
+		options ??= {};
+
+		const defaults = $(area).data('maphilight') || {};
+
+		const {
+			fillColor = '97d933',
+			fillOpacity = 0.5,
+			strokeColor = 'ffffff',
+			alwaysOn = false
+		} = {
+			...defaults,
+			...options
+		};
+
+		const data = {
+			...defaults,
+			fillColor,
+			fillOpacity,
+			strokeColor,
+			alwaysOn
+		};
+		data.fillColor = data.fillColor.replace(/^0x|^#/i, '');
+		$(area)
+			.data('maphilight', data)
+			.trigger('alwaysOn.maphilight')
+			.trigger('fillColor.maphilight');
+
+		area.setAttribute('data-maphilight', JSON.stringify(data));
 	}
 
 	function extractAreaId(area, desarrollo_id) {
@@ -155,6 +182,12 @@
 	}
 
 	function destroyMaphilight(img) {
+		let map = this
+		const areas = map.querySelectorAll('area[data-maphilight]');
+		for (const area of areas) {
+			area.removeAttribute('data-maphilight')
+			$(area).removeData('maphilight')
+		}
 		if (!img) return
 		const wrapper = img.parentElement
 		const hasCanvas = wrapper && wrapper.querySelector && wrapper.querySelector('canvas, var')
@@ -198,7 +231,7 @@
 			}
 
 			// Destruir wrapper/canvas anterior si existe
-			destroyMaphilight(img)
+			destroyMaphilight.call(this, img)
 
 			// Inicializar de nuevo
 			$(img).maphilight()
@@ -215,6 +248,7 @@
 
 		// 2) Asegurar escala correcta antes del primer pintado
 		this.dispatch('loteador:resize')
+		await this.dispatch('loteador:mostrarNumerosDeCasa')
 
 		// 3) Construir filtros en #Filtros
 		const filtros = document.querySelector('#Filtros')
@@ -223,9 +257,10 @@
 		}
 
 		// 4) Pintar y numerar
-		this.dispatch('loteador:colorea')
-		this.dispatch('loteador:init-draggable')
-		this.dispatch('loteador:mostrarNumerosDeCasa')
+		await this.dispatch('loteador:init-scopes')
+		await this.dispatch('loteador:colorea')
+		await this.dispatch('loteador:init-draggable')
+		await this.dispatch('loteador:iluminar')
 	})
 
 	xo.listener.on(['loteador:init-draggable::map'], function () {
@@ -435,47 +470,92 @@
 		}
 	});
 
-	// Colorear (recorrer ÁREAS)
-	xo.listener.on(['loteador:colorea::map'], async function () {
+	// Scopes
+	xo.listener.on(['loteador:init-scopes'], async function () {
 		const { dataDoc, settingsDoc } = await getActiveDocs();
+		const desarrollo_id = getDesarrolloId();
 		const map = this;
-		const loteador = map.closest("#loteador");
+		const { bindPath = '', idAttr = 'id' } = getSettingsPaths(settingsDoc);
+
+		for (const area of map.querySelectorAll('area')) {
+			const id = extractAreaId(area, desarrollo_id);
+
+			const scope = id
+				? dataDoc.single(`${bindPath}[@${idAttr}="${id}"]`)
+				: null;
+
+			Object.defineProperty(area, "scope", {
+				value: scope,
+				writable: true,
+				configurable: true,
+				enumerable: true
+			});
+		}
+	});
+
+	async function colorea_area({
+		scope = this.scope,
+		predicate,
+		active = getActiveFilterAndPalette(),
+		fillColor,
+		fillOpacity,
+		strokeColor,
+		alwaysOn
+	} = {}) {
+
+		const area = this;
+
+		const match = testItemWithPredicate(scope, predicate);
+
+		const defaults = {};
+
+		let document_scope = await active.scope;
+		if (!(scope && document_scope.contains(scope)))	 {
+			defaults.fillColor = '000000'
+			defaults.fillOpacity = 0.5
+			defaults.strokeColor = 'ff0000'
+		} else {
+			const value = getValueFromBinding(scope, active.bind);
+			const css = active.palette.get(value) || '';
+			defaults.fillColor = match && cssColorToHex(css) || '000000';
+			defaults.fillOpacity = css ? 0.5 : 0.3;
+			defaults.strokeColor = 'ffffff'
+		}
+
+		const data = {
+			...defaults
+		};
+
+		if (fillColor !== undefined) data.fillColor = fillColor;
+		if (fillOpacity !== undefined) data.fillOpacity = fillOpacity;
+		if (strokeColor !== undefined) data.strokeColor = strokeColor;
+		if (alwaysOn !== undefined) data.alwaysOn = alwaysOn;
+
+		setAreaColor(area, data);
+	}
+	xo.listener.on(['loteador:colorea::area'], colorea_area);
+
+	xo.listener.on(['loteador:colorea::map'], async function () {
+		const loteador = this.closest("#loteador");
 		if (!loteador) return;
-		loteador.tag = dataDoc.store.tag;
-
-
-		const { bindPath, idAttr } = getSettingsPaths(settingsDoc);
+		const map = this;
 		const conditions = buildConditionsFromUI();
 		const predicate = buildXPathPredicate(conditions);
 		const active = getActiveFilterAndPalette();
-		const desarrollo_id = getDesarrolloId();
-
-		const areas = map.querySelectorAll('area');
-		for (const area of areas) {
-			const lotId = extractAreaId(area, desarrollo_id);
-			if (!lotId) {
-				setAreaColor(area, '');
-				continue;
-			}
-			const item = dataDoc.single(`${bindPath}[@${idAttr}="${lotId}"]`);
-			if (!item) {
-				const d = $(area).data('maphilight') || {};
-				d.alwaysOn = false;
-				$(area).data('maphilight', d);
-				continue;
-			}
-			const match = testItemWithPredicate(item, predicate);
-			const d = $(area).data('maphilight') || {};
-			d.alwaysOn = !!match;
-			$(area).data('maphilight', d);
-			if (active) {
-				const value = getValueFromBinding(item, active.bind);
-				const css = active.palette.get(value) || '';
-				const hex = cssColorToHex(css);
-				setAreaColor(area, match ? hex : '');
-			}
+		let document_scope = await active.scope;
+		await document_scope.ready;
+		let areas = this.querySelectorAll('area');
+		if ([...areas].map(area => area.scope).filter(Boolean).some(scope => !document_scope.contains(scope))) {
+			await map.dispatch('loteador:init-scopes')
 		}
-		$(map).trigger('alwaysOn.maphilight');
+		for (const area of areas) {
+			area.dispatch('loteador:colorea', {
+				predicate,
+				active
+			});
+		}
+
+		$(this).trigger('alwaysOn.maphilight');
 	});
 
 	// Mostrar/actualizar números (@Numero)
@@ -512,8 +592,8 @@
 			const id = item.getAttribute(idAttr), numero = item.getAttribute('Numero');
 			if (!id || !numero) continue;
 
-			const selector = `area[target="${desarrollo_id}_${id}"], area[target="${id}"]`;
-			const area = map.querySelector(selector) || document.querySelector(selector);
+			const area_selector = `area[target="${desarrollo_id}_${id}"], area[target="${id}"]`;
+			const area = map.querySelector(area_selector) || document.querySelector(area_selector);
 			if (!area) continue;
 
 			const coords = (area.coords || '').split(',').map(Number);
@@ -542,20 +622,24 @@
 		}
 	});
 
+	xo.listener.on(['loteador:iluminar::area'], async function (enable = true) {
+		const area = this;
+		const map = this.closest("map");
+		let data = $(area).mouseout().data('maphilight') || {};
+		data.alwaysOn = !!enable;
+		$(map).trigger('alwaysOn.maphilight');
+	})
 
 	// Iluminar (toggle only)
 	xo.listener.on(['loteador:iluminar::map'], async function (conditions) {
 		const map = this;
-		const { dataDoc, settingsDoc } = await getActiveDocs();
-		const { bindPath, idAttr } = getSettingsPaths(settingsDoc);
 		const desarrollo_id = getDesarrolloId();
 
 		const predicate = buildXPathPredicate(conditions);
 		for (const area of map.querySelectorAll('area')) {
 			const lotId = extractAreaId(area, desarrollo_id);
 			if (!lotId) continue;
-			const item = dataDoc.single(`${bindPath}[@${idAttr}="${lotId}"]`);
-			if (!item) continue;
+			const item = area.scope;
 			let data = $(area).mouseout().data('maphilight') || {};
 			data.alwaysOn = !!testItemWithPredicate(item, predicate);
 			$(area).data('maphilight', data);
@@ -564,7 +648,7 @@
 	});
 
 	// Resize (reescala desde coord originales y recolorea + relabel)
-	xo.listener.on(['loteador:resize::map'], function () {
+	xo.listener.on(['loteador:resize::map'], async function () {
 		const map = this;
 		const img = map.parentElement && map.parentElement.querySelector('img[usemap]');
 		if (!img) return;
@@ -582,17 +666,18 @@
 			area.coords = scaled.join(',');
 		}
 		// tras reescalar, recolorea y reubica números
-		map.dispatch('loteador:colorea');
-		map.dispatch('loteador:mostrarNumerosDeCasa');
+		await map.dispatch('loteador:init-scopes')
+		await map.dispatch('loteador:colorea');
+		await map.dispatch('loteador:mostrarNumerosDeCasa');
 	});
 
-	xo.listener.on(['click::#Filtros input[type="radio"]'], function () {
-		let store = this.store;
-		if (store != xo.stores.active) {
+	xo.listener.on(['click::#Filtros input[type="radio"]'], async function () {
+		let store = await this.store;
+		if (!xo.stores.active.contains(store)) {
+			xo.stores.active = store;
 			let map = this.ownerDocument.querySelector("map");
 			const loteador = map.closest("#loteador");
-			loteador.tag = store.tag;
-			xo.stores.active = store;
+			loteador.render()
 		}
 	});
 	xo.listener.on(['click::#Filtros input[type="checkbox"]'], function () {
@@ -628,62 +713,93 @@
 			if (newMap && typeof newMap.dispatch === 'function') newMap.dispatch('loteador:init')
 		})
 	})
-
-	xover.listener.on('click::area', async function (e) {
+	async function click_area(e) {
 		const area = this;
 		const map = area.closest('map');
-		const desarrollo_id = getDesarrolloId();
-		const raw = area.getAttribute('id') || area.getAttribute('target') || '';
-		const id = raw.replace(new RegExp(`^${desarrollo_id}_`, 'i'), '');
+		const scope = area.scope;
+		map.selectedAreas ??= new Map();
+		const flipper = document.querySelector('.card-flipper');
+		try {
+			const desarrollo_id = getDesarrolloId();
+			const raw = area.getAttribute('id') || area.getAttribute('target') || '';
+			const id = raw.replace(new RegExp(`^${desarrollo_id}_`, 'i'), '');
 
-		map.ubicacion_seleccionada = (map.ubicacion_seleccionada === id) ? undefined : id;
+			const selection = map.selectedAreas;
 
-		const { dataDoc, settingsDoc } = await getActiveDocs();
-		const { bindPath, idAttr } = getSettingsPaths(settingsDoc);
-
-		let template = settingsDoc.querySelector('template.details');
-		if (!template) return false;
-		template = template.content.cloneNode(true);
-
-		if (map.ubicacion_seleccionada) {
-			const node = dataDoc.single(`${bindPath}[@${idAttr}="${map.ubicacion_seleccionada}"]`);
-			if (!node) return false;
-			for (let input of template.querySelectorAll('[id]:not([name])')) {
-				const k = input.id;
-				const attr = node.attributes[k] || [...node.attributes].find(a => a.localName.toLowerCase() === k.toLowerCase()) || { value: '' };
-				if (input instanceof HTMLInputElement) input.value = attr.value;
-				else input.textContent = attr.value;
+			const multi = e.ctrlKey || e.metaKey;
+			//await map.dispatch('loteador:colorea');
+			if (selection.has(id)) {
+				selection.delete(id);
+				area.dispatch('loteador:colorea'); //restaurar colores
+				area.dispatch('loteador:iluminar', false);
+			} else {
+				const selected = [...map.querySelectorAll('area')].filter(area => $(area).data('maphilight')?.alwaysOn);
+				if (!multi) {
+					selection.clear();
+				}
+				if (!selection.size) {
+					for (let area of selected) {
+						area.dispatch('loteador:colorea'); //restaurar colores
+						area.dispatch('loteador:iluminar', false);
+					}
+				}
+				selection.set(id, area);
+				area.dispatch('loteador:colorea', { fillOpacity: scope ? .7 : undefined });
+				area.dispatch('loteador:iluminar');
 			}
-			const svg = areaToSvg(area);
-			const img = template.querySelector('img');
-			if (img) img.replaceWith(svg);
-			const detalles = document.querySelector('#Detalles');
-			if (detalles) {
-				detalles.setAttribute('xo-source', 'active');
-				const xoId = node.getAttribute('xo:id') || '';
-				if (xoId) detalles.setAttribute('xo-scope', xoId);
-				detalles.replaceChildren(...template.childNodes);
-			}
-			const flipper = document.querySelector('.card-flipper');
-			if (flipper) flipper.classList.add('toggled');
-		} else {
-			const flipper = document.querySelector('.card-flipper');
-			if (flipper) flipper.classList.remove('toggled');
-		}
 
-		if (map.ubicacion_seleccionada) {
-			setAreaColor(area, '#80FF00');
-			const cond = {};
-			cond[`@${idAttr}`] = {};
-			cond[`@${idAttr}`][map.ubicacion_seleccionada] = { color: 'blue' };
-			if (map && typeof map.dispatch === 'function') map.dispatch('loteador:iluminar', cond);
-		} else {
-			if (map && typeof map.dispatch === 'function') map.dispatch('loteador:colorea');
+			const { dataDoc, settings } = await getActiveDocs();
+			const { bindPath, idAttr } = getSettingsPaths(settings);
+
+			//for (const [selectedId, selectedArea] of [...selection]) {
+			//	await selectedArea.dispatch('loteador:colorea', {fillOpacity: .7});
+			//	await selectedArea.dispatch('loteador:iluminar');
+			//}
+
+			// Panel lateral
+			let templates = new Map()
+			let sections = flipper.querySelectorAll("section[id]");
+			for (let section of sections) {
+				let template = settings.querySelector(`template[id="${section.id.toLowerCase()}\\\:${selection.size == 1 ? 'single' : 'multiselection'}"]`) || settings.querySelector(`template#${section.id.toLowerCase()}`);
+				if (!template) continue;
+				if (selection.size === 1 && template) {
+					const [selectedId, area] = [...selection][0];
+					const scope = area.scope;
+
+					if (![Node.ELEMENT_NODE].includes(scope && scope.nodeType)) return false;
+					template = template.dispatch("loteador:fillCard", { scope, selection, settings }) || template;
+
+					const area_selector = `area[target="${desarrollo_id}_${id}"], area[target="${id}"]`;
+					const selectedArea = map.querySelector(area_selector);
+					const svg = areaToSvg(selectedArea);
+					const img = template.querySelector('img');
+					if (img) img.replaceWith(svg);
+					section.replaceChildren(...template.childNodes);
+					//if (detalles) {
+					//	detalles.setAttribute('xo-source', 'active');
+					//	const xoId = scope.getAttribute('xo:id') || '';
+					//	if (xoId) detalles.setAttribute('xo-scope', xoId);
+					//	detalles.replaceChildren(...template.childNodes);
+					//}
+				} else if (selection.size > 1 && template) {
+					template = template.dispatch("loteador:fillCard", { selection, settings }) || template;
+					section.replaceChildren(...template.childNodes);
+				}
+				flipper?.classList.add('toggled');
+			}
+		} catch (e) {
+			return Promise.reject(e)
+		} finally {
+			if (!map.selectedAreas.size) {
+				flipper?.classList.remove('toggled');
+				await map.dispatch("loteador:colorea")
+				await map.dispatch('loteador:iluminar');
+			}
+			e.preventDefault();
+			e.stopImmediatePropagation();
 		}
-		e.preventDefault();
-		e.stopImmediatePropagation();
-		return false;
-	});
+	}
+	xover.listener.on('click::area', click_area);
 
 	// Resize global → cada <map> reescala y repinta (debounce interno del navegador)
 	window.addEventListener('resize', function () {
@@ -691,5 +807,126 @@
 			if (typeof map.dispatch === 'function') map.dispatch('loteador:resize');
 		});
 	}, { passive: true });
-
 })();
+
+xo.listener.on(['loteador:fillCard::.money'], function ({ value }) {
+	if (value === "") return;
+	const n = Number(
+		String(value ?? '')
+			.replace(/[$,\s]/g, '')
+	);
+
+	if (!isNaN(n)) {
+		this.textContent = n.toLocaleString('es-MX', {
+			style: 'currency',
+			currency: 'MXN'
+		});
+
+		this.classList.toggle('negative', n < 0);
+	}
+})
+
+xo.listener.on(['selection:generarQR'], function ({ value }) {
+
+})
+
+xo.listener.on(['loteador:fillCard'], function ({ value }) {
+	let self = this;
+	if (self instanceof HTMLInputElement) self.value = value;
+	else self.textContent = value;
+})
+
+xo.listener.on(['loteador:fillCard::#cantidad'], function ({ selection }) {
+	this.textContent = selection.size
+	event.stopImmediatePropagation()
+})
+
+xo.listener.on(['loteador:fillCard::#selection-list'], function ({ selection }) {
+	Object.defineProperty(this, "scope", {
+		value: selection,
+		writable: true,
+		configurable: true,
+		enumerable: true
+	});
+	for (const [index, item] of [...selection.values()].entries()) {
+		const scope = item.scope || document.createElement('p');
+		const li = document.createElement('li');
+		li.setAttribute("id", scope.getAttribute("Id"));
+		li.textContent = `${scope.getAttribute("Calle") || item.id || 'Elemento'} ${scope.getAttribute("Numero") || index + 1}`;
+		Object.defineProperty(li, "scope", {
+			value: item,
+			writable: true,
+			configurable: true,
+			enumerable: true
+		});
+		this.appendChild(li)
+	}
+	event.stopImmediatePropagation()
+})
+
+xo.listener.on(['loteador:fillCard::template'], function (args) {
+	template = this.content.cloneNode(true);
+	for (let input of template.querySelectorAll('[id]:not([name])')) {
+		const k = input.id;
+		const { scope = document.createElement('p'), selection, settings, template } = args;
+		const attr = scope.nodeType ? (scope.attributes[k] || [...scope.attributes].find(a => a.localName.toLowerCase() === k.toLowerCase()) || { value: '' }) : null;
+		input.dispatch("loteador:fillCard", { selection, settings, template, attr, value: (attr || {}).value })
+	}
+	for (let button of template.querySelectorAll('[dispatch]')) {
+		const { selection, settings, template } = args;
+		let event_name = button.getAttribute('dispatch');
+		button.onclick = function (e) {
+			button.dispatch(event_name, { selection, settings, template })
+			e.preventDefault()
+		}
+	}
+	event.stopImmediatePropagation()
+	return template
+})
+
+class SortableList extends HTMLUListElement {
+	connectedCallback() {
+		this.init();
+	}
+
+	init() {
+		let ul = this;
+		let dragged;
+		let selection = ul.scope || ul.closest(":has(map)")?.querySelector("map")?.selectedAreas;
+
+		for (const li of ul.children) {
+			li.draggable = true;
+
+			li.addEventListener('dragstart', () => {
+				dragged = li;
+				li.classList.add('dragging');
+			});
+
+			li.addEventListener('dragend', () => {
+				li.classList.remove('dragging');
+				dragged = null;
+
+				let ordered = [...ul.children].map(li => [li.id, selection.get(li.id)]);
+
+				selection.clear();
+				for (const [id, area] of ordered) {
+					selection.set(id, area);
+				}
+			});
+
+			li.addEventListener('dragover', e => {
+				e.preventDefault();
+
+				const rect = li.getBoundingClientRect();
+				const before = e.clientY < rect.top + rect.height / 2;
+
+				if (before)
+					ul.insertBefore(dragged, li);
+				else
+					ul.insertBefore(dragged, li.nextSibling);
+			});
+		}
+	}
+}
+
+customElements.define('sortable-list', SortableList, { extends: 'ul' });

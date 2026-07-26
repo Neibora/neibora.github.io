@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html class="light" lang="es">
+<head>
+	<meta charset="utf-8" />
+	<meta content="width=device-width, initial-scale=1.0" name="viewport" />
+	<meta name="debug" content="true">
+	<meta name="xo-mode" content="modern">
+	<title>Neibora - Estado de cuenta</title>
+	<link rel="icon" href="/assets/img/favicon.png" type="image/x-icon" />
+	<link rel="xover-manifest" href="/server/.manifest?v=260726_0010">
+	<link rel="xover-manifest" href="/manifest.json?v=260726_0010">
+	<script type="text/javascript" src="/xover/xo.js?v=260726_0010&amp;mode=legacy"></script>
+	<script type="text/javascript" src="/socket.io.js?v=260726_0010"></script>
+	<script type="text/javascript" src="/custom.js?v=260726_0010"></script>
+	<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet" />
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+	<link href="/css/formatos.css" rel="stylesheet" type="text/css" />
+	<script>
+		tailwind.config = {
+			darkMode: "class",
+			theme: {
+				extend: {
+					colors: {
+						primary: "#004d40",
+						secondary: "#00796b",
+						accent: "#4caf50",
+						"background-light": "#f8fafc",
+						"background-dark": "#0f172a"
+					},
+					fontFamily: { display: ["Inter", "sans-serif"] }
+				}
+			}
+		};
+	</script>
+	<style>
+		body { font-family: "Inter", sans-serif; }
+		.account-selector {
+			position:sticky;top:73px;z-index:40;display:flex;align-items:center;gap:10px;
+			padding:10px 28px;background:rgba(248,250,252,.96);border-bottom:1px solid #dce4e1;
+			box-shadow:0 4px 12px rgba(0,72,63,.04);backdrop-filter:blur(9px)
+		}
+		.account-selector label { color:#005a4f;font-size:12px;font-weight:800 }
+		.account-selector select { min-width:250px;padding:7px 30px 7px 9px;border:1px solid #cfd8d5;border-radius:7px;background:#fff }
+		.account-selector span { margin-left:auto;color:#64748b;font-size:11px }
+		.dark .account-selector { background:rgba(15,23,42,.96);border-bottom-color:#334155 }
+		.dark .account-selector label { color:#86efac }
+		.dark .account-selector select { background:#172033;border-color:#334155;color:#e2e8f0 }
+		.account-loading { min-height:65vh;display:grid;place-items:center;color:#64748b;text-align:center }
+		.account-loading .material-icons { display:block;margin-bottom:.75rem;color:#00796b;font-size:2rem;animation:spin 1.1s linear infinite }
+		.account-loading.error .material-icons { color:#b91c1c;animation:none }
+		@keyframes spin { to { transform:rotate(360deg) } }
+		@media(max-width:600px){.account-selector{top:73px;padding:9px 12px;flex-wrap:wrap}.account-selector select{min-width:0;flex:1}.account-selector span{width:100%;margin:0}}
+		@media print { .no-print { display:none!important } }
+	</style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-200 min-h-screen transition-colors duration-200">
+	<nav class="no-print bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
+		<div class="flex items-center gap-3">
+			<img alt="Neibora Logo" class="h-10 w-auto" src="/assets/img/logo.png" />
+			<span class="text-xl font-bold text-primary dark:text-white"><span class="text-accent">Estado de cuenta</span></span>
+		</div>
+		<div class="flex items-center gap-4">
+			<button class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" type="button" title="Cambiar tema" aria-label="Cambiar tema" onclick="document.documentElement.classList.toggle('dark')">
+				<span class="material-icons text-slate-600 dark:text-slate-400">dark_mode</span>
+			</button>
+			<button class="bg-primary hover:bg-secondary text-white px-4 py-2 rounded flex items-center gap-2 transition-all" type="button"><px-printer /></button>
+		</div>
+	</nav>
+	<div class="account-selector no-print">
+		<label for="lotePicker">Unidad</label>
+		<select id="lotePicker" aria-label="Seleccionar unidad"></select>
+		<span id="accountSourceState">Cargando cartera…</span>
+	</div>
+	<main id="account-host" aria-live="polite">
+		<div class="account-loading" id="account-status">
+			<div><span class="material-icons">progress_activity</span>Preparando estado de cuenta…</div>
+		</div>
+	</main>
+	<script src="estado_cuenta.js?v=260726_0010"></script>
+</body>
+</html>

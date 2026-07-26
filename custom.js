@@ -82,7 +82,28 @@ xo.listener.on('click::div.list-group > a', function () {
     }
 })
 
+xo.listener.on('progress', function ({ percent, status }) {
+  if (percent >= 100) {
+    xover.delay(175).then(() => this.remove());
+  }
+})
+
+xo.listener.on(['beforeFetch::?FROM=#server:request'], async function ({ request }) {
+  if (!request.tags.has(xo.site.seed)) return;
+  let trackers = request.trackers;
+  for (let tracker of trackers) {
+    tracker.remove()
+  }
+  trackers.clear();
+  trackers.add(document.body.appendChild(document.createElement("px-loader")));
+})
+
 xo.listener.silence('root/data[@name="pin"]/value/text()');
+
+function xo_progress_listener({ status, percent }) {
+  this.classList.add('aborted')
+}
+xo.listener.on('progress?status=499::progress', xo_progress_listener)
 
 function initialize_carousel() {
     for (let target_carousel of document.querySelectorAll(".tab-pane.active .carousel, .desarrollo-info .carousel ")) {
@@ -154,7 +175,7 @@ xo.listener.on(`show::.toast-container`, function () {
 async function updateTunnel() {
 	 try {
 			let gist = xover.manifest.session.gist;
-			if (!gist) return;
+			if (!gist) return false;
 			await fetch(gist)
 				 .then(res => res.text())
 				 .then(gist => xover.session.server = gist["tunnel"] || gist)

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CartaNoAdeudo lugar="San Luis Potosí, S.L.P." fecha="04 de junio de 2026" marca="Neibora" sitio="www.neibora.com" correo="contacto@neibora.com" titulo="CARTA DE NO ADEUDO">
+  <Condominio nombre="Residencial Ejemplo" />
+  <Propiedad domicilio="Circuito Demostracion UNIDAD-001" coto="Privada Demostracion" />
+  <Propietario nombre="Residente de Ejemplo" />
+  <Declaracion fechaCorte="31 de mayo de 2026">
+		Se hace constar que el domicilio señalado se encuentra al corriente en el pago de sus cuotas ordinarias, extraordinarias, multas, recargos y demás obligaciones económicas registradas ante la administración del Coto Cantabria, hasta la fecha de corte indicada.
+	</Declaracion>
+  <Uso>
+		La presente constancia se expide a solicitud de la parte interesada para los fines legales y administrativos que estime convenientes.
+	</Uso>
+  <Observacion>
+		Esta constancia acredita únicamente el estatus registrado por la administración al corte señalado, sin liberar obligaciones que pudieran generarse con posterioridad.
+	</Observacion>
+  <Firmas>
+    <Firma nombre="Administrador de Ejemplo" cargo="Administracion Residencial" />
+  </Firmas>
+</CartaNoAdeudo>

@@ -48,123 +48,6 @@ form:not([desarrollo*="$"]) #Mapa {
 	margin-right: auto;
 }
 
-.card-flipper {
-	bottom: 20px;
-	position: fixed;
-	left: 20px;
-	height: 400px;
-	width: 300px;
-	background-color: rgba(0, 0, 0, .5);
-	padding: 20px;
-	flex-direction: column;
-	visibility: hidden;
-}
-
-	.card-flipper:has(#Filtros > *) {
-		visibility: visible;
-	}
-
-/* Card flipper start */
-/*.card-flipper {
-	transition: height 0.3s ease, width 0.3s ease;
-}
-
-.card-flipper .card {
-	backface-visibility: hidden;*/ /* Hides the back face when flipped */
-/*transform-style: preserve-3d;
-	transition: transform 0.6s ease, opacity 0.6s ease;
-	border-radius: 10px;
-	width: 100%;
-	background-color: transparent;
-}
-
-.card-flipper.toggled .front {
-	display: none; 
-}
-
-.card-flipper.toggled .back {
-	display: block; 
-}
-
-.card-flipper:not(.toggled) .front {
-	display: block;
-}
-
-.card-flipper:not(.toggled) .back {
-	display: none;
-}
-*/
-.card-flipper {
-	perspective: 1000px; /*For 3D effect */
-	height: 90vh;
-	width: 330px;
-	padding-inline: 1.5rem;
-	top: 1rem;
-}
-
-	.card-flipper .card {
-		position: absolute;
-		backface-visibility: hidden; /*Hides the back face when flipped */
-		transform-style: preserve-3d;
-		transition: transform 0.6s ease;
-		width: 310px;
-		border-radius: 0 0 70px 0;
-	}
-
-		.card-flipper .card > * {
-			border-radius: 0 0 70px 0;
-		}
-
-		.card-flipper .card.back {
-			transform: rotateY(180deg);
-		}
-
-	.card-flipper.toggled .card.front {
-		transform: rotateY(180deg);
-	}
-
-	.card-flipper.toggled .card.back {
-		transform: rotateY(360deg);
-	}
-	/* Card flipper end */
-
-	.card-flipper .image {
-		padding: .5rem;
-		padding-bottom: 1.5rem;
-	}
-
-		.card-flipper .image svg {
-			overflow: visible;
-			max-height: 200px;
-		}
-
-			.card-flipper .image svg > * {
-				fill: var(--brand-dark-color);
-				stroke: var(--brand-light-color);
-			}
-
-	.card-flipper .back .row {
-		margin-bottom: 1rem;
-	}
-
-		.card-flipper .back .row > * {
-			flex-direction: row;
-			display: flex;
-			margin-top: 0;
-		}
-
-	.card-flipper .back label[id] {
-		font-size: 14pt;
-		font-weight: bolder;
-		margin-inline: .5rem;
-	}
-
-
-div.card-flipper div:not(:has(h4>:checked)) .filter_option span {
-	background-color: white !important;
-	/* border: silver solid 1px; */
-}
-
 /*form:not([desarrollo*="$"]) #Mapa, form:not([desarrollo*="$"]) > * {
 	background-color: var(--brand-dark-color);
 }*/
@@ -232,13 +115,17 @@ dialog.xover-component form > * {
 	margin-right: .5rem;
 }
 
+#Filtros h4 {
+	white-space: nowrap;
+}
+
 .filter {
 	text-align: left;
 }
 
-	.filter h4 {
-		padding-left: 1rem;
-	}
+.filter h4 {
+	padding-left: 1rem;
+}
 
 .numero-casa {
 	font-family: sans-serif;
@@ -270,6 +157,10 @@ dialog.xover-component form > * {
 	padding: 10px;
 }
 
+.money.negative {
+	color: red
+}
+
 #Titulo {
 	float: left;
 }
@@ -285,9 +176,9 @@ dialog.xover-component form > * {
 	white-space: nowrap;
 }
 
-	.filter_option input {
-		margin-right: 5px;
-	}
+.filter_option input {
+	margin-right: 5px;
+}
 
 .table-centered td, .table-centered th {
 	text-align: center;
@@ -296,4 +187,238 @@ dialog.xover-component form > * {
 td label {
 	font-weight: bolder;
 	margin-right: 5px;
+}
+
+/*dragandgrop*/
+#selection-list li.dragging {
+	border-top: 3px dashed #3b82f6;
+	opacity: .3;
+}
+
+#selection-list li.dragging:first-child {
+	border-top: none;
+	border-bottom: 3px dashed #3b82f6;
+	opacity: .3;
+}
+
+/* ---------- Área del flipper ---------- */
+.card-flipper {
+	position: fixed;
+	left: 20px;
+	bottom: 20px;
+	width: 330px;
+	height: 90vh;
+	padding: 20px;
+	box-sizing: border-box;
+	background: rgba(0,0,0,.5);
+	display: grid;
+	grid-template-rows: auto 1fr auto;
+	gap: 1rem;
+	visibility: hidden;
+	perspective: 1000px;
+}
+
+.card-flipper:has(#Filtros > *) {
+	visibility: visible;
+}
+
+/* ---------- Logo ---------- */
+.card-flipper > a {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 2;
+}
+
+.card-flipper > a > div {
+	margin: 0 !important;
+}
+
+.card-flipper > a img {
+	width: 90%;
+	display: block;
+	filter: drop-shadow(5px 5px 5px black);
+}
+
+.card-flipper > .card {
+	grid-row: 2;
+	grid-column: 1;
+	backface-visibility: hidden;
+	transform-style: preserve-3d;
+	transition: transform .6s;
+	background: white;
+	border-radius: 0 0 70px 0;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+/* Ambas caras se superponen */
+
+.card-flipper > .front,
+.card-flipper > .back {
+	grid-area: 2 / 1;
+}
+
+.card-flipper .card > * {
+	border-radius: 0 0 70px 0;
+}
+
+.card-flipper .card.back {
+	transform: rotateY(180deg);
+}
+
+.card-flipper.toggled .card.front {
+	transform: rotateY(180deg);
+}
+
+.card-flipper.toggled .card.back {
+	transform: rotateY(360deg);
+}
+
+/* ---------- Frente ---------- */
+#Filtros {
+	flex: 1;
+	overflow-y: auto;
+	padding: .5rem;
+}
+
+/* ---------- Reverso ---------- */
+#Detalles {
+	flex: 1;
+	min-height: 0;
+	overflow: hidden;
+	padding: 1rem;
+}
+
+.selection-summary h5 {
+	white-space: nowrap;
+}
+
+.selection-summary {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+}
+
+#selection-list {
+	flex: 1;
+	overflow: auto;
+}
+
+#Actions {
+	flex: 0 0 auto;
+	padding: .75rem 1rem 1rem;
+	border-top: 1px solid #ddd;
+	background: white;
+}
+
+#Actions details {
+	display: block;
+	width: 100%;
+}
+
+#Actions details + details {
+	margin-top: .5rem;
+}
+
+#Actions details > div {
+	display: flex;
+	flex-direction: column;
+	gap: .5rem;
+	padding-top: .5rem;
+}
+
+#Actions details details {
+	width: calc(100% - 1rem);
+	margin-inline-start: 1rem;
+	padding-inline-start: .65rem;
+	border-inline-start: 1px solid #d8dedb;
+}
+
+#Actions details details > summary {
+	padding-inline-start: .1rem;
+}
+
+#Actions button {
+	width: 100%;
+}
+
+/* ---------- Información ---------- */
+
+.card-flipper .image {
+	padding: .5rem;
+	padding-bottom: 1.5rem;
+	text-align: center;
+}
+
+.card-flipper .image svg {
+	max-height: 200px;
+	overflow: visible;
+}
+
+.card-flipper .image svg > * {
+	fill: var(--brand-dark-color);
+	stroke: var(--brand-light-color);
+}
+
+#Detalles .row {
+	margin-bottom: 1rem;
+}
+
+#Detalles .row > * {
+	display: flex;
+	flex-direction: row;
+	align-items: baseline;
+	margin-top: 0;
+}
+
+#Detalles label[id] {
+	font-size: 14pt;
+	font-weight: bolder;
+	margin-inline: .5rem;
+}
+
+/* ---------- Settings ---------- */
+
+#settings {
+	grid-row: 3;
+	font-size: .9rem;
+	color: white;
+}
+
+#settings label,
+#settings input {
+	vertical-align: middle;
+}
+
+#settings [type=checkbox] {
+	margin-right: .5rem;
+}
+
+/* ---------- Filtros ---------- */
+.card-flipper div:not(:has(h4>:checked)) .filter_option span {
+	background-color: white !important;
+}
+
+details > div {
+	max-height: 0;
+	overflow: hidden;
+	transition: max-height .3s ease;
+}
+
+details[open] > div {
+	max-height: 500px;
+}
+
+
+.card-flipper #Actions {
+bottom: 0;
+margin-bottom: 1rem;
+}
+
+
+/********************/
+#Detalles #selection-list {
+	margin-bottom: 0;
 }

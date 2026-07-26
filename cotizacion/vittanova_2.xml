@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Cotizacion folio="NEI-VIT-2026-06"
+	lugar="San Luis Potosí, S.L.P."
+	fecha="03 de Junio de 2026"
+	marca="Neibora"
+	sitio="www.neibora.com"
+	correo="contacto@neibora.com">
+
+	<Condominio nombre="Privada Toscana" desarrollo="Vittanova Residencial"
+		saludo="ESTIMADOS RESIDENTES"
+		municipio="San Luis Potosí, S.L.P.">
+
+		<casas cantidad="88" cuota="450" cuota_administracion="140"/>
+
+	</Condominio>
+
+	<Gastos>
+		<Partida
+	seccion="ADMINISTRACIÓN"
+	proveedor="Neibora"
+	concepto="Administración integral Neibora"
+	cantidad="1"
+	gravable="1"
+	precio="cuota_administracion">
+			Administración financiera, cobranza, operación, comunicación con residentes, reportes financieros, supervisión de proveedores, apoyo en asambleas, gestión reglamentaria y acceso a la plataforma tecnológica Neibora.
+		</Partida>
+	</Gastos>
+
+	<Texto>
+		<p>
+			La presente propuesta toma como referencia la información proporcionada en el cuestionario de levantamiento para Residencial Vittanova, donde se identifican 88 casas, de las cuales 80 se encuentran al corriente y 8 presentan condición de adeudo o seguimiento.
+		</p>
+		<p>
+			El desarrollo se clasifica como horizontal, con operación sencilla, sin alberca, gimnasio, salón, canchas ni elevadores; cuenta principalmente con áreas verdes, cajones de visita, plumas de acceso y servicios públicos básicos.
+		</p>
+		<p>
+			La cuota mensual de mantenimiento actual es de $450.00 por vivienda, con un ingreso mensual estimado de $36,000.00 correspondiente a las propiedades que actualmente se encuentran al corriente. No se reporta déficit operativo; sin embargo, se identifican oportunidades de mejora en materia de control financiero, transparencia, cobranza, recuperación de cartera, comunicación con residentes, reportes y supervisión de proveedores.
+		</p>
+		<p>
+			El objetivo inicial es ordenar la administración, mejorar la trazabilidad de ingresos y egresos, facilitar la consulta de información para residentes y fortalecer la operación sin incrementar de forma innecesaria la carga económica de la comunidad.
+		</p>
+		<p>
+			La plataforma tecnológica Neibora se incluye sin costo adicional dentro del servicio de administración. Permite consultar estados de cuenta, documentación administrativa, reportes financieros, comunicados, seguimiento de adeudos y evidencia documental de las actividades realizadas.
+		</p>
+		<p>
+			La administración podrá apoyar, sin costo adicional, en la gestión de la constitución de la A.C. y en la apertura de las cuentas bancarias necesarias para su operación. El costo de referencia para la constitución ante notario es de aproximadamente $16,000.00 más impuestos.
+		</p>
+		<p>
+			Durante el proceso de entrega-recepción se realizará una revisión administrativa y documental de la información recibida. Cualquier inconsistencia, faltante o situación que pudiera representar un riesgo para el condominio será documentada y reportada a la mesa directiva para su análisis y, en su caso, para la determinación de las acciones legales, administrativas o contables que correspondan.
+		</p>
+	</Texto>
+
+	<Firmas>
+		<!--<Firma nombre="Arq. Sergio A. Ortiz W." cargo="Asociado Comercial Neibora" telefono="444.844.1210"/>-->
+		<Firma nombre="Uriel Gómez R." cargo="Director General Neibora" telefono="444.844.4649"/>
+	</Firmas>
+
+	<AvisoBorrador>Este es un borrador generado por el sistema Neibora. Los precios están sujetos a cambios según acuerdos de comité y/o asamblea.</AvisoBorrador>
+
+</Cotizacion>
