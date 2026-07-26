@@ -1,9 +1,9 @@
 {
-  "sources": {
-    "xo-printer": "/components/printer.xhtml",
-    "^#(.+)$": "$1.xml",
-    "^#(.+)_(\\d+\\d+_\\d)$": "../assets/desarrollos/$1/instruccion_pago_$2.xml",
-    "#": "cuestionario.xml"
-  },
-  "start": ["xo-printer"]
+	"server": { "login": null },
+	"sources": {
+		"#ejemplo": "cuestionario.xml",
+		"^#(.+)$": "$1.xml",
+		"^#(.+)_(\\d+\\d+_\\d)$": "../assets/desarrollos/$1/instruccion_pago_$2.xml",
+		"#": "cuestionario.xml"
+	}
 }

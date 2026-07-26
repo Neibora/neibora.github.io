@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<portal nombre="Neibora" titulo="Centro de operaciones" subtitulo="Gestión residencial integral" actualizado="2026-07-26">
+	<categorias>
+		<categoria id="todos" nombre="Todos"/>
+		<categoria id="finanzas" nombre="Finanzas"/>
+		<categoria id="documentos" nombre="Documentos"/>
+		<categoria id="operacion" nombre="Operación"/>
+		<categoria id="comunidad" nombre="Comunidad"/>
+	</categorias>
+	<modulos>
+		<modulo id="estado-cuenta" categoria="finanzas" titulo="Estado de cuenta" descripcion="Cargos, pagos y saldo por unidad" href="../estado_cuenta" icono="account_balance_wallet" color="#08796c" destacado="true"/>
+		<modulo id="estado-resultados" categoria="finanzas" titulo="Estado de resultados" descripcion="Ingresos, egresos y comparativo mensual" href="../estado_resultados" icono="monitoring" color="#0c6f96" destacado="true"/>
+		<modulo id="instruccion-pago" categoria="finanzas" titulo="Instrucción de pago" descripcion="Partidas y proveedores por pagar" href="../instruccion_pago#ejemplo" icono="payments" color="#3168b2"/>
+		<modulo id="recibo-pago" categoria="finanzas" titulo="Recibo de pago" descripcion="Generación y consulta de recibos" href="../recibo_pago#ejemplo" icono="receipt_long" color="#168069"/>
+		<modulo id="calendario" categoria="operacion" titulo="Calendario" descripcion="Servicios, mantenimiento y rentas" href="../calendario#ejemplo" icono="calendar_month" color="#d97706" destacado="true"/>
+		<modulo id="loteador" categoria="operacion" titulo="Loteador" descripcion="Mapa y selección de unidades" href="../loteador#ejemplo" icono="map" color="#0f766e"/>
+		<modulo id="actualizacion-domicilio" categoria="operacion" titulo="Actualizar domicilio" descripcion="Datos de la propiedad, residentes y accesos" href="../actualizacion_domicilio#ejemplo" icono="home_work" color="#0d8172" destacado="true"/>
+		<modulo id="cotizacion" categoria="operacion" titulo="Cotización" descripcion="Preparación de propuestas de servicio" href="../cotizacion#ejemplo" icono="request_quote" color="#7c3aed"/>
+		<modulo id="carta-no-adeudo" categoria="documentos" titulo="Carta de no adeudo" descripcion="Constancia de situación de la unidad" href="../carta_no_adeudo#ejemplo" icono="verified" color="#23885d"/>
+		<modulo id="convenio-pago" categoria="documentos" titulo="Convenio de pago" descripcion="Acuerdos y planes de regularización" href="../convenio_pago#ejemplo" icono="handshake" color="#b56b12"/>
+		<modulo id="multa" categoria="documentos" titulo="Multas" descripcion="Registro y emisión de notificaciones" href="../multa#ejemplo" icono="gavel" color="#c2413b"/>
+		<modulo id="convocatoria" categoria="comunidad" titulo="Convocatoria" descripcion="Convocatorias para asamblea" href="../convocatoria_asamblea#ejemplo" icono="campaign" color="#c85682"/>
+		<modulo id="cuestionario" categoria="comunidad" titulo="Cuestionarios" descripcion="Captura estructurada de información" href="../cuestionario#ejemplo" icono="fact_check" color="#5367b3"/>
+		<modulo id="encuesta-satisfaccion" categoria="comunidad" titulo="Encuesta de satisfacción" descripcion="Opinión de residentes y prioridades de mejora" href="../encuesta_satisfaccion#ejemplo" icono="sentiment_satisfied" color="#c85682" destacado="true"/>
+	</modulos>
+</portal>

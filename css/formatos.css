@@ -1,0 +1,6 @@
+nav slot {
+	visibility: hidden;
+}
+slot.xo-formula-solved {
+	visibility: revert;
+}

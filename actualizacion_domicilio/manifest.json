@@ -1,0 +1,7 @@
+{
+	"server": { "login": null },
+	"sources": {
+		"#ejemplo": "ejemplo.xml",
+		"#": "ejemplo.xml"
+	}
+}

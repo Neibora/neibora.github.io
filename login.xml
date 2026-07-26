@@ -1,0 +1,2 @@
+<?xml-stylesheet type="text/xsl" href="login.xslt" role="login" target="body:not(:has(.login)),.login"?>
+<xo:login xmlns:xo="http://panax.io/xover"/>

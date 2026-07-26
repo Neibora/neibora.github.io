@@ -1,0 +1,5 @@
+{
+  "sources": {
+    "^#(.+)$": "/FilesRepository/$1.xml"
+  }
+}

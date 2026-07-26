@@ -254,15 +254,16 @@
 					</div>
 
 					<div class="space-y-4 text-sm text-slate-600 dark:text-slate-400 leading-relaxed border-l-4 border-accent pl-6 mb-12">
-						<p>
-							De acuerdo con este presupuesto, se considera como referencia la cuota mensual de mantenimiento de <xsl:apply-templates mode="leyenda" select="Condominio/*/@cantidad"/><xsl:if test="$ingreso>0">
+						<!--<p>
+							De acuerdo con este presupuesto, se considera como referencia la cuota mensual de mantenimiento de <strong>
+								<xsl:apply-templates mode="leyenda" select="Condominio/*/@cantidad"/></strong><xsl:if test="$ingreso>0">
 								, con un ingreso mensual estimado de <strong>
 									<xsl:call-template name="money">
 										<xsl:with-param name="v" select="$ingreso"/>
 									</xsl:call-template>
 								</strong>
-							</xsl:if>. Todos los importes son netos (IVA incluído, donde aplique).
-						</p>
+							</xsl:if>. <strong>Todos los importes son netos (IVA incluído, donde aplique).</strong>
+						</p>-->
 						<xsl:apply-templates select="Texto/*|Texto/text()"/>
 					</div>
 
@@ -342,7 +343,8 @@
 	</xsl:template>
 
 	<xsl:template match="@desarrollo">
-		<xsl:param name="class">font-medium text-slate-800 dark:text-slate-200</xsl:param><xsl:text>, </xsl:text>
+		<xsl:param name="class">font-medium text-slate-800 dark:text-slate-200</xsl:param>
+		<xsl:text>, </xsl:text>
 		<span class="{$class}">
 			<xsl:value-of select="."/>
 		</span>
@@ -432,6 +434,7 @@
 		<xsl:param name="ref" select="self::*"/>
 		<xsl:param name="seccion" select="../@seccion"/>
 		<xsl:param name="precio" select="../@precio"/>
+		<xsl:param name="proveedor" select="../@proveedor"/>
 		<xsl:param name="descripcion" select=".."/>
 		<xsl:variable name="subtotal">
 			<xsl:apply-templates mode="subtotal" select="$precio"/>
@@ -450,6 +453,11 @@
 				<xsl:apply-templates mode="leyenda" select="$concepto">
 					<xsl:with-param name="detail" select="$ref"/>
 				</xsl:apply-templates>
+				<xsl:if test="normalize-space($proveedor)!=''">
+					<span class="block mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+						Proveedor: <xsl:value-of select="$proveedor"/>
+					</span>
+				</xsl:if>
 			</td>
 			<td class="px-6 py-4 text-center font-mono">
 				<strong>
@@ -488,6 +496,7 @@
 		<xsl:param name="concepto" select="../@concepto"/>
 		<xsl:param name="seccion" select="../@seccion"/>
 		<xsl:param name="precio" select="../@precio"/>
+		<xsl:param name="proveedor" select="../@proveedor"/>
 		<xsl:param name="descripcion" select=".."/>
 		<xsl:variable name="pct">
 			<xsl:call-template name="pct1">
@@ -503,6 +512,7 @@
 				<xsl:with-param name="ref" select="."/>
 				<xsl:with-param name="seccion" select="$seccion"/>
 				<xsl:with-param name="precio" select="."/>
+				<xsl:with-param name="proveedor" select="$proveedor"/>
 				<xsl:with-param name="descripcion">
 					<xsl:choose>
 						<xsl:when test="../@notas">
@@ -565,17 +575,15 @@
 		<xsl:value-of select="translate(name(..),'_',' ')"/>
 	</xsl:template>
 
-	<xsl:template match="Texto/*">
+	<xsl:template match="Texto//*">
 		<xsl:element name="{name()}" namespace="http://www.w3.org/1999/xhtml">
 			<xsl:attribute name="xo-slot">text()</xsl:attribute>
-			<xsl:value-of select="normalize-space()"/>
+			<xsl:apply-templates/>
 		</xsl:element>
 	</xsl:template>
 
-	<xsl:template match="Texto/text()">
-		<p xo-slot="text()">
-			<xsl:copy-of select="."/>
-		</p>
+	<xsl:template match="Texto//text()">
+		<xsl:copy-of select="."/>
 	</xsl:template>
 
 	<xsl:template mode="concepto_detalle-class" match="@*|*">otro</xsl:template>

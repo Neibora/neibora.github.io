@@ -1,0 +1,8 @@
+{
+	"server": { "login": null },
+	"sources": {
+		"#ejemplo": "encuesta_satisfaccion.xml",
+		"^#(.+)$": "$1.xml",
+		"#": "encuesta_satisfaccion.xml"
+	}
+}

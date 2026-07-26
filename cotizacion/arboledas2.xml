@@ -1,0 +1,102 @@
+<Cotizacion folio="NEI-20260511" lugar="San Luis Potosí, S.L.P" fecha="11 de Mayo de 2026" marca="Neibora" sitio="www.neibora.com" correo="contacto@neibora.com">
+
+	<Condominio nombre="Paseo de las Arboledas 2" saludo="CONDOMINIO: ESTIMADOS RESIDENTES" municipio="San Luis Potosí, S.L.P.">
+		<casas cantidad="58" cuota="600" cuota_administracion="120"/>
+		<casas etiqueta="ubicaciones deudoras" cantidad="8" cuota="0" cuota_administracion="10"/>
+	</Condominio>
+
+	<Gastos>
+		<Partida seccion="ADMINISTRACIÓN" proveedor="Neibora" concepto="Administración y supervisión" cantidad="1" gravable="1" precio="cuota_administracion">La cantidad de ubicaciones es la que se nos indicó al solicitar la información.</Partida>
+
+
+		<Partida seccion="CASETA"
+			concepto="Vigilancia"
+			cantidad="1"
+			gravable="1"
+			precio="30000">
+			Servicio de vigilancia actual (no corporativo) observado en los registros.
+		</Partida>
+
+		<Partida seccion="CASETA"
+			concepto="Telefonía celular"
+			cantidad="1"
+			gravable="1"
+			precio="300">
+			Saldo telefónico.
+		</Partida>
+
+		<Partida seccion="CASETA"
+			concepto="Telecomunicaciones"
+			cantidad="1"
+			gravable="1"
+			precio="399">
+			Internet.
+		</Partida>
+
+		<!--<Partida seccion="LIMPIEZA"
+			concepto="Semana Recolección de basura"
+			cantidad="5"
+			gravable="0"
+			precio="1700">
+			Servicio observado en los registros.
+		</Partida>-->
+
+		<Partida seccion="LIMPIEZA Y MANTENIMIENTO"
+			concepto="Jardinería"
+			cantidad="1"
+			gravable="1"
+			precio="3000">
+			Servicio observado en los registros.
+		</Partida>
+
+		<!--<Partida seccion="LIMPIEZA Y MANTENIMIENTO"
+			concepto="semanas limpieza de calles e instalaciones"
+			cantidad="5"
+			gravable="1"
+			precio="1600">
+			1 vez por semana .
+		</Partida>-->
+
+		<!--<Partida seccion="TRABAJOS"
+			concepto="Trabajos varios"
+			cantidad="1"
+			gravable="1"
+			precio="55911.09">
+			Trabajos correctivos, reparaciones y servicios extraordinarios observados en los registros del periodo.
+		</Partida>-->
+
+		<!--<Partida seccion="ADMINISTRACIÓN"
+			proveedor="Residentia"
+			concepto="Aplicación residentia"
+			cantidad="1"
+			gravable="1"
+			precio="2028.84">Servicio observado en los registros.</Partida>-->
+
+		<Partida seccion="SERVICIOS PÚBLICOS"
+			proveedor="CFE"
+			concepto="CFE (1 contrato)"
+			cantidad=".5"
+			gravable="1"
+			precio="1500">
+			Pago bimestral, observado en los registros.
+		</Partida>
+		<Partida seccion="SERVICIOS PÚBLICOS"
+			proveedor="Interapas"
+			concepto="Interapas"
+			cantidad=".5"
+			gravable="1"
+			precio="0">
+			No observado en los registros.
+		</Partida>
+	</Gastos>
+
+	<Texto>
+	</Texto>
+
+	<Firmas>
+		<Firma nombre="Arq. Sergio A. Ortiz W." cargo="Asociado Comercial Neibora" telefono="444.844.1210"/>
+		<Firma nombre="Uriel Gómez R." cargo="Director General Neibora" telefono="444.844.4649"/>
+	</Firmas>
+
+	<AvisoBorrador>Este es un borrador generado por el sistema Neibora. Los precios están sujetos a cambios según acuerdos de comité y/o asamblea.</AvisoBorrador>
+</Cotizacion>

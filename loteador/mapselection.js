@@ -95,14 +95,15 @@
 	function getActiveFilterAndPalette() {
 		const chosen = document.querySelector('[name="filter_headers"]:checked');
 		const container = chosen ? chosen.closest('.filter[bind]') : null;
-		if (!container) return null;
+		if (!container) return { scope: new Document(), palette: new Map() };
+		const scope = container.scope;
 		const bind = container.getAttribute('bind');
 		const palette = new Map(
 			container.querySelectorAll('.filter [type="checkbox"]').toArray()
 				.filter(cb => cb.previousElementSibling)
 				.map(cb => [cb.getAttribute('filtervalue') || cb.getAttribute('value'), cb.previousElementSibling.style.backgroundColor])
 		);
-		return { bind, palette };
+		return { scope, bind, palette };
 	}
 
 	function cssColorToHex(s) {
@@ -508,15 +509,17 @@
 
 		const defaults = {};
 
-		if (!scope) {
+		let document_scope = await active.scope;
+		if (!(scope && document_scope.contains(scope)))	 {
 			defaults.fillColor = '000000'
 			defaults.fillOpacity = 0.5
 			defaults.strokeColor = 'ff0000'
-		} else if (active) {
+		} else {
 			const value = getValueFromBinding(scope, active.bind);
 			const css = active.palette.get(value) || '';
-			defaults.fillColor = match ? cssColorToHex(css) : '';
-			defaults.fillOpacity = 0.5
+			defaults.fillColor = match && cssColorToHex(css) || '000000';
+			defaults.fillOpacity = css ? 0.5 : 0.3;
+			defaults.strokeColor = 'ffffff'
 		}
 
 		const data = {
@@ -533,18 +536,19 @@
 	xo.listener.on(['loteador:colorea::area'], colorea_area);
 
 	xo.listener.on(['loteador:colorea::map'], async function () {
-		const { dataDoc } = await getActiveDocs();
-
 		const loteador = this.closest("#loteador");
 		if (!loteador) return;
-
-		loteador.tag = dataDoc.store.tag;
-
+		const map = this;
 		const conditions = buildConditionsFromUI();
 		const predicate = buildXPathPredicate(conditions);
 		const active = getActiveFilterAndPalette();
-
-		for (const area of this.querySelectorAll('area')) {
+		let document_scope = await active.scope;
+		await document_scope.ready;
+		let areas = this.querySelectorAll('area');
+		if ([...areas].map(area => area.scope).filter(Boolean).some(scope => !document_scope.contains(scope))) {
+			await map.dispatch('loteador:init-scopes')
+		}
+		for (const area of areas) {
 			area.dispatch('loteador:colorea', {
 				predicate,
 				active
@@ -629,15 +633,13 @@
 	// Iluminar (toggle only)
 	xo.listener.on(['loteador:iluminar::map'], async function (conditions) {
 		const map = this;
-		const { dataDoc, settingsDoc } = await getActiveDocs();
-		const { bindPath, idAttr } = getSettingsPaths(settingsDoc);
 		const desarrollo_id = getDesarrolloId();
 
 		const predicate = buildXPathPredicate(conditions);
 		for (const area of map.querySelectorAll('area')) {
 			const lotId = extractAreaId(area, desarrollo_id);
 			if (!lotId) continue;
-			const item = dataDoc.single(`${bindPath}[@${idAttr}="${lotId}"]`);
+			const item = area.scope;
 			let data = $(area).mouseout().data('maphilight') || {};
 			data.alwaysOn = !!testItemWithPredicate(item, predicate);
 			$(area).data('maphilight', data);
@@ -669,13 +671,13 @@
 		await map.dispatch('loteador:mostrarNumerosDeCasa');
 	});
 
-	xo.listener.on(['click::#Filtros input[type="radio"]'], function () {
-		let store = this.store;
-		if (store != xo.stores.active) {
+	xo.listener.on(['click::#Filtros input[type="radio"]'], async function () {
+		let store = await this.store;
+		if (!xo.stores.active.contains(store)) {
+			xo.stores.active = store;
 			let map = this.ownerDocument.querySelector("map");
 			const loteador = map.closest("#loteador");
-			loteador.tag = store.tag;
-			xo.stores.active = store;
+			loteador.render()
 		}
 	});
 	xo.listener.on(['click::#Filtros input[type="checkbox"]'], function () {
@@ -716,6 +718,7 @@
 		const map = area.closest('map');
 		const scope = area.scope;
 		map.selectedAreas ??= new Map();
+		const flipper = document.querySelector('.card-flipper');
 		try {
 			const desarrollo_id = getDesarrolloId();
 			const raw = area.getAttribute('id') || area.getAttribute('target') || '';
@@ -754,53 +757,41 @@
 			//}
 
 			// Panel lateral
-			const flipper = document.querySelector('.card-flipper');
 			let templates = new Map()
-			let sections = flipper.queryChildrenAll("[id]");
+			let sections = flipper.querySelectorAll("section[id]");
 			for (let section of sections) {
-				let template = settings.querySelector(`template#${section.id}`) || settings.querySelector(`template#${section.id.toLowerCase()}`);
-				template && templates.set(section, template)
+				let template = settings.querySelector(`template[id="${section.id.toLowerCase()}\\\:${selection.size == 1 ? 'single' : 'multiselection'}"]`) || settings.querySelector(`template#${section.id.toLowerCase()}`);
+				if (!template) continue;
+				if (selection.size === 1 && template) {
+					const [selectedId, area] = [...selection][0];
+					const scope = area.scope;
 
-			}
-			let template = selection.size == 1 ? settings.querySelector('template#detalles') : settings.querySelector('template#multiselection');
-			const detalles = document.querySelector('#Detalles');
-			if (selection.size === 1 && template) {
-				const [selectedId, area] = [...selection][0];
-				const scope = area.scope;
+					if (![Node.ELEMENT_NODE].includes(scope && scope.nodeType)) return false;
+					template = template.dispatch("loteador:fillCard", { scope, selection, settings }) || template;
 
-				if (![Node.ELEMENT_NODE].includes(scope && scope.nodeType)) return false;
-				template = template.dispatch("loteador:fillCard", { scope, settings }) || template;
-
-				const area_selector = `area[target="${desarrollo_id}_${id}"], area[target="${id}"]`;
-				const selectedArea = map.querySelector(area_selector);
-				const svg = areaToSvg(selectedArea);
-				const img = template.querySelector('img');
-				if (img) img.replaceWith(svg);
-
-				if (detalles) {
-					detalles.setAttribute('xo-source', 'active');
-					const xoId = scope.getAttribute('xo:id') || '';
-					if (xoId) detalles.setAttribute('xo-scope', xoId);
-					detalles.replaceChildren(...template.childNodes);
+					const area_selector = `area[target="${desarrollo_id}_${id}"], area[target="${id}"]`;
+					const selectedArea = map.querySelector(area_selector);
+					const svg = areaToSvg(selectedArea);
+					const img = template.querySelector('img');
+					if (img) img.replaceWith(svg);
+					section.replaceChildren(...template.childNodes);
+					//if (detalles) {
+					//	detalles.setAttribute('xo-source', 'active');
+					//	const xoId = scope.getAttribute('xo:id') || '';
+					//	if (xoId) detalles.setAttribute('xo-scope', xoId);
+					//	detalles.replaceChildren(...template.childNodes);
+					//}
+				} else if (selection.size > 1 && template) {
+					template = template.dispatch("loteador:fillCard", { selection, settings }) || template;
+					section.replaceChildren(...template.childNodes);
 				}
 				flipper?.classList.add('toggled');
-			} else if (selection.size > 1 && template) {
-				template = template.dispatch("loteador:fillCard", { selection, settings }) || template;
-				if (detalles) {
-					//detalles.setAttribute('xo-source', 'active');
-					//const xoId = scope.getAttribute('xo:id') || '';
-					//if (xoId) detalles.setAttribute('xo-scope', xoId);
-					detalles.replaceChildren(...template.childNodes);
-				}
-				flipper?.classList.add('toggled');
-			} else {
-				flipper?.classList.remove('toggled');
 			}
-			return false;
 		} catch (e) {
 			return Promise.reject(e)
 		} finally {
 			if (!map.selectedAreas.size) {
+				flipper?.classList.remove('toggled');
 				await map.dispatch("loteador:colorea")
 				await map.dispatch('loteador:iluminar');
 			}
@@ -833,6 +824,10 @@ xo.listener.on(['loteador:fillCard::.money'], function ({ value }) {
 
 		this.classList.toggle('negative', n < 0);
 	}
+})
+
+xo.listener.on(['selection:generarQR'], function ({ value }) {
+
 })
 
 xo.listener.on(['loteador:fillCard'], function ({ value }) {
@@ -876,6 +871,14 @@ xo.listener.on(['loteador:fillCard::template'], function (args) {
 		const { scope = document.createElement('p'), selection, settings, template } = args;
 		const attr = scope.nodeType ? (scope.attributes[k] || [...scope.attributes].find(a => a.localName.toLowerCase() === k.toLowerCase()) || { value: '' }) : null;
 		input.dispatch("loteador:fillCard", { selection, settings, template, attr, value: (attr || {}).value })
+	}
+	for (let button of template.querySelectorAll('[dispatch]')) {
+		const { selection, settings, template } = args;
+		let event_name = button.getAttribute('dispatch');
+		button.onclick = function (e) {
+			button.dispatch(event_name, { selection, settings, template })
+			e.preventDefault()
+		}
 	}
 	event.stopImmediatePropagation()
 	return template

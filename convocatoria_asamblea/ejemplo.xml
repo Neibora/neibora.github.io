@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<convocatoria>
+  <organizacion>
+    <nombre>Residencial Ejemplo</nombre>
+    <circuito>Demostracion</circuito>
+    <tipo>Asamblea General Ordinaria Anual</tipo>
+  </organizacion>
+  <encabezado>
+    <titulo>Convocatoria</titulo>
+    <subtitulo>Asamblea General Ordinaria Anual 2026</subtitulo>
+    <fecha_emision>21 de julio de 2026</fecha_emision>
+  </encabezado>
+  <datos_asamblea>
+    <fecha>viernes 31 de julio de 2026</fecha>
+    <primera_convocatoria>19:00 horas</primera_convocatoria>
+    <segunda_convocatoria>19:15 horas</segunda_convocatoria>
+    <tercera_convocatoria>19:30 horas</tercera_convocatoria>
+    <lugar>Casa Club del circuito Demostracion</lugar>
+    <modalidad>Presencial</modalidad>
+  </datos_asamblea>
+  <convocante>La Mesa Directiva y la Administración del circuito Demostracion</convocante>
+  <fundamento>los estatutos de la asociación y demás disposiciones aplicables</fundamento>
+  <mensaje>
+    Se convoca a las personas propietarias del circuito Demostracion a la Asamblea
+    General Ordinaria Anual, que se celebrará en la fecha, hora y lugar señalados,
+    con el propósito de informar, analizar y, en su caso, someter a votación los
+    asuntos incluidos expresamente en el siguiente orden del día.
+  </mensaje>
+  <orden_del_dia>
+    <punto>
+      <titulo>Registro de asistencia, verificación del quórum e instalación legal de la asamblea</titulo>
+    </punto>
+    <punto votacion="Sí">
+      <titulo>Designación de presidente, secretario y escrutadores de la asamblea</titulo>
+    </punto>
+    <punto votacion="Sí">
+      <titulo>Lectura y aprobación del orden del día</titulo>
+    </punto>
+    <punto>
+      <titulo>Presentación de la operación actual del circuito Demostracion</titulo>
+      <detalle>Limpieza de áreas comunes, mantenimiento, alberca, supervisión interna y externa, administración y seguridad.</detalle>
+    </punto>
+    <punto>
+      <titulo>Presentación del estado de resultados, morosidad y cumplimiento de pago</titulo>
+      <detalle>Ingresos y egresos por categoría, comparación contra presupuesto, saldos disponibles, cartera vencida y cuentas por pagar.</detalle>
+    </punto>
+    <punto votacion="Sí">
+      <titulo>Revisión de la cuota de mantenimiento para su ratificación o incremento</titulo>
+      <detalle>Presentación de alternativas para generar mayores ingresos destinados a la inversión en el coto.</detalle>
+    </punto>
+    <punto>
+      <titulo>Revisión de protocolos de seguridad, control de accesos y sanciones</titulo>
+      <detalle>Evaluación de los protocolos vigentes, su aplicación y las medidas necesarias para mejorar su cumplimiento.</detalle>
+    </punto>
+    <punto>
+      <titulo>Presentación de proyectos de mejora realizados y pendientes</titulo>
+      <detalle>Revisión de trabajos de pintura, iluminación, mantenimiento y otros proyectos, con el propósito de priorizar y cotizar los pendientes para su eventual votación y autorización mediante la plataforma.</detalle>
+    </punto>
+    <punto>
+      <titulo>Presentación de la plataforma de administración</titulo>
+      <detalle>Consulta de información en tiempo real, actualización de datos, interacción con la administración y seguimiento de propuestas sometidas a votación y autorización.</detalle>
+    </punto>
+    <punto votacion="Sí">
+      <titulo>Ratificación o renovación de la Mesa Directiva</titulo>
+    </punto>
+    <punto>
+      <titulo>Asuntos generales</titulo>
+      <detalle>Los asuntos no incluidos expresamente en esta convocatoria no podrán someterse a votación.</detalle>
+    </punto>
+    <punto>
+      <titulo>Clausura de la asamblea</titulo>
+    </punto>
+  </orden_del_dia>
+  <documentos_disponibles>
+    <documento>La documentación relacionada con los asuntos del orden del día estará disponible para consulta a partir del lunes 27 de julio de 2026.</documento>
+  </documentos_disponibles>
+  <reglas>
+    <regla>Para el registro, deberá acreditarse la propiedad o representación. Quien no pueda asistir podrá designar a un representante mediante carta poder simple, conforme a los estatutos.</regla>
+    <regla>Las votaciones y acuerdos se sujetarán al quórum y a las mayorías establecidas en la normativa aplicable.</regla>
+  </reglas>
+  <firma>
+    <nombre>Mesa Directiva y Administración</nombre>
+    <cargo>Circuito Demostracion</cargo>
+    <leyenda>Atentamente</leyenda>
+  </firma>
+  <pie>
+    <marca>Neibora</marca>
+    <descripcion>Gestión Residencial Integral</descripcion>
+    <contacto>Comunicación oficial de la administración del circuito Demostracion</contacto>
+  </pie>
+</convocatoria>
