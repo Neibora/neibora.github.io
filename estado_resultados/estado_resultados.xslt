@@ -43,7 +43,23 @@
 					.expense-detail>td{padding:4px 6px!important;border-color:#d9e2df!important;background:#f7faf9;font-size:10px}.expense-detail .detail-concept{color:var(--ink)}.expense-detail .detail-date{display:block;color:var(--muted);font-size:9px}.expense-detail .amount{font-variant-numeric:tabular-nums}
 					.extra-table th{background:var(--aqua);text-align:center}.extra-table .index{width:34px;text-align:center}.extra-table .cost{width:120px;text-align:right}.extra-table td{height:26px}.extra-table .extra-total td{background:var(--aqua);font-weight:700}
 					.sheet-footer{margin-top:14px;text-align:right;color:var(--muted);font-size:9px}.empty-note{text-align:center;color:var(--muted);font-style:italic}
-					@media(max-width:760px){.appbar{height:auto;padding:8px 14px}.appbrand{font-size:15px}.appmeta{display:none}.controls{top:0;padding:9px 12px;align-items:flex-start;flex-direction:column}.periods-stage{padding:8px}.period-sheet{padding:14px 10px;border-radius:0}.sheet-header{grid-template-columns:72px 1fr 55px}.sheet-title h1{font-size:14px}.sheet-title strong{font-size:12px}.view-switch{width:100%}.view-switch button{flex:1}body.compare-mode .periods-stage{height:calc(100vh - 190px)}body.compare-mode .period-sheet{flex-basis:92vw;width:92vw}.optional{display:none}.sheet-table th,.sheet-table td{padding:4px 3px;font-size:10px}.expense-table .concept{width:53%}}
+					@media(max-width:760px){
+					.appbar{height:auto;padding:8px 14px}.appbrand{font-size:15px}.appmeta{display:none}
+					.controls{top:0;gap:10px;padding:9px 12px;align-items:stretch;flex-direction:column}
+					.control-group{justify-content:space-between}.control-group select{flex:1;min-width:0}
+					.view-switch{width:100%}.view-switch button{flex:1;min-height:40px;padding:7px 5px}
+					.periods-stage{width:100%;padding:8px;overflow-x:hidden}
+					.period-sheet{width:100%;min-width:0;padding:14px 8px;border-radius:0}
+					.sheet-header{grid-template-columns:58px minmax(0,1fr) 48px}
+					.sheet-logo img{width:38px;height:45px}.sheet-title h1{font-size:13px}.sheet-title strong{font-size:11px}
+					.optional{display:none}.sheet-table th,.sheet-table td{padding:4px 3px;font-size:9px}
+					.expense-table .index{width:6%}.expense-table .concept{width:37%}
+					.expense-table th.amount,.expense-table td.amount{width:19%;letter-spacing:-.2px}
+					.has-detail .concept:after{width:16px;height:16px}
+					.expense-detail .detail-date{font-size:8px}
+					body.compare-mode .periods-stage{gap:12px;height:calc(100vh - 190px);padding:8px;overflow-x:auto;overflow-y:auto;scroll-padding-left:8px;scroll-snap-type:x mandatory}
+					body.compare-mode .period-sheet{flex:0 0 calc(100vw - 16px);width:calc(100vw - 16px);scroll-snap-align:start;scroll-snap-stop:always}
+					}
 					@media print{@page{size:portrait;margin:8mm}body{background:#fff}.appbar,.controls{display:none}.periods-stage{display:block;padding:0}.period-sheet,.period-sheet.active,body.compare-mode .period-sheet{display:none;width:100%;border:0;border-top:5px solid var(--neibora);box-shadow:none;padding:0;break-after:page}.period-sheet.active{display:block}body.compare-mode .period-sheet{display:block}.has-detail .concept:after,.drill-row{display:none!important}.section-band,.result-table .total-row td,.assessment td,.assessment th,.expense-table th,.expense-table .grand-total td,.extra-table th,.extra-table .extra-total td{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 				</style>
 			</head>
