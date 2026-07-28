@@ -1,4 +1,4 @@
-﻿const CACHE_NAME = `${location.hostname}_260728_1530`,
+﻿const CACHE_NAME = `${location.hostname}_260728_1537`,
     urlsToCache = [
         './'
         , './register-pwa.js'
