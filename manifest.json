@@ -1,7 +1,13 @@
 {
   "server": {
-    "session": null,
     "login": null,
+    "logout": null,
+    "submit": "POST ${xo.session.server}/post.asp",
+    "session": null,
+    "request": "${xo.session.server}/request.asp",
+    "sitemap": "${xo.session.server}/sitemap.asp",
+    "uploadFile": "${xo.session.server}/upload_file.asp",
+    "uploadFileManager": "${xo.session.server}/upload_file_manager.asp",
     "upload": {
       "POST server:uploadFile": {}
     }
