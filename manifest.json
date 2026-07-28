@@ -1,11 +1,14 @@
 {
   "server": {
+    "session": null,
+    "login": null,
     "upload": {
       "POST server:uploadFile": {}
     }
   },
   "session": {
-    "server": "https://server.neibora.com"
+    "server": "https://server.neibora.com",
+    "authorization": "guest:any"
   },
   "sources": {
     "^#(.+)$": "/assets/desarrollos/$1/info.resx",
@@ -24,6 +27,7 @@
     "#caracteristicas": "/assets/caracteristicas.resx",
     "#codigo_etica": "/assets/codigo_etica.resx",
     "#terminos_condiciones": "/assets/terminos_condiciones.resx",
+    "#menu": { "server:request": { "FROM": "Platform.Menu" } },
     "^px-(.+)": "/widgets/$1.xhtml",
     "^xo-(.+)": "/components/$1.xhtml",
     "^#(.+)~edit$": "#$1",
@@ -41,11 +45,13 @@
   "state": {
     "desarrollo": "${(xover.site.seed || '').replace(/^#|(_\\d+)+$/g,'') || xover.site.location.url.foldername}"
   },
-  "start": [ "#desarrollos", "#site", "/navbar.html", "/footer.html", "/iconos.xslt", "#ws", "px-loader", "px-printer" ],
+  "start": [ "#desarrollos", "#site", "/navbar.html", "/footer.html", "/iconos.xslt", "#ws", "px-loader", "px-printer", "#menu" ],
   "settings": {
     "~.asp": {
       "headers": {
-        "x-referer-id": "${xover.session.referer_id}"
+        "x-referer-id": "${xover.session.referer_id}",
+        "authorization": "${xover.session.authorization}",
+        "x-desarrollo": "${xo.state.desarrollo}"
       }
     },
     "~.map": {

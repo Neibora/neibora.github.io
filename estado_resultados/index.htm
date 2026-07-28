@@ -9,6 +9,7 @@
 	<link rel="icon" href="/assets/img/favicon.png" type="image/x-icon" />
 	<link rel="xover-manifest" href="/server/.manifest?v=260725_2300">
 	<link rel="xover-manifest" href="/manifest.json?v=260725_2300">
+	<link rel="xover-manifest" href="manifest.json?v=260725_2300">
 	<script type="text/javascript" src="/xover/xo.js?v=260725_2300&amp;mode=legacy"></script>
 	<script type="text/javascript" src="/socket.io.js?v=260725_2300"></script>
 	<script type="text/javascript" src="/custom.js?v=260725_2300"></script>
@@ -56,13 +57,13 @@
 			text-align: center;
 		}
 
-		.report-loading .material-icons {
-			display: block;
-			margin-bottom: .75rem;
-			color: #00796b;
-			font-size: 2rem;
-			animation: report-spin 1.1s linear infinite;
-		}
+			.report-loading .material-icons {
+				display: block;
+				margin-bottom: .75rem;
+				color: #00796b;
+				font-size: 2rem;
+				animation: report-spin 1.1s linear infinite;
+			}
 
 		.report-error .material-icons {
 			color: #b91c1c;
@@ -74,12 +75,14 @@
 			border-bottom-color: #334155;
 		}
 
-		.dark #estado-resultados-host .controls label {
-			color: #86efac;
-		}
+			.dark #estado-resultados-host .controls label {
+				color: #86efac;
+			}
 
 		@keyframes report-spin {
-			to { transform: rotate(360deg); }
+			to {
+				transform: rotate(360deg);
+			}
 		}
 
 		@media (max-width: 760px) {

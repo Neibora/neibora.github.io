@@ -1,0 +1,11 @@
+{
+  "sources": {
+    "^#(.+)$": {
+      "server:request": {
+        "FROM": "Platform.EstadoResultados",
+        "@desarrollo": "$1"
+      }
+    },
+    "#ejemplo": "ejemplo.xml"
+  }
+}
