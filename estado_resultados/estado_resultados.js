@@ -3,21 +3,28 @@
 
 	var host = document.getElementById("estado-resultados-host");
 	var status = document.getElementById("report-status");
+	var reportSource = location.hash || "#ejemplo";
 
-	function fetchText(url) {
-		return fetch(url).then(function (response) {
-			if (!response.ok) {
-				throw new Error(url + " respondió " + response.status);
-			}
-			return response.text();
-		});
+	async function fetchXml(url) {
+		await xover.ready;
+		var source = await xover.sources[url].ready;
+		var documentNode = source.nodeType === 9 ? source : source.document;
+		if (!documentNode || !documentNode.documentElement) {
+			throw new Error("La fuente " + url + " no devolvió un documento XML.");
+		}
+		return documentNode;
 	}
 
-	function parseXml(source, type, label) {
-		var documentNode = new DOMParser().parseFromString(source, type);
-		var parserError = documentNode.querySelector("parsererror");
-		if (parserError) {
-			throw new Error("El archivo " + label + " no es válido.");
+	async function fetchStylesheet(url) {
+		var response = await fetch(url, { cache: "no-store" });
+		if (!response.ok) {
+			throw new Error(url + " respondió " + response.status + ".");
+		}
+
+		var source = await response.text();
+		var documentNode = new DOMParser().parseFromString(source, "application/xml");
+		if (documentNode.querySelector("parsererror")) {
+			throw new Error("El archivo " + url + " no es válido.");
 		}
 		return documentNode;
 	}
@@ -34,11 +41,11 @@
 	}
 
 	Promise.all([
-		fetchText("ejemplo.xml"),
-		fetchText("estado_resultados.xslt")
+		fetchXml(reportSource),
+		fetchStylesheet("estado_resultados.xslt")
 	]).then(function (sources) {
-		var xml = parseXml(sources[0], "application/xml", "XML");
-		var xslt = parseXml(sources[1], "application/xml", "XSLT");
+		var xml = sources[0];
+		var xslt = sources[1];
 		var processor = new XSLTProcessor();
 		processor.importStylesheet(xslt);
 

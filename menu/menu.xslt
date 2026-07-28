@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+	xmlns:site="http://panax.io/site"
+	>
 	<xsl:output method="html" encoding="UTF-8" indent="yes"/>
+	<xsl:param name="site:location"></xsl:param>
 
 	<xsl:template match="/portal">
 		<section class="portal-app">
@@ -60,7 +63,7 @@
 				<div class="portal-controls">
 					<label class="search-box">
 						<span class="material-icons">search</span>
-						<input type="search" id="moduleSearch" placeholder="Buscar módulo…" autocomplete="off"/>
+						<input type="search" id="moduleSearch" placeholder="Buscar módulo… {$site:location}" autocomplete="off"/>
 						<button class="clear-search" id="clearSearch" type="button" aria-label="Limpiar búsqueda"><span class="material-icons">close</span></button>
 					</label>
 					<div class="category-tabs" aria-label="Categorías">

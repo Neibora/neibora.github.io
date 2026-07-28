@@ -1,7 +1,7 @@
 {
   "server": {
     "request": "${xover.session.server}/request.asp",
-    "login": null,
+    "login": "${xover.session.server}/login.asp",
     "download": "${xover.session.server}/download.asp"
   },
   "state": { "desarrollo": "${xo.site.seed.replace(/^#/,'')}" },
