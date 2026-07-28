@@ -3,7 +3,6 @@
 
 	var host = document.getElementById("estado-resultados-host");
 	var status = document.getElementById("report-status");
-	var reportSource = location.hash || "#ejemplo";
 
 	async function fetchXml(url) {
 		await xover.ready;
@@ -41,7 +40,7 @@
 	}
 
 	Promise.all([
-		fetchXml(reportSource),
+		fetchXml("#"),
 		fetchStylesheet("estado_resultados.xslt")
 	]).then(function (sources) {
 		var xml = sources[0];

@@ -84,7 +84,7 @@
 					<xsl:apply-templates select="estado-resultados/periodo"/>
 				</main>
 				<script>
-						<![CDATA[
+					<![CDATA[
 					(function(){
 					var picker=document.getElementById('periodPicker');
 					var singleButton=document.getElementById('singleMode');
@@ -128,7 +128,8 @@
 					selectPeriod(picker.value,false);
 					setMode(true);
 					}());
-				]]></script>
+				]]>
+				</script>
 			</body>
 		</html>
 	</xsl:template>
@@ -429,9 +430,8 @@
 										<xsl:apply-templates select="@fecha"/>
 									</td>
 									<td>
-										<xsl:apply-templates select="@concepto"/>
+										<xsl:apply-templates select="@concepto" mode="expense"/>
 										<xsl:if test="@lote">
-											<br/>
 											<span class="muted">
 												<xsl:value-of select="@lote"/>
 											</span>
@@ -452,6 +452,11 @@
 				</td>
 			</tr>
 		</xsl:if>
+	</xsl:template>
+
+	<xsl:template match="@concepto" mode="expense">
+		<br/>
+		<xsl:value-of select="."/>
 	</xsl:template>
 
 	<xsl:template match="partida" mode="expense">
