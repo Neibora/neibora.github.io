@@ -1,6 +1,6 @@
 (()=>{
  'use strict';
- const $=id=>document.getElementById(id), labels={registro:'Inscripciones abiertas',votacion:'¡Es momento de votar!',resultados:'Los favoritos de Cantabria'};
+ const $=id=>document.getElementById(id), labels={registro:'Inscripciones abiertas',votacion:'¡Es momento de votar!',resultados:'Los favoritos de La Cantera'};
  let voter, state, photo='', photoVersion=0, requestId='', busy=false, syncing=false, selected, lastVersion=-1;
  try {voter=localStorage.getItem('neibora:concurso:voter');if(!/^[a-f0-9]{64}$/.test(voter||'')){voter=Array.from(crypto.getRandomValues(new Uint8Array(32)),n=>n.toString(16).padStart(2,'0')).join('');localStorage.setItem('neibora:concurso:voter',voter);}}catch{$('status').textContent='Habilita el almacenamiento de este navegador para inscribirte y votar.';}
  async function api(action,body){const response=await fetch(neiboraContest.url(action),{method:body?'POST':'GET',cache:'no-store',headers:{'Content-Type':'application/json','X-Contest-Voter':voter||''},body:body?JSON.stringify(body):undefined,signal:AbortSignal.timeout(20000)});let result;try{result=await response.json();}catch{throw Error('El concurso no está disponible por el momento.');}if(!response.ok)throw Error(result.message||'No se pudo completar la solicitud.');return result;}
@@ -9,7 +9,7 @@
   state=next;$('connection').textContent='En vivo · actualiza cada 2 s';
   $('open-registration').disabled=next.phase!=='registro'||!voter;
   $('open-registration').firstChild.textContent=next.phase==='registro'?'Inscribir un disfraz ': 'Inscripciones cerradas ';
-  $('phase-label').textContent=labels[next.phase];$('gallery-title').textContent=next.phase==='resultados'?'El aplauso de la comunidad':'La pasarela de Cantabria';
+  $('phase-label').textContent=labels[next.phase];$('gallery-title').textContent=next.phase==='resultados'?'El aplauso de la comunidad':'La pasarela de La Cantera';
   $('phase-description').textContent=next.phase==='registro'?'Los nuevos disfraces aparecerán aquí automáticamente.':next.phase==='votacion'?'Mira todos los disfraces y elige tu favorito.':'¡Gracias a todos por participar! En caso de empate, los concursantes comparten posición.';
   $('vote-note').hidden=next.phase!=='votacion';$('vote-note').textContent=next.voted?'¡Tu voto quedó registrado! Espera los resultados al cerrar la votación.':'Elige tu favorito. Puedes emitir un voto desde este navegador; el resultado se mostrará al cerrar la votación.';
   $('participant-count').textContent=next.participants.length+' participante'+(next.participants.length===1?'':'s');
