@@ -63,7 +63,10 @@ function createContest({root,id=DEFAULT_ID}) {
   const state = await read(), hash = voter && /^[a-f0-9]{64}$/.test(voter) ? digest(voter) : '';
   const counts = {};
   if (state.phase === 'resultados' || admin) Object.values(state.votes).forEach(id => counts[id] = (counts[id]||0)+1);
-  return {id,version:state.version,phase:state.phase,voted:!!state.votes[hash],vote:state.votes[hash]||null,totalVotes:state.phase==='resultados'||admin?Object.keys(state.votes).length:undefined,participants:state.participants.filter(p=>!p.removed).map(({id,number,name,costume,coto,domicilio})=>({id,number,name,costume,coto:coto||'',...(admin?{domicilio:domicilio||''}:{}),...(state.phase==='resultados'||admin?{votes:counts[id]||0}:{})}))};
+  const active=new Set(state.participants.filter(p=>!p.removed).map(p=>p.id));
+  const choice=state.votes[hash],vote=active.has(choice)?choice:null;
+  const activeVotes=Object.values(state.votes).filter(candidate=>active.has(candidate)).length;
+  return {id,version:state.version,phase:state.phase,voted:!!vote,vote,voteWithdrawn:!!choice&&!vote,totalVotes:state.phase==='resultados'||admin?activeVotes:undefined,...(admin?{retiredVotes:Object.keys(state.votes).length-activeVotes}:{}),participants:state.participants.filter(p=>admin||!p.removed).map(({id,number,name,costume,coto,domicilio,removed,photo})=>({id,number,name,costume,coto:coto||'',...(admin?{domicilio:domicilio||'',removed:!!removed,canRestore:!!removed&&!!photo}:{}),...(state.phase==='resultados'||admin?{votes:counts[id]||0}:{})}))};
  }
  async function register(input) {
   const owner = identity(input.voter);
@@ -87,7 +90,8 @@ function createContest({root,id=DEFAULT_ID}) {
  async function vote(input) {
   const owner = identity(input.voter);
   return mutate(state => {
-   if(state.votes[owner]) {if(state.votes[owner]===input.id)return {ok:true};throw fail('Ya votaste desde este navegador.',409);}
+   const previous=state.votes[owner];
+   if(previous&&state.participants.some(p=>p.id===previous&&!p.removed)) {if(previous===input.id)return {ok:true};throw fail('Ya votaste desde este navegador.',409);}
    if(state.phase!=='votacion')throw fail('La votación no está abierta.',409);
    if(!state.participants.some(p=>p.id===input.id&&!p.removed))throw fail('El participante no está disponible.');
    state.votes[owner]=input.id;return {ok:true};
@@ -98,15 +102,20 @@ function createContest({root,id=DEFAULT_ID}) {
   return mutate(state => {
    if(input.action==='phase') {
     if(!phases.includes(input.phase))throw fail('Etapa inválida.');
+    if(input.from!==undefined&&input.from!==state.phase)throw fail('La etapa cambió en otra sesión. Actualiza antes de continuar.',409);
     const current = phases.indexOf(state.phase), next = phases.indexOf(input.phase);
-    if(next!==current && next!==current+1)throw fail('Las etapas avanzan de registro a votación y después a resultados.',409);
-    if(input.phase==='votacion'&&!state.participants.some(p=>!p.removed))throw fail('Primero inscribe un concursante.',409);
+    if(Math.abs(next-current)>1)throw fail('Cambia las etapas de una en una, en orden.',409);
+    if(input.phase==='votacion'&&next>current&&!state.participants.some(p=>!p.removed))throw fail('Primero inscribe un concursante.',409);
     state.phase=input.phase;
    } else if(input.action==='remove') {
-    if(state.phase!=='registro')throw fail('Solo puedes retirar registros antes de abrir la votación.',409);
-    const participant=state.participants.find(p=>p.id===input.id&&!p.removed);
+    const participant=state.participants.find(p=>p.id===input.id);
     if(!participant)throw fail('Participante no encontrado.',404);
-    participant.removed=true;participant.photo='';
+    participant.removed=true;
+   } else if(input.action==='restore') {
+    const participant=state.participants.find(p=>p.id===input.id);
+    if(!participant)throw fail('Participante no encontrado.',404);
+    if(!participant.photo)throw fail('Este registro antiguo ya no conserva su foto. Inscríbelo de nuevo durante el registro.',409);
+    participant.removed=false;
    } else throw fail('Acción inválida.');
    state.actions.push({action:input.action,phase:state.phase,id:input.id||null,at:new Date().toISOString()});
    return {ok:true};

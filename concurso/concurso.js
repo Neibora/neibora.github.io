@@ -11,7 +11,7 @@
   $('open-registration').firstChild.textContent=next.phase==='registro'?'Inscribir un disfraz ': 'Inscripciones cerradas ';
   $('phase-label').textContent=labels[next.phase];$('gallery-title').textContent=next.phase==='resultados'?'El aplauso de la comunidad':'La pasarela de La Cantera';
   $('phase-description').textContent=next.phase==='registro'?'Los nuevos disfraces aparecerán aquí automáticamente.':next.phase==='votacion'?'Mira todos los disfraces y elige tu favorito.':'¡Gracias a todos por participar! En caso de empate, los concursantes comparten posición.';
-  $('vote-note').hidden=next.phase!=='votacion';$('vote-note').textContent=next.voted?'¡Tu voto quedó registrado! Espera los resultados al cerrar la votación.':'Elige tu favorito. Puedes emitir un voto desde este navegador; el resultado se mostrará al cerrar la votación.';
+  $('vote-note').hidden=next.phase!=='votacion';$('vote-note').textContent=next.voted?'¡Tu voto quedó registrado! Espera los resultados al cerrar la votación.':next.voteWithdrawn?'El disfraz que elegiste fue retirado. Puedes votar por otro participante.':'Elige tu favorito. Puedes emitir un voto desde este navegador; el resultado se mostrará al cerrar la votación.';
   $('participant-count').textContent=next.participants.length+' participante'+(next.participants.length===1?'':'s');
   document.querySelectorAll('[data-stage]').forEach(el=>el.classList.toggle('active',el.dataset.stage===next.phase));
   $('empty').hidden=!!next.participants.length;

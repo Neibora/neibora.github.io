@@ -19,9 +19,16 @@ async function main(){
   assert.equal((await request('vote',{id:first.result.id})).status,200);assert.equal((await request('vote',{id:first.result.id})).status,200);
   assert.equal((await request('state')).result.totalVotes,undefined);assert.equal((await request('state',undefined,key)).result.totalVotes,1);
   assert.equal((await request('admin',{action:'phase',phase:'resultados'},key)).status,200);assert.equal((await request('state')).result.participants[0].votes,1);
+  assert.equal((await request('admin',{action:'remove',id:first.result.id},key)).status,200);
+  assert.equal((await request('state')).result.participants.length,0);assert.equal((await fetch(photoURL)).status,404);
+  assert.equal((await request('admin',{action:'restore',id:first.result.id},key)).status,200);
+  assert.equal((await request('state')).result.totalVotes,1);assert.equal((await fetch(photoURL)).status,200);
+  assert.equal((await request('admin',{action:'phase',from:'resultados',phase:'votacion'},key)).status,200);
+  assert.equal((await request('admin',{action:'phase',from:'votacion',phase:'registro'},key)).status,200);
+  assert.equal((await request('state')).result.phase,'registro');assert.equal((await request('state')).result.voted,true);
   assert.equal((await fetch(base.origin+'/repository/concursos/'+id+'/concurso.json')).status,404);
   const rejected=await fetch(base+'?action=register',{method:'POST',headers:{Origin:'https://example.invalid','Content-Type':'application/json'},body:'{}'});assert.equal(rejected.status,403);
-  console.log('PASS HTTPS: registration + retry, second session, JPEG, stages, vote count, hidden totals, repository protection, origin restriction.');
+  console.log('PASS HTTPS: registration, photo, voting, private domicile, reversible stages, retire/restore, preserved ballots and hidden retired photos.');
  }finally{await fs.rm(directory,{recursive:true,force:true});await fs.unlink(privateKey).catch(()=>{});}
 }
 main().catch(error=>{console.error(error);process.exitCode=1;});

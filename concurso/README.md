@@ -6,9 +6,9 @@ Módulo independiente para `https://neibora.com/concurso/`, con API Node en `htt
 
 1. En `/concurso/`, inscribir nombre o apodo, disfraz, coto, domicilio y fotografía desde cámara o archivos. Es obligatoria la autorización del participante o tutor. El navegador convierte la foto a JPEG de hasta 800 píxeles y descarta los metadatos originales.
 2. La galería se actualiza cada dos segundos, al reconectar y al volver a la pestaña.
-3. En `/concurso/admin.html`, entrar con la clave privada. Retirar pruebas o duplicados antes de abrir votación.
+3. En `/concurso/admin.html`, entrar con la clave privada. Retirar o reincorporar disfraces en cualquier etapa, siempre con confirmación.
 4. Abrir votación: se cierran las inscripciones. Confirmar un voto por navegador; los conteos se ocultan al público.
-5. Cerrar votación y publicar resultados. Los empates comparten posición, sin desempates arbitrarios. Las etapas avanzan sin retroceder.
+5. Cerrar votación y publicar resultados. Los empates comparten posición, sin desempates arbitrarios. Administración puede retroceder una etapa: resultados → votación → inscripciones. No se borran participantes ni votos.
 
 El control es **por navegador, no por persona**: borrar almacenamiento o usar otro navegador/dispositivo permite otro voto. Una votación verificada por persona necesita códigos o cuentas y no forma parte de esta versión.
 
@@ -26,7 +26,7 @@ La clave se genera en `App_Data/concurso/<UUID>.key`. Nunca incluir claves, foto
 
 El coto se muestra en la galería. El domicilio solo aparece en las respuestas autenticadas de administración, nunca en la galería pública ni en los resultados. Los registros anteriores que no tengan estos campos se conservan y aparecen en administración como no registrados.
 
-Los datos no se borran automáticamente. La administración debe definir la conservación de las fotos después del evento. El retiro de un participante durante inscripciones elimina su foto del estado actual.
+Los datos no se borran automáticamente. La administración debe definir la conservación de las fotos después del evento. Retirar un participante oculta su disfraz y su fotografía del acceso público. El registro y la foto se conservan en el archivo privado para poder reincorporarlo; sus votos no cuentan en los resultados mientras esté retirado. Si alguien votó por un participante retirado, puede elegir otro durante la votación. Al reincorporarlo se recuperan los votos que no hayan sido reemplazados. Los registros antiguos cuya foto ya fue eliminada no pueden recuperarla.
 
 ## Validación
 

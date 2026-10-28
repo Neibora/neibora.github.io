@@ -5,15 +5,30 @@
  const node=(tag,text)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=text;return el;};
  async function sync(){if(!key||syncing||document.hidden)return;syncing=true;try{
   const next=await api('state');if(next.totalVotes===undefined)throw Error('Clave incorrecta.');
-  state=next;$('login').hidden=true;$('controls').hidden=false;$('admin-phase').textContent=labels[next.phase];$('admin-count').textContent=next.participants.length+' participantes · '+next.totalVotes+' votos';$('advance').hidden=next.phase==='resultados';$('advance').textContent=next.phase==='registro'?'Cerrar inscripciones y abrir votación':'Cerrar votación y mostrar resultados';
+  state=next;$('login').hidden=true;$('controls').hidden=false;$('admin-phase').textContent=labels[next.phase];
+  const active=next.participants.filter(p=>!p.removed).length,removed=next.participants.length-active;
+  $('admin-count').textContent=active+' participantes activos · '+removed+' retirados · '+next.totalVotes+' votos'+(next.retiredVotes?' · '+next.retiredVotes+' votos de retirados conservados':'');
+  $('advance').hidden=next.phase==='resultados';$('advance').textContent=next.phase==='registro'?'Cerrar inscripciones y abrir votación':'Cerrar votación y mostrar resultados';
+  $('back').hidden=next.phase==='registro';$('back').textContent=next.phase==='resultados'?'Reabrir votación':'Volver a inscripciones';
   if(version===next.version)return;version=next.version;
   const fragment=document.createDocumentFragment();
-  for(const p of next.participants){const card=node('article');card.className='card';const img=node('img');img.src=neiboraContest.url('photo',{id:p.id});img.alt=p.costume;img.loading='lazy';const body=node('div');body.className='card-body';body.append(node('h3','#'+p.number+' · '+p.costume),node('p',p.name),node('p','Coto: '+(p.coto||'No registrado')),node('p','Domicilio: '+(p.domicilio||'No registrado')),node('p',p.votes+' votos'));if(next.phase==='registro'){const remove=node('button','Retirar participante');remove.className='secondary';remove.onclick=()=>act({action:'remove',id:p.id},'¿Retirar el disfraz de '+p.name+'? También se quitará su fotografía.');body.append(remove);}card.append(img,body);fragment.append(card);}
+  for(const p of next.participants){
+   const card=node('article');card.className='card'+(p.removed?' retired':'');
+   const image=p.removed?node('div','Registro retirado'):node('img');
+   if(p.removed)image.className='retired-placeholder';else{image.src=neiboraContest.url('photo',{id:p.id});image.alt=p.costume;image.loading='lazy';}
+   const body=node('div');body.className='card-body';
+   body.append(node('h3','#'+p.number+' · '+p.costume),node('p',p.name),node('p','Coto: '+(p.coto||'No registrado')),node('p','Domicilio: '+(p.domicilio||'No registrado')),node('p',p.votes+' votos'+(p.removed?' conservados, fuera del resultado':'')));
+   const button=node('button',p.removed?'Reincorporar participante':'Retirar participante');button.className='secondary';
+   if(p.removed){button.disabled=!p.canRestore;button.dataset.locked=String(!p.canRestore);button.onclick=()=>act({action:'restore',id:p.id},'¿Reincorporar el disfraz de '+p.name+' a la galería y al conteo de votos?');if(!p.canRestore)body.append(node('p','Este registro antiguo ya no conserva su foto.'));}
+   else button.onclick=()=>act({action:'remove',id:p.id},'¿Retirar el disfraz de '+p.name+'? Dejará de aparecer en la galería y sus votos no contarán mientras esté retirado. Se conservará el registro para poder reincorporarlo.');
+   body.append(button);card.append(image,body);fragment.append(card);
+  }
   $('admin-gallery').replaceChildren(fragment);
  }catch(e){$('admin-status').textContent=e.message;}finally{syncing=false;}}
- async function act(body,message){if(busy||!confirm(message))return;busy=true;document.querySelectorAll('button').forEach(b=>b.disabled=true);try{await api('admin',body);$('admin-status').textContent='Cambio guardado.';await sync();}catch(e){$('admin-status').textContent=e.message;}finally{busy=false;document.querySelectorAll('button').forEach(b=>b.disabled=false);}}
+ async function act(body,message){if(busy||!confirm(message))return;busy=true;document.querySelectorAll('button').forEach(b=>b.disabled=true);try{await api('admin',body);$('admin-status').textContent='Cambio guardado.';await sync();}catch(e){$('admin-status').textContent=e.message;}finally{busy=false;document.querySelectorAll('button').forEach(b=>b.disabled=b.dataset.locked==='true');}}
  $('login').onsubmit=e=>{e.preventDefault();key=$('admin-key').value.trim();$('admin-key').value='';version=-1;sync();};
- $('advance').onclick=()=>act({action:'phase',phase:state.phase==='registro'?'votacion':'resultados'},state.phase==='registro'?'¿Cerrar las inscripciones y abrir la votación? Ya no se podrán agregar ni retirar concursantes.':'¿Cerrar definitivamente la votación y publicar los resultados?');
+ $('advance').onclick=()=>act({action:'phase',from:state.phase,phase:state.phase==='registro'?'votacion':'resultados'},state.phase==='registro'?'¿Cerrar las inscripciones y abrir la votación? Se conservarán los votos previos, si los hay.':'¿Cerrar la votación y publicar los resultados? Podrás reabrirla desde administración.');
+ $('back').onclick=()=>act({action:'phase',from:state.phase,phase:state.phase==='resultados'?'votacion':'registro'},state.phase==='resultados'?'¿Reabrir la votación? Los resultados dejarán de mostrarse y se conservarán los participantes y votos emitidos.':'¿Volver a inscripciones? Se pausará la votación y se conservarán los participantes y votos emitidos.');
  $('logout').onclick=()=>{key='';state=null;version=-1;$('login').hidden=false;$('controls').hidden=true;$('admin-gallery').replaceChildren();$('admin-status').textContent='Sesión cerrada.';};
  $('public-link').value=new URL('./?concurso='+encodeURIComponent(new URLSearchParams(location.search).get('concurso')||'15cceb26-b380-4b50-9d1f-0893c9e7cb13'),location.href).href;
  $('copy-link').onclick=async()=>{try{await navigator.clipboard.writeText($('public-link').value);$('admin-status').textContent='Enlace copiado.';}catch{$('public-link').select();$('admin-status').textContent='Copia el enlace seleccionado.';}};
