@@ -43,4 +43,4 @@ Opcional: `NEIBORA_CONTEST_API` cambia la URL de la prueba, sin cambiar el endpo
 
 ## Publicación
 
-Esta rama prepara el módulo para `/concurso/`. Empujar la rama no publica el sitio principal. La publicación general requiere revisar y fusionar el cambio en la rama usada por GitHub Pages, y mantener la API Node activa. Verificar antes desde una red externa `/health`, preflight desde Origin `https://neibora.com`, galería y fotografías. No publicar con una API que responda 502.
+GitHub Pages publica `neibora.com` desde la rama `codex/concurso-disfraces`, carpeta raíz. No es necesario fusionar el PR con master para mantener esta publicación. Los cambios enviados a la rama seleccionada actualizan el sitio completo; los cambios enviados solo a master no se publican mientras no se cambie la fuente. El PR permanece abierto en borrador para revisión. Mantener la API Node activa y verificar desde una red externa `/health`, preflight desde Origin `https://neibora.com`, galería y fotografías. No publicar con una API que responda 502.
