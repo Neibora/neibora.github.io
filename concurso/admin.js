@@ -21,9 +21,17 @@
    const button=node('button',p.removed?'Reincorporar participante':'Retirar participante');button.className='secondary';
    if(p.removed){button.disabled=!p.canRestore;button.dataset.locked=String(!p.canRestore);button.onclick=()=>act({action:'restore',id:p.id},'¿Reincorporar el disfraz de '+p.name+' a la galería y al conteo de votos?');if(!p.canRestore)body.append(node('p','Este registro antiguo ya no conserva su foto.'));}
    else button.onclick=()=>act({action:'remove',id:p.id},'¿Retirar el disfraz de '+p.name+'? Dejará de aparecer en la galería y sus votos no contarán mientras esté retirado. Se conservará el registro para poder reincorporarlo.');
-   body.append(button);card.append(image,body);fragment.append(card);
+   body.append(button);card.append(p.removed?image:neiboraPhotoViewer.button(image,p.costume+' · '+p.name),body);fragment.append(card);
+   const edit=node('button',p.homePending?'Completar domicilio':'Editar domicilio');edit.className='secondary';edit.onclick=()=>openHome(p);body.append(edit);
   }
   $('admin-gallery').replaceChildren(fragment);
+  const rows=document.createDocumentFragment();
+  for(const ballot of next.ballots||[]){
+   const row=node('tr');
+   const values=[ballot.voterName||'Voto anterior sin identificación',ballot.coto||'—',ballot.domicilio||'—',ballot.candidateNumber?'#'+ballot.candidateNumber+' · '+ballot.costume+' · '+ballot.candidateName:'Participante no disponible',ballot.votedAt?new Date(ballot.votedAt).toLocaleString('es-MX',{timeZone:'America/Mexico_City'}):'Sin fecha registrada',ballot.removed?'Retirado · fuera del conteo':'En el conteo'];
+   for(const value of values)row.append(node('td',value));rows.append(row);
+  }
+  $('ballot-rows').replaceChildren(rows);$('ballot-empty').hidden=!!next.ballots?.length;
  }catch(e){$('admin-status').textContent=e.message;}finally{syncing=false;}}
  async function act(body,message){if(busy||!confirm(message))return;busy=true;document.querySelectorAll('button').forEach(b=>b.disabled=true);try{await api('admin',body);$('admin-status').textContent='Cambio guardado.';await sync();}catch(e){$('admin-status').textContent=e.message;}finally{busy=false;document.querySelectorAll('button').forEach(b=>b.disabled=b.dataset.locked==='true');}}
  $('login').onsubmit=e=>{e.preventDefault();key=$('admin-key').value.trim();$('admin-key').value='';version=-1;sync();};
@@ -32,5 +40,13 @@
  $('logout').onclick=()=>{key='';state=null;version=-1;$('login').hidden=false;$('controls').hidden=true;$('admin-gallery').replaceChildren();$('admin-status').textContent='Sesión cerrada.';};
  $('public-link').value=new URL('./?concurso='+encodeURIComponent(new URLSearchParams(location.search).get('concurso')||'15cceb26-b380-4b50-9d1f-0893c9e7cb13'),location.href).href;
  $('copy-link').onclick=async()=>{try{await navigator.clipboard.writeText($('public-link').value);$('admin-status').textContent='Enlace copiado.';}catch{$('public-link').select();$('admin-status').textContent='Copia el enlace seleccionado.';}};
+ function openHome(participant){const form=$('home-form');form.elements.namedItem('id').value=participant.id;form.elements.namedItem('coto').value=participant.coto||'';form.elements.namedItem('domicilio').value=participant.domicilio||'';$('home-status').textContent='';$('home-dialog').showModal();}
+ $('close-home').onclick=()=>{if(!busy)$('home-dialog').close();};
+ $('home-dialog').addEventListener('cancel',event=>{if(busy)event.preventDefault();});
+ $('home-form').onsubmit=async event=>{
+  event.preventDefault();if(busy||!confirm('¿Guardar el coto y domicilio? Estos datos se usarán para impedir votos de la misma vivienda.'))return;
+  busy=true;document.querySelectorAll('button').forEach(button=>button.disabled=true);
+  try{const data=new FormData(event.target);await api('admin',{action:'updateHome',id:data.get('id'),coto:data.get('coto'),domicilio:data.get('domicilio')});$('home-dialog').close();$('admin-status').textContent='Domicilio actualizado.';await sync();}catch(error){$('home-status').textContent=error.message;}finally{busy=false;document.querySelectorAll('button').forEach(button=>button.disabled=button.dataset.locked==='true');}
+ };
  setInterval(sync,2000);
 })();

@@ -7,7 +7,7 @@ Módulo independiente para `https://neibora.com/concurso/`, con API Node en `htt
 1. En `/concurso/`, inscribir nombre o apodo, disfraz, coto, domicilio y fotografía desde cámara o archivos. Es obligatoria la autorización del participante o tutor. El navegador convierte la foto a JPEG de hasta 800 píxeles y descarta los metadatos originales.
 2. La galería se actualiza cada dos segundos, al reconectar y al volver a la pestaña.
 3. En `/concurso/admin.html`, entrar con la clave privada. Retirar o reincorporar disfraces en cualquier etapa, siempre con confirmación.
-4. Abrir votación: se cierran las inscripciones. Confirmar un voto por navegador; los conteos se ocultan al público.
+4. Abrir votación: se cierran las inscripciones. Antes de votar, indicar nombre, coto y domicilio y aceptar que estos datos y la elección sean visibles para administración. No se permite votar por disfraces de la misma vivienda. Confirmar un voto por navegador; los conteos se ocultan al público.
 5. Cerrar votación y publicar resultados. Los empates comparten posición, sin desempates arbitrarios. Administración puede retroceder una etapa: resultados → votación → inscripciones. No se borran participantes ni votos.
 
 El control es **por navegador, no por persona**: borrar almacenamiento o usar otro navegador/dispositivo permite otro voto. Una votación verificada por persona necesita códigos o cuentas y no forma parte de esta versión.
@@ -46,3 +46,11 @@ Opcional: `NEIBORA_CONTEST_API` cambia la URL de la prueba, sin cambiar el endpo
 ## Publicación
 
 GitHub Pages publica `neibora.com` desde la rama `codex/concurso-disfraces`, carpeta raíz. No es necesario fusionar el PR con master para mantener esta publicación. Los cambios enviados a la rama seleccionada actualizan el sitio completo; los cambios enviados solo a master no se publican mientras no se cambie la fuente. El PR permanece abierto en borrador para revisión. Mantener la API Node activa y verificar desde una red externa `/health`, preflight desde Origin `https://neibora.com`, galería y fotografías. No publicar con una API que responda 502.
+
+## Identificación y detalle privado de votos
+
+La API guarda el perfil declarado del votante por sesión de navegador antes de aceptar un voto. Compara coto y domicilio normalizados (mayúsculas, acentos, espacios y puntuación) para bloquear el voto a la misma vivienda; la galería deshabilita ese botón. Un participante sin domicilio completo no puede recibir votos nuevos hasta que administración lo complete mediante Editar domicilio. El perfil no puede cambiar después de votar.
+
+Los datos son declarados por la persona, sin verificación documental ni códigos de vivienda. Escribir otra dirección o usar una sesión nueva puede eludir la identificación; no presentar el sistema como verificación de residencia. Sigue siendo un voto por navegador, no un voto por persona o vivienda.
+
+Solo administración recibe el detalle privado: nombre declarado, coto, domicilio, fecha y disfraz elegido. Cada votante puede consultar únicamente su propio perfil con su token de sesión. Los votos anteriores sin identificación no se atribuyen retrospectivamente: aparecen como voto anterior sin identificación. Las fotos se abren en grande al tocarlas, tanto en la galería como en administración; la vista se cierra con X, Esc o el fondo.

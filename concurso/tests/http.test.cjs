@@ -23,6 +23,10 @@ test('public API supports approved preflight, sessions, photos and voting; rejec
  assert.equal((await write('admin',{action:'restore',id:entry.body.id})).status,401);
  assert.equal((await write('admin',{action:'restore',id:entry.body.id},true)).status,200);
  assert.equal((await fetch(base+'?action=photo&id='+entry.body.id)).status,200);
+ assert.equal((await write('vote',{id:entry.body.id})).status,409);
+ assert.equal((await write('identify',{name:'Votante de prueba',coto:'Asturias',domicilio:'Calle de prueba 1',privacyAccepted:true})).status,200);
+ assert.equal((await write('vote',{id:entry.body.id})).status,403);
+ assert.equal((await write('identify',{name:'Votante de prueba',coto:'Galicia',domicilio:'Otra vivienda 999',privacyAccepted:true})).status,200);
  assert.equal((await write('vote',{id:entry.body.id})).status,200);
  assert.equal((await write('vote',{id:entry.body.id})).status,200);
  assert.equal((await write('admin',{action:'phase',phase:'resultados'},true)).status,200);

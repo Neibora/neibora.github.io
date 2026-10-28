@@ -8,6 +8,17 @@ const local = address => ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(addre
 const phases = ['registro', 'votacion', 'resultados'];
 const ALLOWED_ORIGINS = new Set(['https://neibora.com','https://www.neibora.com','https://neibora.panax.io','https://api.neibora.com']);
 const COTOS = new Set(['Asturias','Cantabria','Galicia','Andalucía']);
+const homeKey=(coto,domicilio)=>{
+ if(!coto||!domicilio)return '';
+ const normalize=value=>String(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\b(casa|numero|num|nro)\b/g,'').replace(/[^a-z0-9]/g,'');
+ return normalize(coto)+':'+normalize(domicilio);
+};
+function resident(input){
+ if(typeof input.name!=='string'||!input.name.trim()||input.name.trim().length>60||/[\x00-\x1f]/.test(input.name))throw fail('Indica el nombre de quien vota.');
+ if(!COTOS.has(input.coto))throw fail('Selecciona un coto válido de La Cantera.');
+ if(typeof input.domicilio!=='string'||!input.domicilio.trim()||input.domicilio.trim().length>140||/[\x00-\x1f]/.test(input.domicilio))throw fail('Indica un domicilio válido.');
+ return {name:input.name.trim(),coto:input.coto,domicilio:input.domicilio.trim()};
+}
 const DEFAULT_ID = '15cceb26-b380-4b50-9d1f-0893c9e7cb13';
 const validId = id => /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(id);
 function jpeg(value) {
@@ -66,7 +77,12 @@ function createContest({root,id=DEFAULT_ID}) {
   const active=new Set(state.participants.filter(p=>!p.removed).map(p=>p.id));
   const choice=state.votes[hash],vote=active.has(choice)?choice:null;
   const activeVotes=Object.values(state.votes).filter(candidate=>active.has(candidate)).length;
-  return {id,version:state.version,phase:state.phase,voted:!!vote,vote,voteWithdrawn:!!choice&&!vote,totalVotes:state.phase==='resultados'||admin?activeVotes:undefined,...(admin?{retiredVotes:Object.keys(state.votes).length-activeVotes}:{}),participants:state.participants.filter(p=>admin||!p.removed).map(({id,number,name,costume,coto,domicilio,removed,photo})=>({id,number,name,costume,coto:coto||'',...(admin?{domicilio:domicilio||'',removed:!!removed,canRestore:!!removed&&!!photo}:{}),...(state.phase==='resultados'||admin?{votes:counts[id]||0}:{})}))};
+  const profile=state.voters?.[hash]||null,house=profile&&homeKey(profile.coto,profile.domicilio);
+  const ballots=admin?Object.entries(state.votes).map(([owner,candidateId],index)=>{
+   const detail=state.voteDetails?.[owner],participant=state.participants.find(p=>p.id===candidateId);
+   return {number:index+1,identified:!!detail,voterName:detail?.name||null,coto:detail?.coto||null,domicilio:detail?.domicilio||null,votedAt:detail?.votedAt||null,candidateId,candidateNumber:participant?.number||null,candidateName:participant?.name||null,costume:participant?.costume||null,removed:!participant||!!participant.removed};
+  }):undefined;
+  return {id,version:state.version,phase:state.phase,voted:!!vote,vote,voteWithdrawn:!!choice&&!vote,voterProfile:profile?{name:profile.name,coto:profile.coto,domicilio:profile.domicilio}:null,totalVotes:state.phase==='resultados'||admin?activeVotes:undefined,...(admin?{retiredVotes:Object.keys(state.votes).length-activeVotes,ballots}:{}),participants:state.participants.filter(p=>admin||!p.removed).map(({id,number,name,costume,coto,domicilio,removed,photo})=>({id,number,name,costume,coto:coto||'',homePending:!homeKey(coto,domicilio),ownHouse:!!house&&house===homeKey(coto,domicilio),...(admin?{domicilio:domicilio||'',removed:!!removed,canRestore:!!removed&&!!photo}:{}),...(state.phase==='resultados'||admin?{votes:counts[id]||0}:{})}))};
  }
  async function register(input) {
   const owner = identity(input.voter);
@@ -93,8 +109,26 @@ function createContest({root,id=DEFAULT_ID}) {
    const previous=state.votes[owner];
    if(previous&&state.participants.some(p=>p.id===previous&&!p.removed)) {if(previous===input.id)return {ok:true};throw fail('Ya votaste desde este navegador.',409);}
    if(state.phase!=='votacion')throw fail('La votación no está abierta.',409);
-   if(!state.participants.some(p=>p.id===input.id&&!p.removed))throw fail('El participante no está disponible.');
-   state.votes[owner]=input.id;return {ok:true};
+   const participant=state.participants.find(p=>p.id===input.id&&!p.removed);
+   if(!participant)throw fail('El participante no está disponible.');
+   const profile=state.voters?.[owner];
+   if(!profile)throw fail('Primero indica tu nombre, coto y domicilio para votar.',409);
+   if(!homeKey(participant.coto,participant.domicilio))throw fail('La administración debe completar el domicilio de este participante antes de recibir votos.',409);
+   if(homeKey(profile.coto,profile.domicilio)===homeKey(participant.coto,participant.domicilio))throw fail('No puedes votar por un disfraz de tu mismo domicilio.',403);
+   state.votes[owner]=input.id;
+   (state.voteDetails??={})[owner]={...profile,participantId:input.id,votedAt:new Date().toISOString()};
+   return {ok:true};
+  });
+ }
+ async function identify(input){
+  const owner=identity(input.voter),profile=resident(input);
+  if(input.privacyAccepted!==true)throw fail('Confirma que tus datos y tu elección serán visibles para administración.');
+  return mutate(state=>{
+   const previous=state.votes[owner];
+   if(previous&&(state.voters?.[owner]||state.participants.some(p=>p.id===previous&&!p.removed)))throw fail('La identidad no puede modificarse después de emitir un voto.',409);
+   if(state.phase!=='votacion')throw fail('La votación no está abierta.',409);
+   (state.voters??={})[owner]={...profile,identifiedAt:new Date().toISOString()};
+   return {ok:true};
   });
  }
  async function administer(input,key) {
@@ -116,12 +150,17 @@ function createContest({root,id=DEFAULT_ID}) {
     if(!participant)throw fail('Participante no encontrado.',404);
     if(!participant.photo)throw fail('Este registro antiguo ya no conserva su foto. Inscríbelo de nuevo durante el registro.',409);
     participant.removed=false;
+   } else if(input.action==='updateHome'){
+    const participant=state.participants.find(p=>p.id===input.id);
+    if(!participant)throw fail('Participante no encontrado.',404);
+    const home=resident({name:participant.name,coto:input.coto,domicilio:input.domicilio});
+    participant.coto=home.coto;participant.domicilio=home.domicilio;
    } else throw fail('Acción inválida.');
    state.actions.push({action:input.action,phase:state.phase,id:input.id||null,at:new Date().toISOString()});
    return {ok:true};
   });
  }
- return {snapshot,register,vote,administer,isAdmin,read,ready};
+ return {snapshot,register,vote,identify,administer,isAdmin,read,ready};
 }
 function registerContest({router,root}) {
  const contest=createContest({root}), buckets=new Map(),contests=new Map([[DEFAULT_ID,contest]]);
@@ -164,6 +203,7 @@ function registerContest({router,root}) {
    input.voter=voter;
    if(action==='register')return res.json(await contest.register(input));
    if(action==='vote')return res.json(await contest.vote(input));
+   if(action==='identify')return res.json(await contest.identify(input));
    if(action==='admin')return res.json(await contest.administer(input,key));
    throw fail('Acción no disponible.',404);
   } catch(e) {res.status(e.status||500).json({ok:false,message:e.status?e.message:'No se pudo guardar. Conserva tus datos e inténtalo de nuevo.'});}
@@ -171,4 +211,4 @@ function registerContest({router,root}) {
  router.get('/contest-api',route);router.post('/contest-api',route);router.options?.('/contest-api',route);
  return contest;
 }
-module.exports={createContest,registerContest,jpeg,DEFAULT_ID};
+module.exports={createContest,registerContest,jpeg,DEFAULT_ID,homeKey};
