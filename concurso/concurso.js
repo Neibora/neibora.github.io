@@ -24,6 +24,7 @@
    const card=node('article',undefined,'card'),img=node('img');img.src=neiboraContest.url('photo',{id:p.id});img.alt='Disfraz: '+p.costume;img.loading='lazy';img.width=400;img.height=500;
    const badge=node('span','#'+String(p.number).padStart(2,'0'),'number'),body=node('div',undefined,'card-body');
    body.append(node('h3',p.costume),node('p',p.name));
+   if(p.coto)body.append(node('p',p.coto));
    if(next.phase==='resultados') {if(lastCount!==p.votes){rank=index+1;lastCount=p.votes;}body.append(node('p',p.votes?rank+'º lugar · '+p.votes+' voto'+(p.votes===1?'':'s'):'Sin votos','result'));}
    if(next.phase==='votacion'){const button=node('button',next.vote===p.id?'✓ Tu favorito':next.voted?'Voto registrado':'Votar por este disfraz','primary');button.disabled=next.voted||!voter;button.onclick=()=>{selected=p;$('vote-choice').textContent='#'+p.number+' · '+p.costume+' — '+p.name;$('vote-dialog').showModal();};body.append(button);}
    card.append(img,badge,body);fragment.append(card);
@@ -47,7 +48,7 @@
   event.preventDefault();if(busy||!voter)return;
   if(!photo){$('form-status').textContent='Espera a que termine de cargar la foto o elige otra.';return;}
   busy=true;const button=event.target.querySelector('[type=submit]');button.disabled=true;$('form-status').textContent='Publicando tu disfraz…';
-  try{const data=new FormData(event.target),result=await api('register',{name:data.get('name'),costume:data.get('costume'),photo,consent:data.get('consent')==='on',requestId});$('registration').close();event.target.reset();photo='';photoVersion++;$('preview').hidden=true;requestId='';$('status').textContent='¡Listo! Tu disfraz es el número '+result.number+'.';await sync();$('participantes').scrollIntoView({behavior:'smooth'});}catch(e){$('form-status').textContent=e.message;}finally{busy=false;button.disabled=false;}
+  try{const data=new FormData(event.target),result=await api('register',{name:data.get('name'),costume:data.get('costume'),coto:data.get('coto'),domicilio:data.get('domicilio'),photo,consent:data.get('consent')==='on',requestId});$('registration').close();event.target.reset();photo='';photoVersion++;$('preview').hidden=true;requestId='';$('status').textContent='¡Listo! Tu disfraz es el número '+result.number+'.';await sync();$('participantes').scrollIntoView({behavior:'smooth'});}catch(e){$('form-status').textContent=e.message;}finally{busy=false;button.disabled=false;}
  };
  $('confirm-vote').onclick=async()=>{
   if(busy||!selected)return;busy=true;$('confirm-vote').disabled=true;

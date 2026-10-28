@@ -4,7 +4,7 @@ Módulo independiente para `https://neibora.com/concurso/`, con API Node en `htt
 
 ## Participación
 
-1. En `/concurso/`, inscribir nombre o apodo, disfraz y fotografía desde cámara o archivos. Es obligatoria la autorización del participante o tutor. El navegador convierte la foto a JPEG de hasta 800 píxeles y descarta los metadatos originales.
+1. En `/concurso/`, inscribir nombre o apodo, disfraz, coto, domicilio y fotografía desde cámara o archivos. Es obligatoria la autorización del participante o tutor. El navegador convierte la foto a JPEG de hasta 800 píxeles y descarta los metadatos originales.
 2. La galería se actualiza cada dos segundos, al reconectar y al volver a la pestaña.
 3. En `/concurso/admin.html`, entrar con la clave privada. Retirar pruebas o duplicados antes de abrir votación.
 4. Abrir votación: se cierran las inscripciones. Confirmar un voto por navegador; los conteos se ocultan al público.
@@ -23,6 +23,8 @@ La API admite solicitudes del navegador desde `https://neibora.com`, `https://ww
 Datos, fotografías JPEG codificadas y votos: `repository/concursos/<UUID>/concurso.json`. Halloween: `15cceb26-b380-4b50-9d1f-0893c9e7cb13`. El parámetro `?concurso=<UUID>` selecciona otro concurso existente; visitar UUID desconocidos no crea directorios.
 
 La clave se genera en `App_Data/concurso/<UUID>.key`. Nunca incluir claves, fotos ni registros reales en Git. Las reglas de `.gitignore` excluyen los directorios de datos y claves; `repository/concursos/web.config` bloquea descargas directas de JSON en IIS. Solo los endpoints controlados entregan las fotografías y la galería. El frontend mantiene la clave de administración en memoria, sin guardarla en la URL ni en almacenamiento del navegador.
+
+El coto se muestra en la galería. El domicilio solo aparece en las respuestas autenticadas de administración, nunca en la galería pública ni en los resultados. Los registros anteriores que no tengan estos campos se conservan y aparecen en administración como no registrados.
 
 Los datos no se borran automáticamente. La administración debe definir la conservación de las fotos después del evento. El retiro de un participante durante inscripciones elimina su foto del estado actual.
 

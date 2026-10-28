@@ -7,6 +7,7 @@ const fail = (message, status = 400) => Object.assign(new Error(message), {statu
 const local = address => ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(address);
 const phases = ['registro', 'votacion', 'resultados'];
 const ALLOWED_ORIGINS = new Set(['https://neibora.com','https://www.neibora.com','https://neibora.panax.io','https://api.neibora.com']);
+const COTOS = new Set(['Asturias','Cantabria','Galicia','Andalucía']);
 const DEFAULT_ID = '15cceb26-b380-4b50-9d1f-0893c9e7cb13';
 const validId = id => /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(id);
 function jpeg(value) {
@@ -62,12 +63,15 @@ function createContest({root,id=DEFAULT_ID}) {
   const state = await read(), hash = voter && /^[a-f0-9]{64}$/.test(voter) ? digest(voter) : '';
   const counts = {};
   if (state.phase === 'resultados' || admin) Object.values(state.votes).forEach(id => counts[id] = (counts[id]||0)+1);
-  return {id,version:state.version,phase:state.phase,voted:!!state.votes[hash],vote:state.votes[hash]||null,totalVotes:state.phase==='resultados'||admin?Object.keys(state.votes).length:undefined,participants:state.participants.filter(p=>!p.removed).map(({id,number,name,costume})=>({id,number,name,costume,...(state.phase==='resultados'||admin?{votes:counts[id]||0}:{})}))};
+  return {id,version:state.version,phase:state.phase,voted:!!state.votes[hash],vote:state.votes[hash]||null,totalVotes:state.phase==='resultados'||admin?Object.keys(state.votes).length:undefined,participants:state.participants.filter(p=>!p.removed).map(({id,number,name,costume,coto,domicilio})=>({id,number,name,costume,coto:coto||'',...(admin?{domicilio:domicilio||''}:{}),...(state.phase==='resultados'||admin?{votes:counts[id]||0}:{})}))};
  }
  async function register(input) {
   const owner = identity(input.voter);
-  const clean = (value,label) => {if(typeof value!=='string'||!value.trim()||value.trim().length>60||/[\x00-\x1f]/.test(value))throw fail('Revisa '+label+'.');return value.trim();};
+  const clean = (value,label,max=60) => {if(typeof value!=='string'||!value.trim()||value.trim().length>max||/[\x00-\x1f]/.test(value))throw fail('Revisa '+label+'.');return value.trim();};
   const name = clean(input.name,'el nombre o apodo'), costume = clean(input.costume,'el disfraz');
+  if(!input.coto||!input.domicilio)throw fail('Indica tu coto y domicilio. Si no ves esos campos, actualiza la página.');
+  if(!COTOS.has(input.coto))throw fail('Selecciona un coto válido de La Cantera.');
+  const coto=input.coto,domicilio=clean(input.domicilio,'el domicilio',140);
   if(input.consent !== true) throw fail('Confirma la autorización para compartir la fotografía.');
   if(typeof input.requestId!=='string'||!/^[a-f0-9-]{36}$/.test(input.requestId))throw fail('Identificador de registro inválido.');
   const photo = jpeg(input.photo);
@@ -76,7 +80,7 @@ function createContest({root,id=DEFAULT_ID}) {
    if(prior)return {id:prior.id,number:prior.number};
    if(state.phase!=='registro')throw fail('Las inscripciones ya están cerradas.',409);
    if(state.participants.length>=200 || state.participants.filter(p=>p.owner===owner).length>=10)throw fail('Se alcanzó el límite de registros. Consulta a administración.',409);
-   const participant = {id:crypto.randomUUID(),number:state.participants.length+1,name,costume,photo,owner,requestId:input.requestId,consentAt:new Date().toISOString()};
+   const participant = {id:crypto.randomUUID(),number:state.participants.length+1,name,costume,coto,domicilio,photo,owner,requestId:input.requestId,consentAt:new Date().toISOString()};
    state.participants.push(participant);return {id:participant.id,number:participant.number};
   });
  }
