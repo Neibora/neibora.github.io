@@ -364,3 +364,7 @@ FodyWeavers.xsd
 /instruccion_pago/instruccion_pago.xml
 /carta_no_adeudo/carta_no_adeudo.xml
 /recibo_pago/recibo_pago.xml
+
+# Concurso: registros, fotos, votos y claves locales
+/repository/concursos/*/
+/App_Data/concurso/
