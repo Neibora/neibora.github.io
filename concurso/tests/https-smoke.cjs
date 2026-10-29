@@ -16,12 +16,10 @@ async function main(){
   const photoURL=new URL(base);photoURL.searchParams.set('action','photo');photoURL.searchParams.set('concurso',id);photoURL.searchParams.set('id',first.result.id);const image=await fetch(photoURL);assert.equal(image.status,200);assert.equal(image.headers.get('content-type').split(';')[0],'image/jpeg');assert.equal((await image.arrayBuffer()).byteLength,Buffer.from(photo.split(',')[1],'base64').length);
   assert.equal((await request('admin',{action:'phase',phase:'votacion'},key)).status,200);
   assert.equal((await request('register',{...input,requestId:crypto.randomUUID()})).status,409);
-  assert.equal((await request('identify',{name:'Votante de prueba',coto:'Galicia',domicilio:'Calle de prueba 1',privacyAccepted:true})).status,200);
   assert.equal((await request('state')).result.participants[0].ownHouse,true);
   assert.equal((await request('vote',{id:first.result.id})).status,403);
-  assert.equal((await request('identify',{name:'Votante de prueba',coto:'Andalucía',domicilio:'Otra vivienda 999',privacyAccepted:true})).status,200);
-  assert.equal((await request('vote',{id:first.result.id})).status,200);assert.equal((await request('vote',{id:first.result.id})).status,200);
-  assert.equal((await request('state')).result.totalVotes,undefined);assert.equal((await request('state',undefined,'',other)).result.ballots,undefined);const audit=(await request('state',undefined,key)).result.ballots;assert.equal(audit[0].voterName,'Votante de prueba');assert.equal(audit[0].candidateId,first.result.id);assert.equal((await request('state',undefined,key)).result.totalVotes,1);
+  assert.equal((await request('vote',{id:first.result.id},'',other)).status,200);assert.equal((await request('vote',{id:first.result.id},'',other)).status,200);
+  assert.equal((await request('state')).result.totalVotes,undefined);assert.equal((await request('state',undefined,'',other)).result.ballots,undefined);const audit=(await request('state',undefined,key)).result.ballots;assert.equal(audit[0].voterName,null);assert.match(audit[0].browserId,/^NAV-/);assert.equal(audit[0].candidateId,first.result.id);assert.equal((await request('state',undefined,key)).result.totalVotes,1);
   assert.equal((await request('admin',{action:'phase',phase:'resultados'},key)).status,200);assert.equal((await request('state')).result.participants[0].votes,1);
   assert.equal((await request('admin',{action:'remove',id:first.result.id},key)).status,200);
   assert.equal((await request('state')).result.participants.length,0);assert.equal((await fetch(photoURL)).status,404);
@@ -29,10 +27,10 @@ async function main(){
   assert.equal((await request('state')).result.totalVotes,1);assert.equal((await fetch(photoURL)).status,200);
   assert.equal((await request('admin',{action:'phase',from:'resultados',phase:'votacion'},key)).status,200);
   assert.equal((await request('admin',{action:'phase',from:'votacion',phase:'registro'},key)).status,200);
-  assert.equal((await request('state')).result.phase,'registro');assert.equal((await request('state')).result.voted,true);
+  assert.equal((await request('state')).result.phase,'registro');assert.equal((await request('state',undefined,'',other)).result.voted,true);
   assert.equal((await fetch(base.origin+'/repository/concursos/'+id+'/concurso.json')).status,404);
   const rejected=await fetch(base+'?action=register',{method:'POST',headers:{Origin:'https://example.invalid','Content-Type':'application/json'},body:'{}'});assert.equal(rejected.status,403);
-  console.log('PASS HTTPS: registration, photo, voting, private domicile, reversible stages, retire/restore, preserved ballots and hidden retired photos.');
+  console.log('PASS HTTPS: anonymous voting, persistent uploader self-vote block, private browser audit, photos and reversible operations.');
  }finally{await fs.rm(directory,{recursive:true,force:true});await fs.unlink(privateKey).catch(()=>{});}
 }
 main().catch(error=>{console.error(error);process.exitCode=1;});

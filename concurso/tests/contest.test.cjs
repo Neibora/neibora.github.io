@@ -2,7 +2,7 @@ const {test}=require('node:test'),assert=require('node:assert/strict'),fs=requir
 const {createContest,jpeg,registerContest}=require('../server.cjs');
 const {DEFAULT_ID}=require('../server.cjs');
 const token=()=>crypto.randomBytes(32).toString('hex');
-async function cast(contest,input){const state=await contest.read(),owner=crypto.createHash('sha256').update(input.voter).digest('hex');if(state.phase==='votacion'&&!state.voters?.[owner]&&!state.votes[owner])await contest.identify({voter:input.voter,name:'Votante de prueba',coto:'Andalucía',domicilio:'Otra vivienda 999',privacyAccepted:true});return contest.vote(input);}
+async function cast(contest,input){return contest.vote(input);}
 async function setup(t){const root=await fs.mkdtemp(path.join(__dirname,'runtime-'));t.after(()=>fs.rm(root,{recursive:true,force:true}));const contest=createContest({root});const {key}=await contest.ready;const photo='data:image/jpeg;base64,'+(await fs.readFile(path.join(__dirname,'costume.jpg'))).toString('base64');const entry=(extra={})=>({voter:token(),requestId:crypto.randomUUID(),name:'Luna',costume:'Brujita',consent:true,coto:'Cantabria',domicilio:'Calle de prueba 1',photo,...extra});return {root,contest,key,entry};}
 test('registration publishes gallery, strips internal fields, retries once and survives restart',async t=>{const {root,contest,entry}=await setup(t);const input=entry(),result=await contest.register(input);assert.equal(result.number,1);assert.deepEqual(await contest.register(input),result);const state=await contest.snapshot();assert.equal(state.participants.length,1);assert.deepEqual(Object.keys(state.participants[0]).sort(),['costume','coto','homePending','id','name','number','ownHouse']);assert.equal(state.totalVotes,undefined);assert.equal((await createContest({root}).snapshot()).participants.length,1);});
 test('simultaneous registrations get unique numbers and votes are counted once',async t=>{const {contest,entry,key}=await setup(t);await Promise.all(Array.from({length:12},()=>contest.register(entry())));let snapshot=await contest.snapshot();assert.equal(new Set(snapshot.participants.map(p=>p.number)).size,12);await contest.administer({action:'phase',phase:'votacion'},key);const voter=token(),id=snapshot.participants[0].id;await Promise.all(Array.from({length:15},()=>cast(contest,{voter,id})));snapshot=await contest.snapshot(voter,true);assert.equal(snapshot.totalVotes,1);assert.equal(snapshot.voted,true);await assert.rejects(cast(contest,{voter,id:snapshot.participants[1].id}),/Ya votaste/);});
@@ -61,31 +61,31 @@ test('a withdrawn choice can be replaced without adding a second vote when resto
  await cast(contest,{voter,id:second.id});await contest.administer({action:'restore',id:first.id},key);
  const state=await contest.snapshot(voter,true);assert.equal(state.totalVotes,1);assert.equal(state.vote,second.id);assert.equal(state.participants.find(p=>p.id===first.id).votes,0);assert.equal(state.participants.find(p=>p.id===second.id).votes,1);
 });
-test('same household blocked by server and UI flag; different coto is a different household',async t=>{
- const {contest,entry,key}=await setup(t),candidate=await contest.register(entry({coto:'Andalucía',domicilio:'Calle Prueba #12'})),voter=token();
+test('persistent uploader ID blocks self-voting without registering voters',async t=>{
+ const {contest,entry,key,root}=await setup(t),uploader=token(),guest=token(),candidate=await contest.register(entry({voter:uploader}));
  await contest.administer({action:'phase',phase:'votacion'},key);
- await assert.rejects(contest.vote({voter,id:candidate.id}),/Primero indica/);
- await contest.identify({voter,name:'Persona de prueba',coto:'Andalucía',domicilio:' CALLE PRUEBA 12 ',privacyAccepted:true});
- assert.equal((await contest.snapshot(voter)).participants[0].ownHouse,true);
- await assert.rejects(contest.vote({voter,id:candidate.id}),/mismo domicilio/);
- await contest.identify({voter,name:'Persona de prueba',coto:'Cantabria',domicilio:'Calle Prueba 12',privacyAccepted:true});
- assert.equal((await contest.snapshot(voter)).participants[0].ownHouse,false);await contest.vote({voter,id:candidate.id});
- await assert.rejects(contest.identify({voter,name:'Otro nombre',coto:'Galicia',domicilio:'Casa 99',privacyAccepted:true}),/después de emitir/);
+ assert.equal((await contest.snapshot(uploader)).participants[0].ownHouse,true);
+ assert.equal((await contest.snapshot(guest)).participants[0].ownHouse,false);
+ await assert.rejects(contest.vote({voter:uploader,id:candidate.id}),/mismo navegador/);
+ await contest.vote({voter:guest,id:candidate.id});
+ const reloaded=createContest({root});assert.equal((await reloaded.snapshot(uploader)).participants[0].ownHouse,true);assert.equal((await reloaded.snapshot(guest)).voted,true);
+ assert.equal((await contest.read()).voters,undefined);
 });
-test('voter data and ballot detail are private; prior ballots remain honestly unidentified',async t=>{
- const {contest,entry,key}=await setup(t),candidate=await contest.register(entry()),voter=token();
- await contest.administer({action:'phase',phase:'votacion'},key);
- await contest.identify({voter,name:'Votante privado',coto:'Asturias',domicilio:'Dirección privada 77',privacyAccepted:true});await contest.vote({voter,id:candidate.id});
- const stranger=await contest.snapshot(token());assert.equal(stranger.voterProfile,null);assert.equal(stranger.ballots,undefined);assert.equal(JSON.stringify(stranger).includes('Dirección privada'),false);assert.equal(JSON.stringify(stranger).includes('Votante privado'),false);
- const audit=(await contest.snapshot(undefined,true)).ballots;assert.equal(audit[0].voterName,'Votante privado');assert.equal(audit[0].domicilio,'Dirección privada 77');assert.equal(audit[0].candidateId,candidate.id);assert.ok(audit[0].votedAt);
- const legacyOwner=crypto.createHash('sha256').update(token()).digest('hex');(await contest.read()).votes[legacyOwner]=candidate.id;
- const legacy=(await contest.snapshot(undefined,true)).ballots.find(ballot=>!ballot.identified);assert.equal(legacy.voterName,null);assert.equal(legacy.domicilio,null);
+test('anonymous ballot audit uses a stable browser ID and keeps old personal details private',async t=>{
+ const {contest,entry,key}=await setup(t),candidate=await contest.register(entry()),guest=token();
+ await contest.administer({action:'phase',phase:'votacion'},key);await contest.vote({voter:guest,id:candidate.id});
+ const receipt=await contest.snapshot(guest),stranger=await contest.snapshot(token());assert.match(receipt.voterId,/^NAV-[a-f0-9]{12}$/);assert.equal(receipt.ballots,undefined);assert.equal(stranger.ballots,undefined);
+ const audit=(await contest.snapshot(undefined,true)).ballots;assert.equal(audit[0].browserId,receipt.voterId);assert.equal(audit[0].voterName,null);assert.equal(audit[0].candidateId,candidate.id);assert.ok(audit[0].votedAt);
+ const legacyOwner=crypto.createHash('sha256').update(token()).digest('hex'),state=await contest.read();state.votes[legacyOwner]=candidate.id;state.voteDetails[legacyOwner]={name:'Votante anterior',coto:'Asturias',domicilio:'Dirección privada anterior',participantId:candidate.id};
+ const legacy=(await contest.snapshot(undefined,true)).ballots.find(ballot=>ballot.identified);assert.equal(legacy.voterName,'Votante anterior');assert.equal(legacy.domicilio,'Dirección privada anterior');assert.equal(JSON.stringify(await contest.snapshot(token())).includes('Dirección privada anterior'),false);
 });
-test('missing household blocks voting until authenticated administration completes it',async t=>{
- const {contest,entry,key}=await setup(t),candidate=await contest.register(entry()),voter=token();
+test('legacy uploads without domicile still use the uploader ID to block self-votes',async t=>{
+ const {contest,entry,key}=await setup(t),uploader=token(),candidate=await contest.register(entry({voter:uploader})),guest=token();
  delete (await contest.read()).participants[0].domicilio;
- await contest.administer({action:'phase',phase:'votacion'},key);await contest.identify({voter,name:'Persona de prueba',coto:'Galicia',domicilio:'Otra casa 1',privacyAccepted:true});
- assert.equal((await contest.snapshot(voter)).participants[0].homePending,true);await assert.rejects(contest.vote({voter,id:candidate.id}),/completar el domicilio/);
+ await contest.administer({action:'phase',phase:'votacion'},key);
+ await assert.rejects(contest.vote({voter:uploader,id:candidate.id}),/mismo navegador/);
+ await contest.vote({voter:guest,id:candidate.id});assert.equal((await contest.snapshot(guest)).voted,true);
  await assert.rejects(contest.administer({action:'updateHome',id:candidate.id,coto:'Cantabria',domicilio:'Casa 12'},token()),/incorrecta/);
- await contest.administer({action:'updateHome',id:candidate.id,coto:'Cantabria',domicilio:'Casa 12'},key);await contest.vote({voter,id:candidate.id});assert.equal((await contest.snapshot(voter)).voted,true);
+ await contest.administer({action:'updateHome',id:candidate.id,coto:'Cantabria',domicilio:'Casa 12'},key);
+ assert.equal((await contest.snapshot(uploader)).participants[0].ownHouse,true);
 });

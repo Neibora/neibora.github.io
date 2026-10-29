@@ -28,7 +28,7 @@
   const rows=document.createDocumentFragment();
   for(const ballot of next.ballots||[]){
    const row=node('tr');
-   const values=[ballot.voterName||'Voto anterior sin identificación',ballot.coto||'—',ballot.domicilio||'—',ballot.candidateNumber?'#'+ballot.candidateNumber+' · '+ballot.costume+' · '+ballot.candidateName:'Participante no disponible',ballot.votedAt?new Date(ballot.votedAt).toLocaleString('es-MX',{timeZone:'America/Mexico_City'}):'Sin fecha registrada',ballot.removed?'Retirado · fuera del conteo':'En el conteo'];
+   const values=[ballot.voterName?ballot.voterName+' · '+ballot.browserId:ballot.browserId||'Sin identificador',ballot.coto||'—',ballot.domicilio||'—',ballot.candidateNumber?'#'+ballot.candidateNumber+' · '+ballot.costume+' · '+ballot.candidateName:'Participante no disponible',ballot.votedAt?new Date(ballot.votedAt).toLocaleString('es-MX',{timeZone:'America/Mexico_City'}):'Sin fecha registrada',ballot.removed?'Retirado · fuera del conteo':'En el conteo'];
    for(const value of values)row.append(node('td',value));rows.append(row);
   }
   $('ballot-rows').replaceChildren(rows);$('ballot-empty').hidden=!!next.ballots?.length;
@@ -44,7 +44,7 @@
  $('close-home').onclick=()=>{if(!busy)$('home-dialog').close();};
  $('home-dialog').addEventListener('cancel',event=>{if(busy)event.preventDefault();});
  $('home-form').onsubmit=async event=>{
-  event.preventDefault();if(busy||!confirm('¿Guardar el coto y domicilio? Estos datos se usarán para impedir votos de la misma vivienda.'))return;
+  event.preventDefault();if(busy||!confirm('¿Guardar el coto y domicilio? Estos datos identificarán la vivienda del participante.'))return;
   busy=true;document.querySelectorAll('button').forEach(button=>button.disabled=true);
   try{const data=new FormData(event.target);await api('admin',{action:'updateHome',id:data.get('id'),coto:data.get('coto'),domicilio:data.get('domicilio')});$('home-dialog').close();$('admin-status').textContent='Domicilio actualizado.';await sync();}catch(error){$('home-status').textContent=error.message;}finally{busy=false;document.querySelectorAll('button').forEach(button=>button.disabled=button.dataset.locked==='true');}
  };

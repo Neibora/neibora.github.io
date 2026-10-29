@@ -11,8 +11,7 @@
   $('open-registration').firstChild.textContent=next.phase==='registro'?'Inscribir un disfraz ': 'Inscripciones cerradas ';
   $('phase-label').textContent=labels[next.phase];$('gallery-title').textContent=next.phase==='resultados'?'El aplauso de la comunidad':'La pasarela de La Cantera';
   $('phase-description').textContent=next.phase==='registro'?'Los nuevos disfraces aparecerán aquí automáticamente.':next.phase==='votacion'?'Mira todos los disfraces y elige tu favorito.':'¡Gracias a todos por participar! En caso de empate, los concursantes comparten posición.';
-  $('vote-note').hidden=next.phase!=='votacion';$('vote-note').textContent=next.voted?'¡Tu voto quedó registrado! Espera los resultados al cerrar la votación.':!next.voterProfile?'Indica tu nombre, coto y domicilio para votar. No puedes votar por disfraces de tu misma vivienda.':next.voteWithdrawn?'El disfraz que elegiste fue retirado. Puedes votar por otro participante.':'Elige tu favorito. Los disfraces de tu mismo domicilio están deshabilitados. Tu elección será visible solo para administración.';
-  $('open-voter-profile').hidden=next.phase!=='votacion'||next.voted;$('open-voter-profile').textContent=next.voterProfile?'Revisar mis datos':'Identificarme para votar';
+  $('vote-note').hidden=next.phase!=='votacion';$('vote-note').textContent=next.voted?'¡Tu voto quedó registrado! Espera los resultados al cerrar la votación.':next.voteWithdrawn?'El disfraz que elegiste fue retirado. Puedes votar por otro participante.':'Vota sin registrarte. No puedes votar por disfraces subidos desde este navegador. Solo se permite un voto por navegador.';
   $('participant-count').textContent=next.participants.length+' participante'+(next.participants.length===1?'':'s');
   document.querySelectorAll('[data-stage]').forEach(el=>el.classList.toggle('active',el.dataset.stage===next.phase));
   $('empty').hidden=!!next.participants.length;
@@ -28,23 +27,15 @@
    if(p.coto)body.append(node('p',p.coto));
    if(next.phase==='resultados') {if(lastCount!==p.votes){rank=index+1;lastCount=p.votes;}body.append(node('p',p.votes?rank+'º lugar · '+p.votes+' voto'+(p.votes===1?'':'s'):'Sin votos','result'));}
    if(next.phase==='votacion'){
-    const button=node('button',p.homePending?'Domicilio pendiente':p.ownHouse?'Tu domicilio · no puedes votar':next.vote===p.id?'✓ Tu favorito':next.voted?'Voto registrado':next.voterProfile?'Votar por este disfraz':'Identificarme para votar','primary');
-    button.disabled=next.voted||!voter||p.ownHouse||p.homePending;
-    button.onclick=()=>{if(!next.voterProfile)return openProfile();selected=p;$('vote-choice').textContent='#'+p.number+' · '+p.costume+' — '+p.name;$('vote-dialog').showModal();};body.append(button);
+    const button=node('button',p.ownHouse?'Subido desde este navegador':next.vote===p.id?'✓ Tu favorito':next.voted?'Voto registrado':'Votar por este disfraz','primary');
+    button.disabled=next.voted||!voter||p.ownHouse;
+    button.onclick=()=>{selected=p;$('vote-choice').textContent='#'+p.number+' · '+p.costume+' — '+p.name;$('vote-dialog').showModal();};body.append(button);
    }
    card.append(neiboraPhotoViewer.button(img,p.costume+' · '+p.name),badge,body);fragment.append(card);
   });
   $('gallery').replaceChildren(fragment);
  }
  async function sync(){if(syncing||document.hidden)return;syncing=true;try{render(await api('state'));}catch{$('connection').textContent='Sin conexión · reintentando';}finally{syncing=false;}}
- function openProfile(){const form=$('voter-form');form.reset();for(const name of ['name','coto','domicilio'])form.elements.namedItem(name).value=state?.voterProfile?.[name]||'';$('voter-status').textContent='';$('voter-dialog').showModal();}
- $('open-voter-profile').onclick=openProfile;
- $('close-voter-profile').onclick=()=>{if(!busy)$('voter-dialog').close();};
- $('voter-dialog').addEventListener('cancel',event=>{if(busy)event.preventDefault();});
- $('voter-form').onsubmit=async event=>{
-  event.preventDefault();if(busy||!voter)return;busy=true;const button=event.target.querySelector('[type=submit]');button.disabled=true;
-  try{const data=new FormData(event.target);await api('identify',{name:data.get('name'),coto:data.get('coto'),domicilio:data.get('domicilio'),privacyAccepted:data.get('privacy')==='on'});$('voter-dialog').close();lastVersion=-1;await sync();$('status').textContent='Datos guardados. Ya puedes elegir un disfraz de otra vivienda.';}catch(error){$('voter-status').textContent=error.message;}finally{busy=false;button.disabled=false;}
- };
  $('open-registration').onclick=()=>{requestId=requestId||crypto.randomUUID();$('registration').showModal();};
  document.querySelector('[data-close]').onclick=()=>{if(!busy)$('registration').close();};
  $('registration').addEventListener('cancel',e=>{if(busy)e.preventDefault();});

@@ -11,7 +11,7 @@ test('public API supports approved preflight, sessions, photos and voting; rejec
  const forbidden=await fetch(base,{method:'OPTIONS',headers:{Origin:'https://example.invalid','Access-Control-Request-Method':'POST'}});assert.equal(forbidden.status,403);assert.equal(forbidden.headers.get('access-control-allow-origin'),null);
  const photo='data:image/jpeg;base64,'+(await fs.readFile(path.join(__dirname,'costume.jpg'))).toString('base64');
  const data={name:'Prueba',costume:'Calabaza',coto:'Asturias',domicilio:'Calle de prueba 1',photo,consent:true,requestId:crypto.randomUUID()};
- const write=async(action,input,admin=false)=>{const response=await fetch(base+'?action='+action,{method:'POST',headers:{...headers,...(admin?{'X-Contest-Admin':key}:{})},body:JSON.stringify(input)});return {status:response.status,body:await response.json()};};
+ const write=async(action,input,admin=false,session=voter)=>{const response=await fetch(base+'?action='+action,{method:'POST',headers:{...headers,'X-Contest-Voter':session,...(admin?{'X-Contest-Admin':key}:{})},body:JSON.stringify(input)});return {status:response.status,body:await response.json()};};
  const rejected=await fetch(base+'?action=register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});assert.equal(rejected.status,403);
  const entry=await write('register',data);assert.equal(entry.status,200);
  const spectator=await(await fetch(base,{headers:{Origin:headers.Origin}})).json();assert.equal(spectator.participants.length,1);assert.equal(spectator.participants[0].votes,undefined);assert.equal(spectator.participants[0].coto,'Asturias');assert.equal(spectator.participants[0].domicilio,undefined);
@@ -23,12 +23,11 @@ test('public API supports approved preflight, sessions, photos and voting; rejec
  assert.equal((await write('admin',{action:'restore',id:entry.body.id})).status,401);
  assert.equal((await write('admin',{action:'restore',id:entry.body.id},true)).status,200);
  assert.equal((await fetch(base+'?action=photo&id='+entry.body.id)).status,200);
- assert.equal((await write('vote',{id:entry.body.id})).status,409);
- assert.equal((await write('identify',{name:'Votante de prueba',coto:'Asturias',domicilio:'Calle de prueba 1',privacyAccepted:true})).status,200);
  assert.equal((await write('vote',{id:entry.body.id})).status,403);
- assert.equal((await write('identify',{name:'Votante de prueba',coto:'Galicia',domicilio:'Otra vivienda 999',privacyAccepted:true})).status,200);
- assert.equal((await write('vote',{id:entry.body.id})).status,200);
- assert.equal((await write('vote',{id:entry.body.id})).status,200);
+ const guest=crypto.randomBytes(32).toString('hex');
+ assert.equal((await write('vote',{id:entry.body.id},false,guest)).status,200);
+ assert.equal((await write('vote',{id:entry.body.id},false,guest)).status,200);
+ const privateAudit=await(await fetch(base,{headers:{...headers,'X-Contest-Admin':key}})).json();assert.match(privateAudit.ballots[0].browserId,/^NAV-/);assert.equal(privateAudit.ballots[0].voterName,null);
  assert.equal((await write('admin',{action:'phase',phase:'resultados'},true)).status,200);
  assert.equal((await(await fetch(base)).json()).participants[0].votes,1);
  assert.equal((await write('admin',{action:'phase',from:'resultados',phase:'votacion'},true)).status,200);

@@ -77,12 +77,11 @@ function createContest({root,id=DEFAULT_ID}) {
   const active=new Set(state.participants.filter(p=>!p.removed).map(p=>p.id));
   const choice=state.votes[hash],vote=active.has(choice)?choice:null;
   const activeVotes=Object.values(state.votes).filter(candidate=>active.has(candidate)).length;
-  const profile=state.voters?.[hash]||null,house=profile&&homeKey(profile.coto,profile.domicilio);
   const ballots=admin?Object.entries(state.votes).map(([owner,candidateId],index)=>{
    const detail=state.voteDetails?.[owner],participant=state.participants.find(p=>p.id===candidateId);
-   return {number:index+1,identified:!!detail,voterName:detail?.name||null,coto:detail?.coto||null,domicilio:detail?.domicilio||null,votedAt:detail?.votedAt||null,candidateId,candidateNumber:participant?.number||null,candidateName:participant?.name||null,costume:participant?.costume||null,removed:!participant||!!participant.removed};
+   return {number:index+1,browserId:'NAV-'+owner.slice(0,12),identified:!!detail?.name,voterName:detail?.name||null,coto:detail?.coto||null,domicilio:detail?.domicilio||null,votedAt:detail?.votedAt||null,candidateId,candidateNumber:participant?.number||null,candidateName:participant?.name||null,costume:participant?.costume||null,removed:!participant||!!participant.removed};
   }):undefined;
-  return {id,version:state.version,phase:state.phase,voted:!!vote,vote,voteWithdrawn:!!choice&&!vote,voterProfile:profile?{name:profile.name,coto:profile.coto,domicilio:profile.domicilio}:null,totalVotes:state.phase==='resultados'||admin?activeVotes:undefined,...(admin?{retiredVotes:Object.keys(state.votes).length-activeVotes,ballots}:{}),participants:state.participants.filter(p=>admin||!p.removed).map(({id,number,name,costume,coto,domicilio,removed,photo})=>({id,number,name,costume,coto:coto||'',homePending:!homeKey(coto,domicilio),ownHouse:!!house&&house===homeKey(coto,domicilio),...(admin?{domicilio:domicilio||'',removed:!!removed,canRestore:!!removed&&!!photo}:{}),...(state.phase==='resultados'||admin?{votes:counts[id]||0}:{})}))};
+  return {id,version:state.version,phase:state.phase,voterId:hash?'NAV-'+hash.slice(0,12):null,voted:!!vote,vote,voteWithdrawn:!!choice&&!vote,totalVotes:state.phase==='resultados'||admin?activeVotes:undefined,...(admin?{retiredVotes:Object.keys(state.votes).length-activeVotes,ballots}:{}),participants:state.participants.filter(p=>admin||!p.removed).map(({id,number,name,costume,coto,domicilio,removed,photo,owner})=>({id,number,name,costume,coto:coto||'',homePending:!homeKey(coto,domicilio),ownHouse:!!hash&&owner===hash,...(admin?{domicilio:domicilio||'',removed:!!removed,canRestore:!!removed&&!!photo}:{}),...(state.phase==='resultados'||admin?{votes:counts[id]||0}:{})}))};
  }
  async function register(input) {
   const owner = identity(input.voter);
@@ -111,23 +110,9 @@ function createContest({root,id=DEFAULT_ID}) {
    if(state.phase!=='votacion')throw fail('La votación no está abierta.',409);
    const participant=state.participants.find(p=>p.id===input.id&&!p.removed);
    if(!participant)throw fail('El participante no está disponible.');
-   const profile=state.voters?.[owner];
-   if(!profile)throw fail('Primero indica tu nombre, coto y domicilio para votar.',409);
-   if(!homeKey(participant.coto,participant.domicilio))throw fail('La administración debe completar el domicilio de este participante antes de recibir votos.',409);
-   if(homeKey(profile.coto,profile.domicilio)===homeKey(participant.coto,participant.domicilio))throw fail('No puedes votar por un disfraz de tu mismo domicilio.',403);
+   if(participant.owner===owner)throw fail('No puedes votar por un disfraz subido desde este mismo navegador.',403);
    state.votes[owner]=input.id;
-   (state.voteDetails??={})[owner]={...profile,participantId:input.id,votedAt:new Date().toISOString()};
-   return {ok:true};
-  });
- }
- async function identify(input){
-  const owner=identity(input.voter),profile=resident(input);
-  if(input.privacyAccepted!==true)throw fail('Confirma que tus datos y tu elección serán visibles para administración.');
-  return mutate(state=>{
-   const previous=state.votes[owner];
-   if(previous&&(state.voters?.[owner]||state.participants.some(p=>p.id===previous&&!p.removed)))throw fail('La identidad no puede modificarse después de emitir un voto.',409);
-   if(state.phase!=='votacion')throw fail('La votación no está abierta.',409);
-   (state.voters??={})[owner]={...profile,identifiedAt:new Date().toISOString()};
+   (state.voteDetails??={})[owner]={browserId:'NAV-'+owner.slice(0,12),participantId:input.id,votedAt:new Date().toISOString()};
    return {ok:true};
   });
  }
@@ -160,7 +145,7 @@ function createContest({root,id=DEFAULT_ID}) {
    return {ok:true};
   });
  }
- return {snapshot,register,vote,identify,administer,isAdmin,read,ready};
+ return {snapshot,register,vote,administer,isAdmin,read,ready};
 }
 function registerContest({router,root}) {
  const contest=createContest({root}), buckets=new Map(),contests=new Map([[DEFAULT_ID,contest]]);
@@ -203,7 +188,7 @@ function registerContest({router,root}) {
    input.voter=voter;
    if(action==='register')return res.json(await contest.register(input));
    if(action==='vote')return res.json(await contest.vote(input));
-   if(action==='identify')return res.json(await contest.identify(input));
+   if(action==='identify')throw fail('Ya no necesitas registrarte para votar. Actualiza la página y elige un disfraz.',409);
    if(action==='admin')return res.json(await contest.administer(input,key));
    throw fail('Acción no disponible.',404);
   } catch(e) {res.status(e.status||500).json({ok:false,message:e.status?e.message:'No se pudo guardar. Conserva tus datos e inténtalo de nuevo.'});}
